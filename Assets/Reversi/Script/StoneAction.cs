@@ -27,6 +27,11 @@ namespace Pommel.Reversi
 
         public static class ActionCreator
         {
+            public static Action PutBlack(int x, int y) => new Action(ActionType.PutBlack, x, y);
+
+            public static Action PutWhite(int x, int y) => new Action(ActionType.PutWhite, x, y);
+
+            public static Action TurnOver(int x, int y) => new Action(ActionType.TurnOver, x, y);
         }
 
         public sealed class Reducer : ReducerBase<State, Action>
@@ -37,16 +42,28 @@ namespace Pommel.Reversi
                 switch (action.Type)
                 {
                     case ActionType forWhite when
-                            ActionType.PutBlack == forWhite
-                            || (ActionType.TurnOver == forWhite && stone.Color == StoneStateElement.State.Black):
+                        ActionType.PutBlack == forWhite
+                        || (ActionType.TurnOver == forWhite && stone.Color == StoneStateElement.State.Black):
 
                         stone.Color = StoneStateElement.State.White;
                         state.Stones[action.X][action.Y] = stone;
                         return state;
 
                     case ActionType forBlack when
-                            ActionType.PutWhite == forBlack
-                            || (ActionType.TurnOver == forBlack && stone.Color == StoneStateElement.State.White):
+                        ActionType.PutWhite == forBlack
+                        || (ActionType.TurnOver == forBlack && stone.Color == StoneStateElement.State.White):
+
+                        stone.Color = StoneStateElement.State.Black;
+                        state.Stones[action.X][action.Y] = stone;
+                        return state;
+
+                    case ActionType.TurnOver when stone.Color == StoneStateElement.State.Black:
+
+                        stone.Color = StoneStateElement.State.White;
+                        state.Stones[action.X][action.Y] = stone;
+                        return state;
+
+                    case ActionType.TurnOver when stone.Color == StoneStateElement.State.White:
 
                         stone.Color = StoneStateElement.State.Black;
                         state.Stones[action.X][action.Y] = stone;

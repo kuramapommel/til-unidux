@@ -16,12 +16,17 @@ namespace Pommel.Reversi
 
         private IEnumerable<Stone> m_stones = Enumerable.Empty<Stone>();
 
-        private const int NUMBER_OF_PLACEABLE_STONES = 64;
+        private readonly (int x, int y) X_Y = (8, 8);
 
         private void Awake()
         {
-            m_stones = Enumerable.Range(0, NUMBER_OF_PLACEABLE_STONES)
-                .Select(_ => Instantiate(m_stonePrefabBase, m_parent.position, Quaternion.identity, m_parent).GetComponent<Stone>())
+            m_stones = Enumerable.Range(0, X_Y.x * X_Y.y)
+                .Select(index =>
+                {
+                    var stone = Instantiate(m_stonePrefabBase, m_parent.position, Quaternion.identity, m_parent).GetComponent<Stone>();
+                    stone.Constructor(index / X_Y.x, index % X_Y.y);
+                    return stone;
+                })
                 .ToArray();
         }
 
