@@ -638,7 +638,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_parent: {fileID: 614310665}
-  m_stonePrefabBase: {fileID: 641251997542577856, guid: 1cdaf9e0d43de4ee4bf6ce854c522453,
+  m_stonePrefabBase: {fileID: 2231333409329543045, guid: 1cdaf9e0d43de4ee4bf6ce854c522453,
     type: 3}
 --- !u!1 &1442765588
 GameObject:

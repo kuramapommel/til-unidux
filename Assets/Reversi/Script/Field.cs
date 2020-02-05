@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UniRx;
-using UnityEngine.UI;
-using System;
+using UnityEngine;
 
 namespace Pommel.Reversi
 {
@@ -14,14 +14,14 @@ namespace Pommel.Reversi
         [SerializeField]
         private GameObject m_stonePrefabBase;
 
-        private GameObject[] m_stones = new GameObject[] { };
+        private IEnumerable<Stone> m_stones = Enumerable.Empty<Stone>();
 
         private const int NUMBER_OF_PLACEABLE_STONES = 64;
 
         private void Awake()
         {
             m_stones = Enumerable.Range(0, NUMBER_OF_PLACEABLE_STONES)
-                .Select(_ => Instantiate(m_stonePrefabBase, m_parent.position, Quaternion.identity, m_parent))
+                .Select(_ => Instantiate(m_stonePrefabBase, m_parent.position, Quaternion.identity, m_parent).GetComponent<Stone>())
                 .ToArray();
         }
 
@@ -33,28 +33,26 @@ namespace Pommel.Reversi
                 .StartWith(Unidux.State)
                 .Subscribe(state =>
                 {
-                    foreach (var (stoneGameObject, stoneState) in m_stones.Zip(
+                    foreach (var (stone, stoneState) in m_stones.Zip(
                         state.Stones.SelectMany(stones => stones),
-                        (stoneGameObject, stoneState) => (stoneGameObject, stoneState)))
+                        (stone, stoneState) => (stone, stoneState)))
                     {
-                        var image = stoneGameObject.GetComponent<Image>();
-
                         switch (stoneState.Color)
                         {
-                            case StoneStateElement.State.None when image.color == Define.NONE_COLOR: continue;
-                            case StoneStateElement.State.Black when image.color == Color.black: continue;
-                            case StoneStateElement.State.White when image.color == Color.white: continue;
+                            case StoneStateElement.State.None when stone.IsNone: continue;
+                            case StoneStateElement.State.Black when stone.IsBlack: continue;
+                            case StoneStateElement.State.White when stone.IsWhite: continue;
 
                             case StoneStateElement.State.None:
-                                image.color = Define.NONE_COLOR;
+                                stone.None();
                                 continue;
 
                             case StoneStateElement.State.Black:
-                                image.color = Color.black;
+                                stone.TurnBlack();
                                 continue;
 
                             case StoneStateElement.State.White:
-                                image.color = Color.white;
+                                stone.TurnWhite();
                                 continue;
                         }
 
@@ -63,18 +61,5 @@ namespace Pommel.Reversi
                 })
                 .AddTo(this);
         }
-    }
-
-    public static class StringExtension
-    {
-        public static Color ToColor(this string self) =>
-            ColorUtility.TryParseHtmlString(self, out var color)
-                ? color
-                : default;
-    }
-
-    public static class Define
-    {
-        public static readonly Color NONE_COLOR = "#13E70E".ToColor();
     }
 }
