@@ -26,13 +26,22 @@ namespace Pommel.Reversi
 
         public bool IsNone => m_image.color == Define.NONE_COLOR;
 
+        public bool IsBlackTurn { get; set; } = true;
+
         public void Constructor(int x, int y) => position = (x, y);
 
         private void OnEnable()
         {
             _ = m_button.OnClickAsObservable()
                 .TakeUntilDisable(this)
-                .Subscribe(_ => Unidux.Store.Dispatch(StoneAction.ActionCreator.PutBlack(position.x, position.y)))
+                .Where(_ => !IsWhite && !IsBlack)
+                .Subscribe(_ =>
+                {
+                    var action = IsBlackTurn
+                        ? StoneAction.ActionCreator.PutBlack(position.x, position.y)
+                        : StoneAction.ActionCreator.PutWhite(position.x, position.y);
+                    Unidux.Store.Dispatch(action);
+                })
                 .AddTo(this);
         }
     }

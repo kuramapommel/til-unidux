@@ -8,6 +8,8 @@ namespace Pommel.Reversi
     {
         public State Color { get; set; }
 
+        public bool IsBlackTurn { get; set; } = true;
+
         public StoneStateElement(State color = State.None) => Color = color;
 
         public enum State
