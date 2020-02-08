@@ -42,7 +42,6 @@ namespace Pommel.Reversi
                         state.Stones.SelectMany(stones => stones),
                         (stone, stoneState) => (stone, stoneState)))
                     {
-                        stone.IsBlackTurn = stoneState.IsBlackTurn;
                         switch (stoneState.Color)
                         {
                             case StoneStateElement.State.None when stone.IsNone: continue;

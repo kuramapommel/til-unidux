@@ -29,5 +29,7 @@ namespace Pommel.Reversi
                 })
             .ToArray())
         .ToArray();
+
+        public readonly TurnStateElement Turn = new TurnStateElement();
     }
 }

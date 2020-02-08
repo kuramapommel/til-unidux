@@ -1,6 +1,5 @@
 ﻿using System;
 using Unidux;
-using System.Linq;
 
 namespace Pommel.Reversi
 {
@@ -8,8 +7,7 @@ namespace Pommel.Reversi
     {
         public enum ActionType
         {
-            PutBlack,
-            PutWhite,
+            Put,
             TurnOver
         }
 
@@ -28,9 +26,7 @@ namespace Pommel.Reversi
 
         public static class ActionCreator
         {
-            public static Action PutBlack(int x, int y) => new Action(ActionType.PutBlack, x, y);
-
-            public static Action PutWhite(int x, int y) => new Action(ActionType.PutWhite, x, y);
+            public static Action Put(int x, int y) => new Action(ActionType.Put, x, y);
 
             public static Action TurnOver(int x, int y) => new Action(ActionType.TurnOver, x, y);
         }
@@ -43,21 +39,18 @@ namespace Pommel.Reversi
                 {
                     switch (action.Type)
                     {
-                        case ActionType.PutBlack:
-                            stone.Color = StoneStateElement.State.Black;
-                            return stone;
-
-                        case ActionType.PutWhite:
-                            stone.Color = StoneStateElement.State.White;
+                        case ActionType.Put:
+                            stone.Color = state.Turn.IsBlackTurn
+                                ? StoneStateElement.State.Black
+                                : StoneStateElement.State.White;
+                            state.Turn.IsBlackTurn = !state.Turn.IsBlackTurn;
                             return stone;
 
                         case ActionType.TurnOver when stone.Color == StoneStateElement.State.Black:
-
                             stone.Color = StoneStateElement.State.White;
                             return stone;
 
                         case ActionType.TurnOver when stone.Color == StoneStateElement.State.White:
-
                             stone.Color = StoneStateElement.State.Black;
                             return stone;
 
@@ -66,7 +59,6 @@ namespace Pommel.Reversi
                 }
 
                 state.Stones[action.X][action.Y] = changeStoneColor(state.Stones[action.X][action.Y]);
-                foreach (var element in state.Stones.SelectMany(stones => stones)) element.IsBlackTurn = !element.IsBlackTurn;
                 return state;
             }
         }
