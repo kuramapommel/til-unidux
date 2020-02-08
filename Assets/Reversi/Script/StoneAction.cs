@@ -35,31 +35,31 @@ namespace Pommel.Reversi
         {
             public override State Reduce(State state, Action action)
             {
-                StoneStateElement changeStoneColor(StoneStateElement stone)
+                var stone = state.Stones[action.X][action.Y];
+                switch (action.Type)
                 {
-                    switch (action.Type)
-                    {
-                        case ActionType.Put:
-                            stone.Color = state.Turn.IsBlackTurn
-                                ? StoneStateElement.State.Black
-                                : StoneStateElement.State.White;
-                            state.Turn.IsBlackTurn = !state.Turn.IsBlackTurn;
-                            return stone;
+                    case ActionType.Put when state.Stones.CannotPut(action.X, action.Y, state.Turn.IsBlackTurn): return state;
 
-                        case ActionType.TurnOver when stone.Color == StoneStateElement.State.Black:
-                            stone.Color = StoneStateElement.State.White;
-                            return stone;
+                    case ActionType.Put:
+                        stone.Color = state.Turn.IsBlackTurn
+                            ? StoneStateElement.State.Black
+                            : StoneStateElement.State.White;
+                        state.Turn.IsBlackTurn = !state.Turn.IsBlackTurn;
+                        state.Stones[action.X][action.Y] = stone;
+                        return state;
 
-                        case ActionType.TurnOver when stone.Color == StoneStateElement.State.White:
-                            stone.Color = StoneStateElement.State.Black;
-                            return stone;
+                    case ActionType.TurnOver when stone.Color == StoneStateElement.State.Black:
+                        stone.Color = StoneStateElement.State.White;
+                        state.Stones[action.X][action.Y] = stone;
+                        return state;
 
-                        default: throw new ArgumentOutOfRangeException();
-                    }
+                    case ActionType.TurnOver when stone.Color == StoneStateElement.State.White:
+                        stone.Color = StoneStateElement.State.Black;
+                        state.Stones[action.X][action.Y] = stone;
+                        return state;
+
+                    default: throw new ArgumentOutOfRangeException();
                 }
-
-                state.Stones[action.X][action.Y] = changeStoneColor(state.Stones[action.X][action.Y]);
-                return state;
             }
         }
     }
