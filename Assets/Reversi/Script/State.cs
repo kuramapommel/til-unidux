@@ -37,25 +37,77 @@ namespace Pommel.Reversi
     {
         public static bool CanPut(this StoneStateElement[][] source, int x, int y, bool isBlackTurn)
         {
-            var upperLeftColor = source.ElementAtOrDefault(x - 1)?.ElementAtOrDefault(y - 1)?.Color ?? StoneStateElement.State.None;
-            var upperColor = source.ElementAtOrDefault(x)?.ElementAtOrDefault(y - 1)?.Color ?? StoneStateElement.State.None;
-            var upperRightColor = source.ElementAtOrDefault(x - 1)?.ElementAtOrDefault(y + 1)?.Color ?? StoneStateElement.State.None;
-            var leftColor = source.ElementAtOrDefault(x - 1)?.ElementAtOrDefault(y)?.Color ?? StoneStateElement.State.None;
-            var rightColor = source.ElementAtOrDefault(x + 1)?.ElementAtOrDefault(y)?.Color ?? StoneStateElement.State.None;
-            var lowerLeftColor = source.ElementAtOrDefault(x + 1)?.ElementAtOrDefault(y - 1)?.Color ?? StoneStateElement.State.None;
-            var lowerColor = source.ElementAtOrDefault(x)?.ElementAtOrDefault(y + 1)?.Color ?? StoneStateElement.State.None;
-            var lowerRightColor = source.ElementAtOrDefault(x + 1)?.ElementAtOrDefault(y + 1)?.Color ?? StoneStateElement.State.None;
+            bool canPut(SearchTarget target)
+            {
+                const int min = 0;
+                const int max = 8;
 
-            var opponentColor = isBlackTurn ? StoneStateElement.State.White : StoneStateElement.State.Black;
+                var oppentColorCount = 0;
+                
+                for (var index = (x, y); index.x >= min && index.y >= min && index.x < max && index.y < max; index = index.Next(target))
+                {
+                    if (index.x == x && index.y == y) continue;
 
-            return upperLeftColor == opponentColor
-                || upperColor == opponentColor
-                || upperRightColor == opponentColor
-                || leftColor == opponentColor
-                || rightColor == opponentColor
-                || lowerLeftColor == opponentColor
-                || lowerColor == opponentColor
-                || lowerRightColor == opponentColor;
+                    var color = source.ElementAtOrDefault(index.x)?.ElementAtOrDefault(index.y)?.Color ?? StoneStateElement.State.None;
+
+                    switch (color)
+                    {
+                        case StoneStateElement.State.White when isBlackTurn:
+                            oppentColorCount++;
+                            continue;
+                        case StoneStateElement.State.Black when !isBlackTurn:
+                            oppentColorCount++;
+                            continue;
+
+                        case StoneStateElement.State.None: return false;
+                        case StoneStateElement.State.White when !isBlackTurn: return oppentColorCount > 0;
+                        case StoneStateElement.State.Black when isBlackTurn: return oppentColorCount > 0;
+                    }
+                }
+
+                return false;
+            }
+
+            return new[]
+            {
+                SearchTarget.UpperLeft,
+                SearchTarget.Upper,
+                SearchTarget.UpperRight,
+                SearchTarget.Left,
+                SearchTarget.Right,
+                SearchTarget.LowerLeft,
+                SearchTarget.Lower,
+                SearchTarget.LowerRight
+            }
+            .Any(canPut);
+        }
+
+        private static (int x, int y) Next(this (int x, int y) source, SearchTarget searchTarget)
+        {
+            switch (searchTarget)
+            {
+                case SearchTarget.UpperLeft: return (source.x - 1, source.y - 1);
+                case SearchTarget.Upper: return (source.x, source.y - 1);
+                case SearchTarget.UpperRight: return (source.x + 1, source.y - 1);
+                case SearchTarget.Left: return (source.x - 1, source.y);
+                case SearchTarget.Right: return (source.x + 1, source.y);
+                case SearchTarget.LowerLeft: return (source.x - 1, source.y + 1);
+                case SearchTarget.Lower: return (source.x, source.y + 1);
+                case SearchTarget.LowerRight: return (source.x + 1, source.y + 1);
+                default: throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private enum SearchTarget
+        {
+            UpperLeft,
+            Upper,
+            UpperRight,
+            Left,
+            Right,
+            LowerLeft,
+            Lower,
+            LowerRight
         }
     }
 }

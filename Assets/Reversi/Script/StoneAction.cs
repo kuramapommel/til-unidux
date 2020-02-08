@@ -8,7 +8,7 @@ namespace Pommel.Reversi
         public enum ActionType
         {
             Put,
-            TurnOver
+            Flip
         }
 
         public sealed class Action
@@ -28,7 +28,7 @@ namespace Pommel.Reversi
         {
             public static Action Put(int x, int y) => new Action(ActionType.Put, x, y);
 
-            public static Action TurnOver(int x, int y) => new Action(ActionType.TurnOver, x, y);
+            public static Action Flip(int x, int y) => new Action(ActionType.Flip, x, y);
         }
 
         public sealed class Reducer : ReducerBase<State, Action>
@@ -48,12 +48,12 @@ namespace Pommel.Reversi
                         state.Stones[action.X][action.Y] = stone;
                         return state;
 
-                    case ActionType.TurnOver when stone.Color == StoneStateElement.State.Black:
+                    case ActionType.Flip when stone.Color == StoneStateElement.State.Black:
                         stone.Color = StoneStateElement.State.White;
                         state.Stones[action.X][action.Y] = stone;
                         return state;
 
-                    case ActionType.TurnOver when stone.Color == StoneStateElement.State.White:
+                    case ActionType.Flip when stone.Color == StoneStateElement.State.White:
                         stone.Color = StoneStateElement.State.Black;
                         state.Stones[action.X][action.Y] = stone;
                         return state;
