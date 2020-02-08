@@ -38,7 +38,7 @@ namespace Pommel.Reversi
                 var stone = state.Stones[action.X][action.Y];
                 switch (action.Type)
                 {
-                    case ActionType.Put when state.Stones.CannotPut(action.X, action.Y, state.Turn.IsBlackTurn): return state;
+                    case ActionType.Put when !state.Stones.CanPut(action.X, action.Y, state.Turn.IsBlackTurn): return state;
 
                     case ActionType.Put:
                         stone.Color = state.Turn.IsBlackTurn

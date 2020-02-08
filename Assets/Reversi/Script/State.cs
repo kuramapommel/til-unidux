@@ -1,6 +1,6 @@
 ﻿using System;
-using Unidux;
 using System.Linq;
+using Unidux;
 
 namespace Pommel.Reversi
 {
@@ -35,25 +35,27 @@ namespace Pommel.Reversi
 
     public static class StoneStateElementExtension
     {
-        public static bool CannotPut(this StoneStateElement[][] source, int x, int y, bool isBlackTurn)
+        public static bool CanPut(this StoneStateElement[][] source, int x, int y, bool isBlackTurn)
         {
-            var hidariue = source.ElementAtOrDefault(x - 1)?.ElementAtOrDefault(y - 1);
-            var ue = source.ElementAtOrDefault(x)?.ElementAtOrDefault(y - 1);
-            var migiue = source.ElementAtOrDefault(x - 1)?.ElementAtOrDefault(y + 1);
-            var hidari = source.ElementAtOrDefault(x - 1)?.ElementAtOrDefault(y);
-            var migi = source.ElementAtOrDefault(x + 1)?.ElementAtOrDefault(y);
-            var hidarishita = source.ElementAtOrDefault(x + 1)?.ElementAtOrDefault(y - 1);
-            var shita = source.ElementAtOrDefault(x)?.ElementAtOrDefault(y + 1);
-            var migishita = source.ElementAtOrDefault(x + 1)?.ElementAtOrDefault(y + 1);
+            var upperLeftColor = source.ElementAtOrDefault(x - 1)?.ElementAtOrDefault(y - 1)?.Color ?? StoneStateElement.State.None;
+            var upperColor = source.ElementAtOrDefault(x)?.ElementAtOrDefault(y - 1)?.Color ?? StoneStateElement.State.None;
+            var upperRightColor = source.ElementAtOrDefault(x - 1)?.ElementAtOrDefault(y + 1)?.Color ?? StoneStateElement.State.None;
+            var leftColor = source.ElementAtOrDefault(x - 1)?.ElementAtOrDefault(y)?.Color ?? StoneStateElement.State.None;
+            var rightColor = source.ElementAtOrDefault(x + 1)?.ElementAtOrDefault(y)?.Color ?? StoneStateElement.State.None;
+            var lowerLeftColor = source.ElementAtOrDefault(x + 1)?.ElementAtOrDefault(y - 1)?.Color ?? StoneStateElement.State.None;
+            var lowerColor = source.ElementAtOrDefault(x)?.ElementAtOrDefault(y + 1)?.Color ?? StoneStateElement.State.None;
+            var lowerRightColor = source.ElementAtOrDefault(x + 1)?.ElementAtOrDefault(y + 1)?.Color ?? StoneStateElement.State.None;
 
-            return (hidariue?.Color ?? StoneStateElement.State.None) == StoneStateElement.State.None
-                && (ue?.Color ?? StoneStateElement.State.None) == StoneStateElement.State.None
-                && (migiue?.Color ?? StoneStateElement.State.None) == StoneStateElement.State.None
-                && (hidari?.Color ?? StoneStateElement.State.None) == StoneStateElement.State.None
-                && (migi?.Color ?? StoneStateElement.State.None) == StoneStateElement.State.None
-                && (hidarishita?.Color ?? StoneStateElement.State.None) == StoneStateElement.State.None
-                && (shita?.Color ?? StoneStateElement.State.None) == StoneStateElement.State.None
-                && (migishita?.Color ?? StoneStateElement.State.None) == StoneStateElement.State.None;
+            var opponentColor = isBlackTurn ? StoneStateElement.State.White : StoneStateElement.State.Black;
+
+            return upperLeftColor == opponentColor
+                || upperColor == opponentColor
+                || upperRightColor == opponentColor
+                || leftColor == opponentColor
+                || rightColor == opponentColor
+                || lowerLeftColor == opponentColor
+                || lowerColor == opponentColor
+                || lowerRightColor == opponentColor;
         }
     }
 }
