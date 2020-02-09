@@ -87,6 +87,8 @@ namespace Pommel.Reversi
                         case StoneStateElement.State.White: break;
                         case StoneStateElement.State.Black: break;
                     }
+
+                    break;
                 }
             }
         }
