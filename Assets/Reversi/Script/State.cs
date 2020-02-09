@@ -37,37 +37,6 @@ namespace Pommel.Reversi
     {
         public static bool CanPut(this StoneStateElement[][] source, int x, int y, bool isBlackTurn)
         {
-            bool canPut(SearchTarget target)
-            {
-                const int min = 0;
-                const int max = 8;
-
-                var oppentColorCount = 0;
-                
-                for (var index = (x, y); index.x >= min && index.y >= min && index.x < max && index.y < max; index = index.Next(target))
-                {
-                    if (index.x == x && index.y == y) continue;
-
-                    var color = source.ElementAtOrDefault(index.x)?.ElementAtOrDefault(index.y)?.Color ?? StoneStateElement.State.None;
-
-                    switch (color)
-                    {
-                        case StoneStateElement.State.White when isBlackTurn:
-                            oppentColorCount++;
-                            continue;
-                        case StoneStateElement.State.Black when !isBlackTurn:
-                            oppentColorCount++;
-                            continue;
-
-                        case StoneStateElement.State.None: return false;
-                        case StoneStateElement.State.White when !isBlackTurn: return oppentColorCount > 0;
-                        case StoneStateElement.State.Black when isBlackTurn: return oppentColorCount > 0;
-                    }
-                }
-
-                return false;
-            }
-
             return new[]
             {
                 SearchTarget.UpperLeft,
@@ -79,7 +48,47 @@ namespace Pommel.Reversi
                 SearchTarget.Lower,
                 SearchTarget.LowerRight
             }
-            .Any(canPut);
+            .Any(target => target.CanPut(source, x, y, isBlackTurn));
+        }
+
+        public static void Flip(this StoneStateElement[][] source, int x, int y, bool isBlackTurn)
+        {
+            foreach (var target in new[]
+            {
+                SearchTarget.UpperLeft,
+                SearchTarget.Upper,
+                SearchTarget.UpperRight,
+                SearchTarget.Left,
+                SearchTarget.Right,
+                SearchTarget.LowerLeft,
+                SearchTarget.Lower,
+                SearchTarget.LowerRight
+            }
+            .Where(target => target.CanPut(source, x, y, isBlackTurn)))
+            {
+                const int min = 0;
+                const int max = 8;
+
+                for (var index = (x, y); index.x >= min && index.y >= min && index.x < max && index.y < max; index = index.Next(target))
+                {
+                    if (index.x == x && index.y == y) continue;
+
+                    var color = source.ElementAtOrDefault(index.x)?.ElementAtOrDefault(index.y)?.Color ?? StoneStateElement.State.None;
+
+                    switch (color)
+                    {
+                        case StoneStateElement.State.None: break;
+                        case StoneStateElement.State.White when isBlackTurn:
+                            source[index.x][index.y].Color = StoneStateElement.State.Black;
+                            continue;
+                        case StoneStateElement.State.Black when !isBlackTurn:
+                            source[index.x][index.y].Color = StoneStateElement.State.White;
+                            continue;
+                        case StoneStateElement.State.White: break;
+                        case StoneStateElement.State.Black: break;
+                    }
+                }
+            }
         }
 
         private static (int x, int y) Next(this (int x, int y) source, SearchTarget searchTarget)
@@ -108,6 +117,36 @@ namespace Pommel.Reversi
             LowerLeft,
             Lower,
             LowerRight
+        }
+
+        private static bool CanPut(this SearchTarget target, StoneStateElement[][] source, int x, int y, bool isBlackTurn)
+        {
+            const int min = 0;
+            const int max = 8;
+
+            var oppentColorCount = 0;
+
+            for (var index = (x, y); index.x >= min && index.y >= min && index.x < max && index.y < max; index = index.Next(target))
+            {
+                if (index.x == x && index.y == y) continue;
+
+                var color = source.ElementAtOrDefault(index.x)?.ElementAtOrDefault(index.y)?.Color ?? StoneStateElement.State.None;
+
+                switch (color)
+                {
+                    case StoneStateElement.State.None: return false;
+                    case StoneStateElement.State.White when isBlackTurn:
+                        oppentColorCount++;
+                        continue;
+                    case StoneStateElement.State.Black when !isBlackTurn:
+                        oppentColorCount++;
+                        continue;
+                    case StoneStateElement.State.White: return oppentColorCount > 0;
+                    case StoneStateElement.State.Black: return oppentColorCount > 0;
+                }
+            }
+
+            return false;
         }
     }
 }
