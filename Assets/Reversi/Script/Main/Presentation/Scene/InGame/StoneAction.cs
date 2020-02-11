@@ -1,14 +1,13 @@
 ﻿using System;
 using Unidux;
 
-namespace Pommel.Reversi
+namespace Pommel.Reversi.Presentation.Scene.InGame
 {
     public static class StoneAction
     {
         public enum ActionType
         {
-            Put,
-            Flip
+            Put
         }
 
         public sealed class Action
@@ -27,8 +26,6 @@ namespace Pommel.Reversi
         public static class ActionCreator
         {
             public static Action Put(int x, int y) => new Action(ActionType.Put, x, y);
-
-            public static Action Flip(int x, int y) => new Action(ActionType.Flip, x, y);
         }
 
         public sealed class Reducer : ReducerBase<State, Action>
@@ -48,16 +45,6 @@ namespace Pommel.Reversi
                         state.Stones.Flip(action.X, action.Y, state.Turn.IsBlackTurn);
 
                         if (state.Stones.CanPut(state.Turn.IsBlackTurn)) state.Turn.IsBlackTurn = !state.Turn.IsBlackTurn;
-                        return state;
-
-                    case ActionType.Flip when stone.Color == StoneStateElement.State.Black:
-                        stone.Color = StoneStateElement.State.White;
-                        state.Stones[action.X][action.Y] = stone;
-                        return state;
-
-                    case ActionType.Flip when stone.Color == StoneStateElement.State.White:
-                        stone.Color = StoneStateElement.State.Black;
-                        state.Stones[action.X][action.Y] = stone;
                         return state;
 
                     default: throw new ArgumentOutOfRangeException();

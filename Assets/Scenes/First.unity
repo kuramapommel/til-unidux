@@ -480,7 +480,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d9818484523f4210b7751fdf9eeb5f5, type: 3}
+  m_Script: {fileID: 11500000, guid: 5bdacfb486cec4e608b6f1961b42dd39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   InitialStateJson: {fileID: 0}
@@ -563,7 +563,7 @@ GameObject:
   - component: {fileID: 1399212869}
   - component: {fileID: 1399212871}
   m_Layer: 0
-  m_Name: Field
+  m_Name: Board
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -634,7 +634,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1399212867}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae22eb546584947be96f3839708d2341, type: 3}
+  m_Script: {fileID: 11500000, guid: 805ea2cb3978842cebdee5711e106f17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_parent: {fileID: 614310665}

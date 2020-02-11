@@ -2,9 +2,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Pommel.Reversi
+namespace Pommel.Reversi.Presentation.Scene.InGame
 {
-    public sealed class Stone : MonoBehaviour
+    public sealed class StoneDispatcher : MonoBehaviour
     {
         [SerializeField]
         private Button m_button;

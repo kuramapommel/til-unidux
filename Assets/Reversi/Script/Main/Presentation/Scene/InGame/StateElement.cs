@@ -1,7 +1,7 @@
 ﻿using System;
 using Unidux;
 
-namespace Pommel.Reversi
+namespace Pommel.Reversi.Presentation.Scene.InGame
 {
     [Serializable]
     public sealed class StoneStateElement : StateElement

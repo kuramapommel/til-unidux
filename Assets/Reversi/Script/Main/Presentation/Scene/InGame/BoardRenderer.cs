@@ -4,9 +4,9 @@ using System.Linq;
 using UniRx;
 using UnityEngine;
 
-namespace Pommel.Reversi
+namespace Pommel.Reversi.Presentation.Scene.InGame
 {
-    public sealed class Field : MonoBehaviour
+    public sealed class BoardRenderer : MonoBehaviour
     {
         [SerializeField]
         private RectTransform m_parent;
@@ -14,7 +14,7 @@ namespace Pommel.Reversi
         [SerializeField]
         private GameObject m_stonePrefabBase;
 
-        private IEnumerable<Stone> m_stones = Enumerable.Empty<Stone>();
+        private IEnumerable<StoneDispatcher> m_stones = Enumerable.Empty<StoneDispatcher>();
 
         private readonly (int x, int y) X_Y = (8, 8);
 
@@ -23,7 +23,7 @@ namespace Pommel.Reversi
             m_stones = Enumerable.Range(0, X_Y.x * X_Y.y)
                 .Select(index =>
                 {
-                    var stone = Instantiate(m_stonePrefabBase, m_parent.position, Quaternion.identity, m_parent).GetComponent<Stone>();
+                    var stone = Instantiate(m_stonePrefabBase, m_parent.position, Quaternion.identity, m_parent).GetComponent<StoneDispatcher>();
                     stone.Constructor(index / X_Y.x, index % X_Y.y);
                     return stone;
                 })

@@ -2,7 +2,7 @@
 using UniRx;
 using UnityEngine;
 
-namespace Pommel.Reversi
+namespace Pommel.Reversi.Presentation.Scene.InGame
 {
     public sealed class Unidux : SingletonMonoBehaviour<Unidux>, IStoreAccessor
     {

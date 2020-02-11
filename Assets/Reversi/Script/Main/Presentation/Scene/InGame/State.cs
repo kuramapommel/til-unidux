@@ -2,7 +2,7 @@
 using System.Linq;
 using Unidux;
 
-namespace Pommel.Reversi
+namespace Pommel.Reversi.Presentation.Scene.InGame
 {
     [Serializable]
     public partial class State : StateBase
