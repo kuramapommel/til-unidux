@@ -46,7 +46,8 @@ namespace Pommel.Reversi
                             : StoneStateElement.State.White;
                         state.Stones[action.X][action.Y] = stone;
                         state.Stones.Flip(action.X, action.Y, state.Turn.IsBlackTurn);
-                        state.Turn.IsBlackTurn = !state.Turn.IsBlackTurn;
+
+                        if (state.Stones.CanPut(state.Turn.IsBlackTurn)) state.Turn.IsBlackTurn = !state.Turn.IsBlackTurn;
                         return state;
 
                     case ActionType.Flip when stone.Color == StoneStateElement.State.Black:

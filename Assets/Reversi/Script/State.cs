@@ -51,6 +51,26 @@ namespace Pommel.Reversi
             .Any(target => target.CanPut(source, x, y, isBlackTurn));
         }
 
+        public static bool CanPut(this StoneStateElement[][] source, bool isBlackTurn)
+        {
+            var targets = new[]
+            {
+                SearchTarget.UpperLeft,
+                SearchTarget.Upper,
+                SearchTarget.UpperRight,
+                SearchTarget.Left,
+                SearchTarget.Right,
+                SearchTarget.LowerLeft,
+                SearchTarget.Lower,
+                SearchTarget.LowerRight
+            };
+            return source
+                .SelectMany((elements, x) => elements
+                    .Where(element => element.Color == StoneStateElement.State.None)
+                    .Select((element, y) => (element, x, y)))
+                .Any(aggregate => targets.Any(target => target.CanPut(source, aggregate.x, aggregate.y, !isBlackTurn)));
+        }
+
         public static void Flip(this StoneStateElement[][] source, int x, int y, bool isBlackTurn)
         {
             foreach (var target in new[]
