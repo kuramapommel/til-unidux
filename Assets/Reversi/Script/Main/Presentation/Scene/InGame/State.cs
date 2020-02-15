@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unidux;
 
@@ -35,35 +36,12 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
     public static class StoneStateElementExtension
     {
-        public static bool CanPut(this StoneStateElement[][] source, int x, int y, bool isBlackTurn)
-        {
-            return new[]
-            {
-                SearchTarget.UpperLeft,
-                SearchTarget.Upper,
-                SearchTarget.UpperRight,
-                SearchTarget.Left,
-                SearchTarget.Right,
-                SearchTarget.LowerLeft,
-                SearchTarget.Lower,
-                SearchTarget.LowerRight
-            }
+        public static bool CanPut(this StoneStateElement[][] source, int x, int y, bool isBlackTurn) => SearchTargets
             .Any(target => target.CanPut(source, x, y, isBlackTurn));
-        }
 
         public static bool CanPut(this StoneStateElement[][] source, bool isBlackTurn)
         {
-            var targets = new[]
-            {
-                SearchTarget.UpperLeft,
-                SearchTarget.Upper,
-                SearchTarget.UpperRight,
-                SearchTarget.Left,
-                SearchTarget.Right,
-                SearchTarget.LowerLeft,
-                SearchTarget.Lower,
-                SearchTarget.LowerRight
-            };
+            var targets = SearchTargets;
             return source
                 .SelectMany((elements, x) => elements
                     .Where(element => element.Color == StoneStateElement.State.None)
@@ -73,18 +51,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
         public static void Flip(this StoneStateElement[][] source, int x, int y, bool isBlackTurn)
         {
-            foreach (var target in new[]
-            {
-                SearchTarget.UpperLeft,
-                SearchTarget.Upper,
-                SearchTarget.UpperRight,
-                SearchTarget.Left,
-                SearchTarget.Right,
-                SearchTarget.LowerLeft,
-                SearchTarget.Lower,
-                SearchTarget.LowerRight
-            }
-            .Where(target => target.CanPut(source, x, y, isBlackTurn)))
+            foreach (var target in SearchTargets
+                .Where(target => target.CanPut(source, x, y, isBlackTurn)))
             {
                 const int min = 0;
                 const int max = 8;
@@ -140,6 +108,20 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
             Lower,
             LowerRight
         }
+
+        private static IEnumerable<SearchTarget> SearchTargets => searchTargets.Value;
+
+        private static readonly Lazy<IEnumerable<SearchTarget>> searchTargets = new Lazy<IEnumerable<SearchTarget>>(() => new[]
+        {
+            SearchTarget.UpperLeft,
+            SearchTarget.Upper,
+            SearchTarget.UpperRight,
+            SearchTarget.Left,
+            SearchTarget.Right,
+            SearchTarget.LowerLeft,
+            SearchTarget.Lower,
+            SearchTarget.LowerRight
+        });
 
         private static bool CanPut(this SearchTarget target, StoneStateElement[][] source, int x, int y, bool isBlackTurn)
         {
