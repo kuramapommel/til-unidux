@@ -32,6 +32,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         .ToArray();
 
         public readonly TurnStateElement Turn = new TurnStateElement();
+
+        public readonly WinnerStateElement Result = new WinnerStateElement();
     }
 
     public static class StoneStateElementExtension

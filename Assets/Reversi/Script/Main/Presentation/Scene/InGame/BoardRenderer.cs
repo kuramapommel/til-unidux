@@ -65,6 +65,16 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
                     }
                 })
                 .AddTo(this);
+
+            _ = Unidux
+                .Subject
+                .TakeUntilDisable(this)
+                .StartWith(Unidux.State)
+                .Where(state => state.Result.Winner != WinnerStateElement.State.Undecide)
+                .Subscribe(state =>
+                {
+                    // 勝者に合わせて演出
+                });
         }
     }
 }

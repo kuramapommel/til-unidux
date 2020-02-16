@@ -23,4 +23,18 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
     {
         public bool IsBlackTurn { get; set; } = true;
     }
+
+    [Serializable]
+    public sealed class WinnerStateElement : StateElement
+    {
+        public State Winner { get; set; }
+
+        public enum State
+        {
+            Undecide,
+            Black,
+            White,
+            Draw
+        }
+    }
 }
