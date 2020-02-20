@@ -1,6 +1,6 @@
 ﻿using System;
-using Unidux;
 using System.Linq;
+using Unidux;
 
 namespace Pommel.Reversi.Presentation.Scene.InGame
 {
