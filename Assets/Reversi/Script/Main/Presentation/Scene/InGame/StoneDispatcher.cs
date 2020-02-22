@@ -33,7 +33,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
             _ = m_button.OnClickAsObservable()
                 .TakeUntilDisable(this)
                 .Where(_ => !IsWhite && !IsBlack)
-                .Subscribe(_ => Unidux.Store.Dispatch(StoneAction.ActionCreator.Put(position.x, position.y)))
+                .Subscribe(_ => Unidux.Dispatch(StoneAction.ActionCreator.Put(position.x, position.y)))
                 .AddTo(this);
         }
     }
