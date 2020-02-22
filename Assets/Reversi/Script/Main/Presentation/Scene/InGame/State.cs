@@ -6,7 +6,7 @@ using Unidux;
 namespace Pommel.Reversi.Presentation.Scene.InGame
 {
     [Serializable]
-    public partial class State : StateBase
+    public sealed class State : StateBase
     {
         public readonly StoneStateElement[][] Stones = Enumerable.Range(0, 8)
             .Select(row => Enumerable.Range(0, 8)

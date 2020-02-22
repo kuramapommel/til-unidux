@@ -25,13 +25,11 @@ namespace Pommel.Reversi.Presentation.Project
             get { return Store.Subject; }
         }
 
-        private static IReducer[] Reducers
+        private static IReducer[] Reducers => new IReducer[]
         {
-            get {
-                // Assign your reducers
-                return new IReducer[] {};
-            }
-        }
+            new SceneChange.PageReducer(),
+            new SceneChange.SceneReducer(),
+        };
 
         private static State InitialState
         {
