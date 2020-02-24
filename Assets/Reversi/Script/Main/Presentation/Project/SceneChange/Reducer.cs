@@ -4,7 +4,7 @@ namespace Pommel.Reversi.Presentation.Project.SceneChange
 {
     public sealed class PageReducer : PageDuck<Page, Scene>.Reducer
     {
-        public PageReducer() : base(new SceneConfig())
+        public PageReducer() : base(new Config())
         {
         }
 

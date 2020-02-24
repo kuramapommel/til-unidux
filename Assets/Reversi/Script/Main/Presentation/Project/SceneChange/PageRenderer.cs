@@ -6,7 +6,7 @@ namespace Pommel.Reversi.Presentation.Project.SceneChange
 {
     public sealed class PageRenderer : MonoBehaviour
     {
-        private readonly ISceneConfig<Scene, Page> config = new SceneConfig();
+        private readonly ISceneConfig<Scene, Page> config = new Config();
 
         void Start()
         {
