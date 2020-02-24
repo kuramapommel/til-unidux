@@ -34,24 +34,27 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
             public override State Reduce(State state, Action action)
             {
                 var stone = state.Stones[action.X][action.Y];
+                var isBlackTurn = state.Turn.IsBlackTurn;
                 switch (action.Type)
                 {
-                    case ActionType.Put when !state.Stones.CanPut(action.X, action.Y, state.Turn.IsBlackTurn): return state;
+                    case ActionType.Put when !state.Stones.CanPut(action.X, action.Y, isBlackTurn): return state;
 
                     case ActionType.Put:
-                        stone.Color = state.Turn.IsBlackTurn
-                            ? StoneStateElement.State.Black
-                            : StoneStateElement.State.White;
+                        stone.Color = isBlackTurn ? StoneStateElement.State.Black : StoneStateElement.State.White;
                         state.Stones[action.X][action.Y] = stone;
-                        state.Stones.Flip(action.X, action.Y, state.Turn.IsBlackTurn);
+                        state.Stones.Flip(action.X, action.Y, isBlackTurn);
 
-                        if (state.Stones.CanPut(state.Turn.IsBlackTurn))
+                        var (canAgainPut, canOpponentPut) = isBlackTurn
+                            ? (state.Stones.CanPutBalck, state.Stones.CanPutWhite)
+                            : ((Func<bool>)state.Stones.CanPutWhite, (Func<bool>)state.Stones.CanPutBalck);
+
+                        if (canOpponentPut())
                         {
-                            state.Turn.IsBlackTurn = !state.Turn.IsBlackTurn;
+                            state.Turn.IsBlackTurn = !isBlackTurn;
                             return state;
                         }
 
-                        if (state.Stones.CanPut(!state.Turn.IsBlackTurn)) return state;
+                        if (canAgainPut()) return state;
 
                         var (black, white) = state.Stones
                             .SelectMany(stones => stones)

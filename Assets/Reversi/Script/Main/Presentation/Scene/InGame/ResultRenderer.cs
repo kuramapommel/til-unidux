@@ -11,16 +11,11 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         [SerializeField]
         private Text m_resultMessage;
 
-        private void Awake()
-        {
-            gameObject.SetActive(false);
-        }
-
         private void Start()
         {
             _ = Unidux
                 .Subject
-                .TakeUntilDisable(this)
+                .TakeUntilDestroy(this)
                 .StartWith(Unidux.State)
                 .Where(state => state.Result.Winner != WinnerStateElement.State.Undecide)
                 .Subscribe(state =>
@@ -41,6 +36,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
                     gameObject.SetActive(true);
                 })
                 .AddTo(this);
+
+            gameObject.SetActive(false);
         }
     }
 }

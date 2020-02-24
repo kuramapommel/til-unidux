@@ -41,14 +41,24 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         public static bool CanPut(this StoneStateElement[][] source, int x, int y, bool isBlackTurn) => SearchTargets
             .Any(target => target.CanPut(source, x, y, isBlackTurn));
 
-        public static bool CanPut(this StoneStateElement[][] source, bool isBlackTurn)
+        public static bool CanPutBalck(this StoneStateElement[][] source)
         {
             var targets = SearchTargets;
             return source
                 .SelectMany((elements, x) => elements
                     .Where(element => element.Color == StoneStateElement.State.None)
                     .Select((element, y) => (element, x, y)))
-                .Any(aggregate => targets.Any(target => target.CanPut(source, aggregate.x, aggregate.y, !isBlackTurn)));
+                .Any(aggregate => targets.Any(target => target.CanPut(source, aggregate.x, aggregate.y, true)));
+        }
+
+        public static bool CanPutWhite(this StoneStateElement[][] source)
+        {
+            var targets = SearchTargets;
+            return source
+                .SelectMany((elements, x) => elements
+                    .Where(element => element.Color == StoneStateElement.State.None)
+                    .Select((element, y) => (element, x, y)))
+                .Any(aggregate => targets.Any(target => target.CanPut(source, aggregate.x, aggregate.y, false)));
         }
 
         public static void Flip(this StoneStateElement[][] source, int x, int y, bool isBlackTurn)
