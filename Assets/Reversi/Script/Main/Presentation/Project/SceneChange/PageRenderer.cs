@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Pommel.Reversi.Presentation.Project.SceneChange
 {
-    public class PageRenderer : MonoBehaviour
+    public sealed class PageRenderer : MonoBehaviour
     {
         private readonly ISceneConfig<Scene, Page> config = new SceneConfig();
 
@@ -14,7 +14,8 @@ namespace Pommel.Reversi.Presentation.Project.SceneChange
                     .Where(state => state.Page.IsStateChanged)
                     .StartWith(Unidux.State)
                     .Where(state => state.Page.IsReady && state.Scene.NeedsAdjust(config.GetPageScenes(), config.PageMap[state.Page.Current.Page]))
-                    .Subscribe(_ => Unidux.Dispatch(PageDuck<Page, Scene>.ActionCreator.Adjust()))
+                    .Select(_ => PageDuck<Page, Scene>.ActionCreator.Adjust())
+                    .Subscribe(action => Unidux.Dispatch(action))
                     .AddTo(this);
         }
     }

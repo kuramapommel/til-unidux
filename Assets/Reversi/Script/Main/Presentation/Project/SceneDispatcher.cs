@@ -7,7 +7,7 @@ namespace Pommel.Reversi.Presentation.Project
 {
     public sealed class SceneDispatcher : MonoBehaviour
     {
-        void Start()
+        void Awake()
         {
             Unidux.Dispatch(PageDuck<Page, SceneType>.ActionCreator.Reset());
             Unidux.Dispatch(PageDuck<Page, SceneType>.ActionCreator.Push(Page.TitlePage));

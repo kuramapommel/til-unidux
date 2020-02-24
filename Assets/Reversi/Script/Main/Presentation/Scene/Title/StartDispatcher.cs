@@ -16,7 +16,6 @@ namespace Pommel.Reversi.Presentation.Scene.Title
         private void Start()
         {
             _ = m_button.OnClickAsObservable()
-                .TakeUntilDisable(this)
                 .Select(_ => PageDuck<Page, SceneType>.ActionCreator.Push(Page.InGamePage))
                 .Subscribe(action => ProjectUnidux.Dispatch(action))
                 .AddTo(this);
