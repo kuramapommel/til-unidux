@@ -14,7 +14,10 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         private void Awake()
         {
             gameObject.SetActive(false);
+        }
 
+        private void Start()
+        {
             _ = Unidux
                 .Subject
                 .TakeUntilDisable(this)

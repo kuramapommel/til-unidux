@@ -28,7 +28,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
         public void Constructor(int x, int y) => position = (x, y);
 
-        private void OnEnable()
+        private void Start()
         {
             _ = m_button.OnClickAsObservable()
                 .TakeUntilDisable(this)

@@ -28,6 +28,10 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
                     return stone;
                 })
                 .ToArray();
+        }
+
+        private void Start()
+        {
 
             _ = Unidux
                 .Subject

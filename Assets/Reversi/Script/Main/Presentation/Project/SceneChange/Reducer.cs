@@ -29,7 +29,7 @@ namespace Pommel.Reversi.Presentation.Project.SceneChange
         }
     }
 
-    public class SceneConfig : ISceneConfig<Scene, Page>
+    public sealed class SceneConfig : ISceneConfig<Scene, Page>
     {
         private IDictionary<Scene, int> m_categoryMap;
         private IDictionary<Page, Scene[]> m_pageMap;
