@@ -11,6 +11,11 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         [SerializeField]
         private Text m_resultMessage;
 
+        [SerializeField]
+        private Animator m_animator;
+
+        private readonly string OPEN_ANIM = "OnEnable";
+
         private void Start()
         {
             _ = Unidux
@@ -34,6 +39,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
                     m_resultMessage.text = getResultMessage();
                     gameObject.SetActive(true);
+                    m_animator.SetTrigger(OPEN_ANIM);
                 })
                 .AddTo(this);
 
