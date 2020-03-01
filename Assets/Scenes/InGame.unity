@@ -212,7 +212,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_resultMessage: {fileID: 1401395163}
   m_animator: {fileID: 558242975}
-  m_rectTransform: {fileID: 558242969}
 --- !u!114 &558242973
 MonoBehaviour:
   m_ObjectHideFlags: 0
