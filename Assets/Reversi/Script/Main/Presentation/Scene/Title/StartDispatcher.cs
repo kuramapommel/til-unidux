@@ -11,7 +11,7 @@ namespace Pommel.Reversi.Presentation.Scene.Title
         [SerializeField]
         private Button m_button;
 
-        private void Start()
+        public void Initialize()
         {
             _ = m_button.OnClickAsObservable()
                 .Subscribe(action => GameCore.ChangeScene(Page.InGamePage))
