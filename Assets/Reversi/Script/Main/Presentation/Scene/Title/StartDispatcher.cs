@@ -1,10 +1,8 @@
-﻿using Pommel.Reversi.Presentation.Project.SceneChange;
-using Unidux.SceneTransition;
+﻿using Pommel.Reversi.Presentation.Project;
+using Pommel.Reversi.Presentation.Project.SceneChange;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
-using ProjectUnidux = Pommel.Reversi.Presentation.Project.Unidux;
-using SceneType = Pommel.Reversi.Presentation.Project.SceneChange.Scene;
 
 namespace Pommel.Reversi.Presentation.Scene.Title
 {
@@ -16,8 +14,7 @@ namespace Pommel.Reversi.Presentation.Scene.Title
         private void Start()
         {
             _ = m_button.OnClickAsObservable()
-                .Select(_ => PageDuck<Page, SceneType>.ActionCreator.Push(Page.InGamePage))
-                .Subscribe(action => ProjectUnidux.Dispatch(action))
+                .Subscribe(action => GameCore.ChangeScene(Page.InGamePage))
                 .AddTo(this);
         }
     }

@@ -13,11 +13,15 @@ namespace Pommel.Reversi.Presentation.Project
         private const string OBJECT_NAME = "GameCore";
 
         [SerializeField]
+        private Unidux m_unidux;
+
+        [SerializeField]
         private PageRenderer m_pageRenderer;
 
         [SerializeField]
         private SceneRenderer m_sceneRenderer;
 
+        public static object ChangeScene(Page page) => Unidux.Dispatch(PageDuck<Page, SceneType>.ActionCreator.Push(page));
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static async UniTask InitializeGame()
@@ -31,10 +35,10 @@ namespace Pommel.Reversi.Presentation.Project
         {
             if (!CheckInstance()) return;
 
-            Unidux.Dispatch(PageDuck<Page, SceneType>.ActionCreator.Reset());
-            Unidux.Dispatch(PageDuck<Page, SceneType>.ActionCreator.Push(Page.TitlePage));
-
             DontDestroyOnLoad(gameObject);
+
+            var unidux = Instantiate(m_unidux);
+            unidux.transform.SetParent(transform);
 
             var pageRenderer = Instantiate(m_pageRenderer);
             pageRenderer.transform.SetParent(transform);
@@ -43,6 +47,9 @@ namespace Pommel.Reversi.Presentation.Project
             var sceneRenderer = Instantiate(m_sceneRenderer);
             sceneRenderer.transform.SetParent(transform);
             sceneRenderer.Init();
+
+            _ = Unidux.Dispatch(PageDuck<Page, SceneType>.ActionCreator.Reset());
+            _ = ChangeScene(Page.TitlePage);
         }
     }
 }
