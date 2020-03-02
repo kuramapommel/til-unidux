@@ -8,7 +8,7 @@ namespace Pommel.Reversi.Presentation.Project.SceneChange
     {
         private readonly ISceneConfig<Scene, Page> config = new Config();
 
-        void Start()
+        public void Init()
         {
             _ = Unidux.Subject
                     .Where(state => state.Page.IsStateChanged)

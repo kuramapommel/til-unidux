@@ -7,7 +7,7 @@ namespace Pommel.Reversi.Presentation.Project.SceneChange
 {
     public sealed class SceneRenderer : MonoBehaviour
     {
-        void Start()
+        public void Init()
         {
             _ = Unidux
                 .Subject
