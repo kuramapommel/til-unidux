@@ -12,27 +12,26 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         private RectTransform m_parent;
 
         [SerializeField]
-        private GameObject m_stonePrefabBase;
+        private StoneDispatcher m_stone;
 
         private IEnumerable<StoneDispatcher> m_stones = Enumerable.Empty<StoneDispatcher>();
 
         private readonly (int x, int y) X_Y = (8, 8);
 
-        private void Awake()
+        public void Constructor()
         {
             m_stones = Enumerable.Range(0, X_Y.x * X_Y.y)
                 .Select(index =>
                 {
-                    var stone = Instantiate(m_stonePrefabBase, m_parent.position, Quaternion.identity, m_parent).GetComponent<StoneDispatcher>();
+                    var stone = Instantiate(m_stone, m_parent.position, Quaternion.identity, m_parent);
                     stone.Constructor(index / X_Y.x, index % X_Y.y);
                     return stone;
                 })
                 .ToArray();
         }
 
-        private void Start()
+        public void Initialize()
         {
-
             _ = Unidux
                 .Subject
                 .TakeUntilDisable(this)

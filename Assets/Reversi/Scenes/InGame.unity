@@ -735,8 +735,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1293464800}
+  - component: {fileID: 1293464801}
   m_Layer: 0
-  m_Name: UIRoot
+  m_Name: SceneRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -757,6 +758,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1293464801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1293464799}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f33f5e133c654be2a1483d88d48fd19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_resultRenderer: {fileID: 558242972}
+  m_resultDispatcher: {fileID: 558242974}
+  m_boardRenderer: {fileID: 1399212871}
 --- !u!1 &1399212867
 GameObject:
   m_ObjectHideFlags: 0
@@ -845,8 +861,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_parent: {fileID: 614310665}
-  m_stonePrefabBase: {fileID: 2231333409329543045, guid: 220808b152b294925a0faf3daee381a7,
-    type: 3}
+  m_stone: {fileID: 885587779978226970, guid: 220808b152b294925a0faf3daee381a7, type: 3}
 --- !u!1 &1401395161
 GameObject:
   m_ObjectHideFlags: 0

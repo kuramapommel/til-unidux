@@ -20,7 +20,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
         private readonly string OPEN_ANIM_NAME = "Open";
 
-        private void Start()
+        public void Initialize()
         {
             _ = Unidux
                 .Subject

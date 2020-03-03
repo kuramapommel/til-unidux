@@ -11,7 +11,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         [SerializeField]
         private Button m_button;
 
-        private void OnEnable()
+        public void Initialize()
         {
             _ = m_button.OnClickAsObservable()
                 .TakeUntilDisable(this)
