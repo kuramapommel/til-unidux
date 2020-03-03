@@ -1,45 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Pommel.Reversi.Presentation.Scene.InGame.UI;
 using UniRx;
-using UnityEngine;
 
-namespace Pommel.Reversi.Presentation.Scene.InGame
+namespace Pommel.Reversi.Presentation.Scene.InGame.Renderer
 {
-    public sealed class BoardRenderer : MonoBehaviour
+    public static class BoardRenderer
     {
-        [SerializeField]
-        private RectTransform m_parent;
-
-        [SerializeField]
-        private StoneDispatcher m_stone;
-
-        private IEnumerable<StoneDispatcher> m_stones = Enumerable.Empty<StoneDispatcher>();
-
-        private readonly (int x, int y) X_Y = (8, 8);
-
-        public void Constructor()
+        public static IDisposable ApplySwitchStoneColorRendering(this Board board, IEnumerable<Stone> stones)
         {
-            m_stones = Enumerable.Range(0, X_Y.x * X_Y.y)
-                .Select(index =>
-                {
-                    var stone = Instantiate(m_stone, m_parent.position, Quaternion.identity, m_parent);
-                    stone.Constructor(index / X_Y.x, index % X_Y.y);
-                    return stone;
-                })
-                .ToArray();
-        }
-
-        public void Initialize()
-        {
-            _ = Unidux
+           var disposable = Unidux
                 .Subject
-                .TakeUntilDisable(this)
+                .TakeUntilDisable(board)
                 .StartWith(Unidux.State)
                 .Subscribe(state =>
                 {
-                    foreach (var (stone, stoneState) in m_stones.Zip(
-                        state.Stones.SelectMany(stones => stones),
+                    foreach (var (stone, stoneState) in stones.Zip(
+                        state.Stones.SelectMany(stateStones => stateStones),
                         (stone, stoneState) => (stone, stoneState)))
                     {
                         switch (stoneState.Color)
@@ -64,7 +42,9 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
                         throw new ArgumentOutOfRangeException();
                     }
                 })
-                .AddTo(this);
+                .AddTo(board);
+
+            return disposable;
         }
     }
 }

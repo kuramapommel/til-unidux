@@ -1,6 +1,7 @@
 ﻿using Pommel.Reversi.Presentation.Project.SceneChange;
 using UniRx.Async;
 using UnityEngine;
+using Pommel.Reversi.Presentation.Scene.Title.UI;
 
 namespace Pommel.Reversi.Presentation.Scene.Title
 {
@@ -9,19 +10,20 @@ namespace Pommel.Reversi.Presentation.Scene.Title
         protected override Page Page => Page.TitlePage;
 
         [SerializeField]
-        private StartDispatcher m_startDispatcher;
+        private StartButton startButton;
 
-        protected override async UniTask Initialize()
+        protected override async UniTask OnLoad()
         {
         }
 
         protected override async UniTask OnOpen()
         {
-            m_startDispatcher.Initialize();
+            startButton.Initialize();
         }
 
-        protected override async UniTask Dispose()
+        protected override async UniTask OnDispose()
         {
+            startButton.Dispose();
         }
     }
 }

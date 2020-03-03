@@ -11,7 +11,7 @@ namespace Pommel.Reversi.Presentation.Scene
         {
             try
             {
-                await Initialize();
+                await OnLoad();
             }
             catch (Exception e)
             {
@@ -43,7 +43,7 @@ namespace Pommel.Reversi.Presentation.Scene
         {
             try
             {
-                await Dispose();
+                await OnDispose();
             }
             catch (Exception e)
             {
@@ -57,10 +57,10 @@ namespace Pommel.Reversi.Presentation.Scene
 
         protected abstract Page Page { get; }
 
-        protected abstract UniTask Initialize();
+        protected abstract UniTask OnLoad();
 
         protected abstract UniTask OnOpen();
 
-        protected abstract UniTask Dispose();
+        protected abstract UniTask OnDispose();
     }
 }

@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e66933be4e6dd4ce6aa6a6e576a15ad2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_startDispatcher: {fileID: 292793722}
+  startButton: {fileID: 292793722}
 --- !u!1 &179906068
 GameObject:
   m_ObjectHideFlags: 0
@@ -392,7 +392,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 292793717}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0514867dca2f340d1b6fbb360621510c, type: 3}
+  m_Script: {fileID: 11500000, guid: ff60722e7ab10457f99fd12d784068f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_button: {fileID: 292793719}
