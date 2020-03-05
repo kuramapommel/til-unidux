@@ -33,17 +33,16 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         {
             public override State Reduce(State state, Action action)
             {
-                var stone = state.Stones[action.X][action.Y];
-                var isBlackTurn = state.Turn.IsBlackTurn;
                 switch (action.Type)
                 {
-                    case ActionType.Put when !state.Stones.CanPut(action.X, action.Y, isBlackTurn): return state;
-
                     case ActionType.Put:
-                        stone.Color = isBlackTurn ? StoneStateElement.State.Black : StoneStateElement.State.White;
-                        state.Stones[action.X][action.Y] = stone;
-                        state.Stones.Flip(action.X, action.Y, isBlackTurn);
 
+                        if (!state.Stones.CanPut(action.X, action.Y, state.Turn.IsBlackTurn)) return state;
+
+                        var stone = state.Stones[action.X][action.Y];
+                        var isBlackTurn = state.Turn.IsBlackTurn;
+
+                        state.Stones.Flip(action.X, action.Y, isBlackTurn);
                         var (canAgainPut, canOpponentPut) = isBlackTurn
                             ? (state.Stones.CanPutBalck, state.Stones.CanPutWhite)
                             : ((Func<bool>)state.Stones.CanPutWhite, (Func<bool>)state.Stones.CanPutBalck);

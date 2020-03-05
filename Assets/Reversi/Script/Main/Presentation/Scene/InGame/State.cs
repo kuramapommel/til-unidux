@@ -63,6 +63,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
         public static void Flip(this StoneStateElement[][] source, int x, int y, bool isBlackTurn)
         {
+            var list = new List<(int x, int y)>();
             foreach (var target in SearchTargets
                 .Where(target => target.CanPut(source, x, y, isBlackTurn)))
             {
@@ -71,18 +72,24 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
                 for (var index = (x, y); index.x >= min && index.y >= min && index.x < max && index.y < max; index = index.Next(target))
                 {
-                    if (index.x == x && index.y == y) continue;
+                    if (index.x == x && index.y == y)
+                    {
+                        list.Add((index.x, index.y));
+                        continue;
+                    }
 
-                    var color = source.ElementAtOrDefault(index.x)?.ElementAtOrDefault(index.y)?.Color ?? StoneStateElement.State.None;
+                    var color = source.ElementAtOrDefault(index.x)?
+                        .ElementAtOrDefault(index.y)?
+                        .Color ?? StoneStateElement.State.None;
 
                     switch (color)
                     {
                         case StoneStateElement.State.None: break;
                         case StoneStateElement.State.White when isBlackTurn:
-                            source[index.x][index.y].Color = StoneStateElement.State.Black;
+                            list.Add((index.x, index.y));
                             continue;
                         case StoneStateElement.State.Black when !isBlackTurn:
-                            source[index.x][index.y].Color = StoneStateElement.State.White;
+                            list.Add((index.x, index.y));
                             continue;
                         case StoneStateElement.State.White: break;
                         case StoneStateElement.State.Black: break;
@@ -90,6 +97,13 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
                     break;
                 }
+            }
+
+            foreach (var index in list)
+            {
+                source[index.x][index.y].Color = isBlackTurn
+                    ? StoneStateElement.State.Black
+                    : StoneStateElement.State.White;
             }
         }
 
@@ -137,6 +151,10 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
         private static bool CanPut(this SearchTarget target, StoneStateElement[][] source, int x, int y, bool isBlackTurn)
         {
+            var stone = source[x][y];
+            if ((isBlackTurn && stone.Color == StoneStateElement.State.Black)
+                || (!isBlackTurn && stone.Color == StoneStateElement.State.White)) return false;
+
             const int min = 0;
             const int max = 8;
 
