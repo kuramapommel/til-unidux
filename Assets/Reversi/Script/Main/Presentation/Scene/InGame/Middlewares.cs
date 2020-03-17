@@ -9,6 +9,18 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         {
             return (Func<object, object> next) => (object action) =>
             {
+                var state = Unidux.State;
+                var isBlackTurn = state.Turn.IsBlackTurn;
+                switch (isBlackTurn)
+                {
+                    case true when state.Stones.CanPutWhite():
+                        state.Turn.IsBlackTurn = !isBlackTurn;
+                        return next(action);
+
+                    case false when state.Stones.CanPutBalck():
+                        state.Turn.IsBlackTurn = !isBlackTurn;
+                        return next(action);
+                }
                 return next(action);
             };
         }
