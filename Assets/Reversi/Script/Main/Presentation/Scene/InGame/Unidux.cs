@@ -10,6 +10,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
         private Store<State> _store;
 
+        private IMiddlewares m_middlewares;
+
         public IStoreObject StoreObject
         {
             get { return Store; }
@@ -55,10 +57,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         
         void Start()
         {
-            Store.ApplyMiddlewares(
-                Middlewares.ChangeTurn,
-                Middlewares.Result
-                );
+            m_middlewares = new Middlewares(State);
+            Store.ApplyMiddlewares(m_middlewares.Collection);
         }
 
         void Update()

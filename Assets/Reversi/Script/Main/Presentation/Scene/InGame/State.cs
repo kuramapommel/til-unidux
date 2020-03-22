@@ -5,10 +5,19 @@ using Unidux;
 
 namespace Pommel.Reversi.Presentation.Scene.InGame
 {
-    [Serializable]
-    public sealed class State : StateBase
+    public interface IState
     {
-        public readonly StoneStateElement[][] Stones = Enumerable.Range(0, 8)
+        StoneStateElement[][] Stones { get; }
+
+        TurnStateElement Turn { get; }
+
+        WinnerStateElement Result { get; }
+    }
+
+    [Serializable]
+    public sealed class State : StateBase, IState
+    {
+        public StoneStateElement[][] Stones { get; } = Enumerable.Range(0, 8)
             .Select(row => Enumerable.Range(0, 8)
                 .Select(column =>
                 {
@@ -31,9 +40,9 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
             .ToArray())
         .ToArray();
 
-        public readonly TurnStateElement Turn = new TurnStateElement();
+        public TurnStateElement Turn { get; } = new TurnStateElement();
 
-        public readonly WinnerStateElement Result = new WinnerStateElement();
+        public WinnerStateElement Result { get; } = new WinnerStateElement();
     }
 
     public static class StoneStateElementExtension
