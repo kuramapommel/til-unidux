@@ -1,5 +1,6 @@
 ﻿using System;
 using Unidux;
+using _StoneAction = Pommel.Reversi.Presentation.Scene.InGame.StoneAction.Action;
 
 namespace Pommel.Reversi.Presentation.Scene.InGame
 {
@@ -9,19 +10,21 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         {
             return (Func<object, object> next) => (object action) =>
             {
+                if (!(action is _StoneAction stoneAction)) return next(action);
+
                 var state = Unidux.State;
                 var isBlackTurn = state.Turn.IsBlackTurn;
-                switch (isBlackTurn)
-                {
-                    case true when state.Stones.CanPutWhite():
-                        state.Turn.IsBlackTurn = !isBlackTurn;
-                        return next(action);
+                var canPut = state.Stones.CanPut(stoneAction.X, stoneAction.Y, isBlackTurn);
 
-                    case false when state.Stones.CanPutBalck():
-                        state.Turn.IsBlackTurn = !isBlackTurn;
-                        return next(action);
-                }
-                return next(action);
+                var result = next(stoneAction);
+                var isTurnChange = isBlackTurn
+                    ? canPut && state.Stones.CanPutWhite()
+                    : canPut && state.Stones.CanPutBalck();
+
+                if (!isTurnChange) return result;
+
+                state.Turn.IsBlackTurn = !isBlackTurn;
+                return result;
             };
         }
 

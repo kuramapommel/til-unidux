@@ -41,19 +41,6 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
                         state.Stones.Flip(action.X, action.Y, state.Turn.IsBlackTurn);
 
-                        // todo 以下の部分を middleware に移管する
-                        //var (canAgainPut, canOpponentPut) = isBlackTurn
-                        //    ? (state.Stones.CanPutBalck, state.Stones.CanPutWhite)
-                        //    : ((Func<bool>)state.Stones.CanPutWhite, (Func<bool>)state.Stones.CanPutBalck);
-
-                        //if (canOpponentPut())
-                        //{
-                        //    state.Turn.IsBlackTurn = !isBlackTurn;
-                        //    return state;
-                        //}
-
-                        //if (canAgainPut()) return state;
-
                         //var (black, white) = state.Stones
                         //    .SelectMany(stones => stones)
                         //    .Aggregate(

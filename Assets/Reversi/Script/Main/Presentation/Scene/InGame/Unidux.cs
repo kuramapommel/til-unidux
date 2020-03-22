@@ -55,8 +55,10 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         
         void Start()
         {
-            Store.ApplyMiddlewares(Middlewares.ChangeTurn);
-            Store.ApplyMiddlewares(Middlewares.Result);
+            Store.ApplyMiddlewares(
+                Middlewares.ChangeTurn,
+                Middlewares.Result
+                );
         }
 
         void Update()
