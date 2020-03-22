@@ -10,8 +10,6 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
         private Store<State> _store;
 
-        private IMiddlewares m_middlewares;
-
         public IStoreObject StoreObject
         {
             get { return Store; }
@@ -31,6 +29,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         {
             new StoneAction.Reducer(),
         };
+
+        private static IMiddlewares Middlewares => new Middlewares(State);
 
         private static State InitialState
         {
@@ -57,8 +57,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         
         void Start()
         {
-            m_middlewares = new Middlewares(State);
-            Store.ApplyMiddlewares(m_middlewares.Collection);
+            Store.ApplyMiddlewares(Middlewares.Collection);
         }
 
         void Update()
