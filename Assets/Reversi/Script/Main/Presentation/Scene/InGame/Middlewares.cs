@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Unidux;
 using _Middleware = Unidux.Middleware;
 using _StoneAction = Pommel.Reversi.Presentation.Scene.InGame.StoneAction.Action;
@@ -48,7 +49,33 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         {
             return (Func<object, object> next) => (object action) =>
             {
-                return next(action);
+                if (!(action is _StoneAction stoneAction)) return next(action);
+
+                var result = next(action);
+                if (m_state.Stones.CanPutWhite() || m_state.Stones.CanPutBalck()) return result;
+
+                var (black, white) = m_state.Stones
+                    .SelectMany(stones => stones)
+                    .Aggregate(
+                        (black: 0, white: 0),
+                        (aggregate, element) =>
+                        {
+                            switch (element.Color)
+                            {
+                                case StoneStateElement.State.Black: return (aggregate.black + 1, aggregate.white);
+                                case StoneStateElement.State.White: return (aggregate.black, aggregate.white + 1);
+                            }
+
+                            return aggregate;
+                        });
+
+                m_state.Result.Winner = (white > black)
+                    ? WinnerStateElement.State.White
+                    : (black > white)
+                        ? WinnerStateElement.State.Black
+                        : WinnerStateElement.State.Draw;
+
+                return result;
             };
         }
     }
