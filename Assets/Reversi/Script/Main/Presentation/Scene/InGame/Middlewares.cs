@@ -13,6 +13,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
     public sealed class Middlewares : IMiddlewares
     {
+        private delegate bool ArePuttableByOpponent();
+
         private readonly IState m_state;
 
         public Middlewares(IState state) => m_state = state;
@@ -28,17 +30,17 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         {
             return (Func<object, object> next) => (object action) =>
             {
-                if (!(action is _StoneAction stoneAction)) return next(action);
-
                 var isBlackTurn = m_state.Turn.IsBlackTurn;
-                var canPut = m_state.Stones.CanPut(stoneAction.X, stoneAction.Y, isBlackTurn);
+                var isPuttableByProponent = action is _StoneAction stoneAction
+                    ? m_state.Stones.CanPut(stoneAction.X, stoneAction.Y, isBlackTurn)
+                    : false;
 
-                var result = next(stoneAction);
+                var result = next(action);
+
                 var isTurnChange = isBlackTurn
-                    ? canPut && m_state.Stones.CanPutWhite()
-                    : canPut && m_state.Stones.CanPutBalck();
-
-                if (!isTurnChange) return result;
+                    ? m_state.Stones.CanPutWhite
+                    : (ArePuttableByOpponent)m_state.Stones.CanPutBalck;
+                if (!isPuttableByProponent || !isTurnChange()) return result;
 
                 m_state.Turn.IsBlackTurn = !isBlackTurn;
                 return result;
@@ -49,9 +51,9 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
         {
             return (Func<object, object> next) => (object action) =>
             {
-                if (!(action is _StoneAction stoneAction)) return next(action);
-
                 var result = next(action);
+                if (!(action is _StoneAction stoneAction)) return result;
+
                 if (m_state.Stones.CanPutWhite() || m_state.Stones.CanPutBalck()) return result;
 
                 var (black, white) = m_state.Stones
