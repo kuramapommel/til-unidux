@@ -15,6 +15,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
     {
         private delegate bool ArePuttableByOpponent();
 
+        private delegate WinnerStateElement.State GetWinner();
+
         private readonly IState m_state;
 
         public Middlewares(IState state) => m_state = state;
@@ -52,33 +54,46 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
             return (Func<object, object> next) => (object action) =>
             {
                 var result = next(action);
-                if (!(action is _StoneAction stoneAction)) return result;
 
-                if (m_state.Stones.CanPutWhite() || m_state.Stones.CanPutBalck()) return result;
+                var isStoneAction = action is _StoneAction;
+                var isPuttableByEitherPlayer = m_state.Stones.CanPutWhite() || m_state.Stones.CanPutBalck();
 
-                var (black, white) = m_state.Stones
+                if (!isStoneAction || isPuttableByEitherPlayer) return result;
+
+                GetWinner createWinnerGetter(int black, int white) => () => (white > black)
+                                  ? WinnerStateElement.State.White
+                                  : (black > white)
+                                      ? WinnerStateElement.State.Black
+                                      : WinnerStateElement.State.Draw;
+
+                var reversiResult = m_state.Stones
                     .SelectMany(stones => stones)
                     .Aggregate(
-                        (black: 0, white: 0),
+                        (black: 0, white: 0, getWinner: (GetWinner)(() => WinnerStateElement.State.Draw)),
                         (aggregate, element) =>
                         {
-                            switch (element.Color)
-                            {
-                                case StoneStateElement.State.Black: return (aggregate.black + 1, aggregate.white);
-                                case StoneStateElement.State.White: return (aggregate.black, aggregate.white + 1);
-                            }
-
-                            return aggregate;
+                            var (black, white) = element.Color.Count(aggregate.black, aggregate.white);
+                            return (black, white, createWinnerGetter(black, white));
                         });
 
-                m_state.Result.Winner = (white > black)
-                    ? WinnerStateElement.State.White
-                    : (black > white)
-                        ? WinnerStateElement.State.Black
-                        : WinnerStateElement.State.Draw;
+                m_state.Result.Winner = reversiResult.getWinner();
 
                 return result;
             };
+        }
+    }
+
+    public static class ColorStateExtension
+    {
+        public static (int black, int white) Count(this StoneStateElement.State color, int black, int white)
+        {
+            switch (color)
+            {
+                case StoneStateElement.State.Black: return (++black, white);
+                case StoneStateElement.State.White: return (black, ++white);
+            }
+
+            return (black, white);
         }
     }
 }
