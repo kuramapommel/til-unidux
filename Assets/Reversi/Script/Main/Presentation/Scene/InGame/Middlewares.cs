@@ -13,7 +13,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
     public sealed class Middlewares : IMiddlewares
     {
-        private delegate bool ArePuttableByOpponent();
+        private delegate bool IsPuttableByOpponent();
 
         private delegate WinnerStateElement.State GetWinner();
 
@@ -41,7 +41,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame
 
                 var isTurnChange = isBlackTurn
                     ? m_state.Stones.CanPutWhite
-                    : (ArePuttableByOpponent)m_state.Stones.CanPutBalck;
+                    : (IsPuttableByOpponent)m_state.Stones.CanPutBalck;
                 if (!isPuttableByProponent || !isTurnChange()) return result;
 
                 m_state.Turn.IsBlackTurn = !isBlackTurn;
