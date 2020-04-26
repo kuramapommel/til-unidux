@@ -6,12 +6,14 @@ namespace Pommel.Reversi.Domain.InGame
     public interface IGame
     {
         // todo 型作る
-        string Id {get;}
+        string Id { get; }
 
         // todo 型作る
-        string ResultId {get;}
+        string ResultId { get; }
 
-        IDictionary<Point, Stone> Stones {get;}
+        bool IsGameSet { get; }
+
+        IDictionary<Point, Stone> Stones { get; }
 
         IGame PutStone(Point point);
     }
@@ -22,7 +24,9 @@ namespace Pommel.Reversi.Domain.InGame
 
         public string ResultId { get; }
 
-        public IDictionary<Point, Stone> Stones {get;}
+        public bool IsGameSet { get; }
+
+        public IDictionary<Point, Stone> Stones { get; }
         public IGame PutStone(Point point) => throw new System.NotImplementedException();
     }
 

@@ -1,4 +1,5 @@
 using Pommel.Reversi.Domain.InGame;
+using Pommel.Reversi.UseCase.Shared;
 using UniRx.Async;
 
 namespace Pommel.Reversi.UseCase.InGame
@@ -31,7 +32,7 @@ namespace Pommel.Reversi.UseCase.InGame
             var game = await m_gameRepository.FindById(m_gameId);
             var putted = game.PutStone(m_point);
             var savedGame = await m_gameRepository.Save(putted);
-            _ = m_publisher.Publish(new PutStoneEvent());
+            _ = m_publisher.Publish(new PuttedStoneEvent());
             return savedGame;
         }
     }
