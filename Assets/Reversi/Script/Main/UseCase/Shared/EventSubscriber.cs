@@ -4,6 +4,6 @@ namespace Pommel.Reversi.UseCase.Shared
 {
     public interface IEventSubscriber
     {
-        UniTask ReceivedMessage<DomainEvent>(DomainEvent domainEvent) where DomainEvent : IDomainEvent;
+        UniTask ReceivedMessage<DomainEvent>(DomainEvent domainEvent) where DomainEvent : IEventMessage;
     }
 }

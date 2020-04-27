@@ -1,7 +1,7 @@
 
 namespace Pommel.Reversi.UseCase.Shared
 {   
-    public interface IDomainEvent
+    public interface IEventMessage
     {
     }
 }

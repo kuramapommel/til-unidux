@@ -6,7 +6,7 @@ namespace Pommel.Reversi.UseCase.InGame
 {
     public interface IPutStoneUseCase
     {
-
+        UniTask<IGame> Execute();
     }
 
     public sealed class PutStoneUseCase : IPutStoneUseCase
@@ -32,7 +32,7 @@ namespace Pommel.Reversi.UseCase.InGame
             var game = await m_gameRepository.FindById(m_gameId);
             var putted = game.PutStone(m_point);
             var savedGame = await m_gameRepository.Save(putted);
-            _ = m_publisher.Publish(new PuttedStoneEvent());
+            _ = m_publisher.Publish(new PuttedStoneEvent(savedGame));
             return savedGame;
         }
     }

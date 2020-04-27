@@ -4,7 +4,7 @@ using UniRx.Async;
 
 namespace Pommel.Reversi.UseCase.InGame
 {
-    public interface IPuttedStoneEvent : IDomainEvent
+    public interface IPuttedStoneEvent : IEventMessage
     {
         IGame Game { get; }
     }
@@ -12,6 +12,8 @@ namespace Pommel.Reversi.UseCase.InGame
     public sealed class PuttedStoneEvent : IPuttedStoneEvent
     {
         public IGame Game { get; }
+
+        public PuttedStoneEvent(IGame game) => Game = game;
     }
 
     public sealed class PuttedStoneEventSubscriber : IEventSubscriber
@@ -26,9 +28,9 @@ namespace Pommel.Reversi.UseCase.InGame
             m_gameResultService = gameResultService;
         }
 
-        public async UniTask ReceivedMessage<DomainEvent>(DomainEvent domainEvent) where DomainEvent : IDomainEvent
+        public async UniTask ReceivedMessage<EventMessage>(EventMessage message) where EventMessage : IEventMessage
         {
-            if (!(domainEvent is PuttedStoneEvent puttedStoneEvent)) throw new System.AggregateException();
+            if (!(message is PuttedStoneEvent puttedStoneEvent)) throw new System.AggregateException();
 
             var game = puttedStoneEvent.Game;
             if (game.IsGameSet)
@@ -42,7 +44,6 @@ namespace Pommel.Reversi.UseCase.InGame
             }
 
             _ = m_puttedAdapter.OnPut(new PuttedDto(game.Stones));
-            return;
         }
     }
 }
