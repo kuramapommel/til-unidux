@@ -6,7 +6,7 @@ namespace Pommel.Reversi.UseCase.InGame
 {
     public interface IPutStoneUseCase
     {
-        UniTask<IGame> Execute();
+        UniTask<IGame> Execute(int x, int y);
     }
 
     public sealed class PutStoneUseCase : IPutStoneUseCase
@@ -17,20 +17,19 @@ namespace Pommel.Reversi.UseCase.InGame
 
         private readonly string m_gameId;
 
-        private readonly Point m_point;
-
-        public PutStoneUseCase(IGameRepository gameRepository, IEventPublisher publisher, string gameId, int x, int y)
+        public PutStoneUseCase(IGameRepository gameRepository, IEventPublisher publisher, string gameId)
         {
             m_gameRepository = gameRepository;
             m_publisher = publisher;
             m_gameId = gameId;
-            m_point = new Point(x, y);
         }
 
-        public async UniTask<IGame> Execute()
+        public async UniTask<IGame> Execute(int x, int y)
         {
+            // todo バリデーションチェック
+            var point = new Point(x, y);
             var game = await m_gameRepository.FindById(m_gameId);
-            var putted = game.PutStone(m_point);
+            var putted = game.PutStone(point);
             var savedGame = await m_gameRepository.Save(putted);
             _ = m_publisher.Publish(new PuttedStoneEvent(savedGame));
             return savedGame;

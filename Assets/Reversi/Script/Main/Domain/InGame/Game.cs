@@ -13,7 +13,7 @@ namespace Pommel.Reversi.Domain.InGame
 
         bool IsGameSet { get; }
 
-        IDictionary<Point, Stone> Stones { get; }
+        IEnumerable<Stone> Stones { get; }
 
         IGame PutStone(Point point);
     }
@@ -26,7 +26,7 @@ namespace Pommel.Reversi.Domain.InGame
 
         public bool IsGameSet { get; }
 
-        public IDictionary<Point, Stone> Stones { get; }
+        public IEnumerable<Stone> Stones { get; }
         public IGame PutStone(Point point) => throw new System.NotImplementedException();
     }
 

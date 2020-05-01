@@ -19,6 +19,6 @@ namespace Pommel.Reversi.UseCase.InGame
 
     public sealed class PuttedDto
     {
-        public PuttedDto(IDictionary<Point, Stone> stones) { }
+        public PuttedDto(IEnumerable<Stone> stones) { }
     }
 }
