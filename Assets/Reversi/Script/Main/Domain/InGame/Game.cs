@@ -29,5 +29,4 @@ namespace Pommel.Reversi.Domain.InGame
         public IEnumerable<Stone> Stones { get; }
         public IGame PutStone(Point point) => throw new System.NotImplementedException();
     }
-
 }
