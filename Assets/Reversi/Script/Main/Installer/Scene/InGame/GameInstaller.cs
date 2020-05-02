@@ -26,7 +26,7 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
         private _Stone m_stonePrefab;
 
         [SerializeField]
-        private RectTransform m_stoneParent;
+        private GameBoard m_gameBoard;
 
         public override void InstallBindings()
         {
@@ -38,7 +38,7 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
             Container.BindIFactory<Func<ResultDto, UniTask>, Func<PuttedDto, UniTask>, IGameResultService, IEventSubscriber>().To<PuttedStoneEventSubscriber>().AsCached();
             Container.BindIFactory<IStoneState, IStone>().To<_Stone>()
                 .FromComponentInNewPrefab(m_stonePrefab)
-                .UnderTransform(m_stoneParent)
+                .UnderTransform(m_gameBoard.GetComponent<RectTransform>())
                 .AsCached();
 
             // stores
@@ -54,7 +54,7 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
             Container.BindInterfacesTo<EventBroker>().AsSingle();
 
             // view
-            Container.BindInterfacesTo<GameBoard>().AsCached();
+            Container.BindInterfacesTo<GameBoard>().FromInstance(m_gameBoard).AsCached();
 
             // dispatchers
             Container.BindInterfacesTo<StoneDispatcher>().AsCached();

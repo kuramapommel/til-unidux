@@ -39,11 +39,33 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Dispatcher
 
         private readonly IGameBoard m_gameBoard;
 
-        // todo コンストラクタを実装して inject する
+        public StoneDispatcher(
+            IFactory<IEnumerable<IStoneState>, IGameBoardState> gameboardFactory,
+            IFactory<Point, Color, IStoneState> stoneStateFactory,
+            IFactory<IGameRepository, IEventPublisher, string, IPutStoneUseCase> putstoneUsecaseFactory,
+            IFactory<IEventBroker, IEventPublisher> eventPublisherFactory,
+            IFactory<Func<ResultDto, UniTask>, Func<PuttedDto, UniTask>, IGameResultService, IEventSubscriber> eventSubscriberFactory,
+            IGameRepository gameRepository,
+            IGameService gameService,
+            IGameResultService gameResultService,
+            IEventBroker eventBroker,
+            IGameBoard gameBoard
+            )
+        {
+            m_gameboardFactory = gameboardFactory;
+            m_stoneStateFactory = stoneStateFactory;
+            m_putstoneUsecaseFactory = putstoneUsecaseFactory;
+            m_eventPublisherFactory = eventPublisherFactory;
+            m_eventSubscriberFactory = eventSubscriberFactory;
+            m_gameRepository = gameRepository;
+            m_gameService = gameService;
+            m_gameResultService = gameResultService;
+            m_eventBroker = eventBroker;
+            m_gameBoard = gameBoard;
+        }
 
         public void Initialize()
         {
-            // todo ゲーム全体の初期化を待ってから実行
             m_gameService.FetchPlaying()
                 .ToObservable()
                 .Subscribe(game =>
