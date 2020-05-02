@@ -55,16 +55,23 @@ namespace Pommel.Reversi.Domain.InGame
             if (!aroundOpponentPieces.Any()) throw new ArgumentException();
 
             var flipTarget = aroundOpponentPieces
-                .Select(opponentPiece => point.CreateSpecifiedVector(opponentPiece.Point)
-                    .Join(
-                        Pieces,
-                        vectorPiece => (vectorPiece.X, vectorPiece.Y),
-                        piece => (piece.Point.X, piece.Point.Y),
-                        (vectorPiece, piece) => piece)
-                    .TakeWhile(piece => piece.Color == playerColor || piece.Color == Color.None)
-                    .ToArray())
-                .Where(vectorPieces => vectorPieces.Any(piece => piece.Color == playerColor))
-                .SelectMany(vectorPieces => vectorPieces.Select(piece => piece.SetColor(playerColor)))
+                .Select(opponentPiece =>
+                {
+                    var vectorPieces = point.CreateSpecifiedVector(opponentPiece.Point)
+                        .Join(
+                            Pieces,
+                            vectorPiece => (vectorPiece.X, vectorPiece.Y),
+                            piece => (piece.Point.X, piece.Point.Y),
+                            (vectorPiece, piece) => piece)
+                        .ToArray();
+                    var targets = vectorPieces.TakeWhile(piece => piece.Color != playerColor);
+                    return (targets, other: vectorPieces.ElementAtOrDefault(targets.Count()));
+                })
+                .Where(aggregate =>
+                    aggregate.other != null
+                    && aggregate.other.Color == playerColor
+                    && !aggregate.targets.Any(piece => piece.Color == Color.None))
+                .SelectMany(aggregate => aggregate.targets.Select(piece => piece.SetColor(playerColor)))
                 .ToArray();
 
             var flippedPieces = Pieces
