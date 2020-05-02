@@ -1,3 +1,4 @@
+using Pommel.Reversi.UseCase.InGame.Dto;
 using UniRx.Async;
 
 namespace Pommel.Reversi.UseCase.InGame
