@@ -1,4 +1,6 @@
+using System;
 using Pommel.Reversi.Domain.InGame;
+using Pommel.Reversi.UseCase.InGame.Dto;
 using Pommel.Reversi.UseCase.Shared;
 using UniRx.Async;
 
@@ -18,13 +20,16 @@ namespace Pommel.Reversi.UseCase.InGame
 
     public sealed class PuttedStoneEventSubscriber : IEventSubscriber
     {
-        private readonly IPuttedAdapter m_puttedAdapter;
+        private readonly Func<ResultDto, UniTask> m_onResult;
+
+        private readonly Func<PuttedDto, UniTask> m_onPut;
 
         private readonly IGameResultService m_gameResultService;
 
-        public PuttedStoneEventSubscriber(IPuttedAdapter puttedAdapter, IGameResultService gameResultService)
+        public PuttedStoneEventSubscriber(Func<ResultDto, UniTask> onResult, Func<PuttedDto, UniTask> onPut, IGameResultService gameResultService)
         {
-            m_puttedAdapter = puttedAdapter;
+            m_onResult = onResult;
+            m_onPut = onPut;
             m_gameResultService = gameResultService;
         }
 
@@ -37,13 +42,13 @@ namespace Pommel.Reversi.UseCase.InGame
             {
                 var result = await m_gameResultService.FindById(game.ResultId);
                 _ = UniTask.WhenAll(
-                    m_puttedAdapter.OnResult(result),
-                    m_puttedAdapter.OnPut(new PuttedDto(game.Stones))
+                    m_onResult(result),
+                    m_onPut(new PuttedDto(game.Stones))
                     );
                 return;
             }
 
-            _ = m_puttedAdapter.OnPut(new PuttedDto(game.Stones));
+            _ = m_onPut(new PuttedDto(game.Stones));
         }
     }
 }

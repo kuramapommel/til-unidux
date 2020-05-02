@@ -5,7 +5,9 @@ using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Presentation.Scene.InGame.State;
 using Pommel.Reversi.Presentation.Scene.InGame.View;
 using Pommel.Reversi.UseCase.InGame;
+using Pommel.Reversi.UseCase.InGame.Dto;
 using Pommel.Reversi.UseCase.Shared;
+using UniRx.Async;
 using Zenject;
 
 namespace Pommel.Reversi.Presentation.Scene.InGame.Dispatcher
@@ -24,9 +26,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Dispatcher
 
         private readonly IFactory<IEventBroker, IEventPublisher> m_eventPublisherFactory;
 
-        private readonly IFactory<IPuttedAdapter, IGameResultService, IEventSubscriber> m_eventSubscriberFactory;
-
-        private readonly IFactory<Action<ResultDto>, Action<PuttedDto>, IPuttedAdapter> m_putAdapterFactory;
+        private readonly IFactory<Func<ResultDto, UniTask>, Func<PuttedDto, UniTask>, IGameResultService, IEventSubscriber> m_eventSubscriberFactory;
 
         private readonly IGameRepository m_gameRepository;
 
@@ -66,10 +66,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Dispatcher
             // todo 依存解決する
             m_eventBroker.RegisterSubscriber<IPuttedStoneEvent>(
                 m_eventSubscriberFactory.Create(
-                    m_putAdapterFactory.Create(
-                        result => { },
-                        putted => gameBoardState.Refresh(putted.Stones)
-                        ),
+                    async result => { },
+                    async putted => gameBoardState.Refresh(putted.Stones),
                     m_gameResultService));
 
             var putstoneUseCase = m_putstoneUsecaseFactory.Create(
