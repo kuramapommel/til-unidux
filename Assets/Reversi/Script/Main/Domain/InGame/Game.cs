@@ -11,7 +11,7 @@ namespace Pommel.Reversi.Domain.InGame
         // todo 型作る
         string ResultId { get; }
 
-        bool IsGameSet { get; }
+        State State { get; }
 
         IEnumerable<Stone> Stones { get; }
 
@@ -24,9 +24,16 @@ namespace Pommel.Reversi.Domain.InGame
 
         public string ResultId { get; }
 
-        public bool IsGameSet { get; }
+        public State State { get; }
 
         public IEnumerable<Stone> Stones { get; }
         public IGame PutStone(Point point) => throw new System.NotImplementedException();
+    }
+
+    public enum State
+    {
+        NotYet,
+        Playing,
+        GameSet
     }
 }

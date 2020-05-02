@@ -38,7 +38,7 @@ namespace Pommel.Reversi.UseCase.InGame
             if (!(message is PuttedStoneEvent puttedStoneEvent)) throw new System.AggregateException();
 
             var game = puttedStoneEvent.Game;
-            if (game.IsGameSet)
+            if (game.State == State.GameSet)
             {
                 var result = await m_gameResultService.FindById(game.ResultId);
                 _ = UniTask.WhenAll(
