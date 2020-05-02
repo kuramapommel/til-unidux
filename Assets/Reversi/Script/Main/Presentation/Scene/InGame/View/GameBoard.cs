@@ -34,8 +34,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.View
             {
                 var stone = m_stoneFactory.Create(stoneState);
                 stone.OnPutAsObservable()
-                    .ContinueWith(_ => putAsync(stoneState.Point).ToObservable())
-                    .Subscribe(state.Refresh);
+                    .Subscribe(_ => putAsync(stoneState.Point));
                 Stones.Add(stone);
             }
         }

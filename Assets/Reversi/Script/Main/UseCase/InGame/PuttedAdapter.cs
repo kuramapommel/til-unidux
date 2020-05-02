@@ -19,6 +19,8 @@ namespace Pommel.Reversi.UseCase.InGame
 
     public sealed class PuttedDto
     {
-        public PuttedDto(IEnumerable<Stone> stones) { }
+        public IEnumerable<Stone> Stones { get; }
+
+        public PuttedDto(IEnumerable<Stone> stones) => Stones = stones;
     }
 }

@@ -6,6 +6,6 @@ namespace Pommel.Reversi.UseCase.Shared
     {
         UniTask<EventMessage> SendMessage<EventMessage>(EventMessage message) where EventMessage : IEventMessage;
 
-        UniTask RegisterSubscriber<EventMessage>(EventMessage message, IEventSubscriber subscriber) where EventMessage : IEventMessage;
+        UniTask RegisterSubscriber<EventMessage>(IEventSubscriber subscriber) where EventMessage : IEventMessage;
     }
 }
