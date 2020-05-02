@@ -70,6 +70,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Dispatcher
                 .ToObservable()
                 .Subscribe(game =>
                 {
+                    // todo stone の関心事から大きく溢れているので、もうちょっと共通なところでやる
                     var gameBoardState = m_gameboardFactory.Create(game.Stones.Select(stone => m_stoneStateFactory.Create(stone.Point, stone.Color)));
                     m_eventBroker.RegisterSubscriber<IPuttedStoneEvent>(
                         m_eventSubscriberFactory.Create(

@@ -44,8 +44,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
             switch (source)
             {
                 case _ColorEnum.None: return none.Value;
-                case _ColorEnum.Black: return _Color.black;
-                case _ColorEnum.White: return _Color.white;
+                case _ColorEnum.Dark: return _Color.black;
+                case _ColorEnum.Light: return _Color.white;
             }
 
             throw new ArgumentOutOfRangeException();

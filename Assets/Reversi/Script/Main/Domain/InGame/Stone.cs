@@ -1,10 +1,12 @@
 namespace Pommel.Reversi.Domain.InGame
 {
-    public readonly struct Stone
+    public sealed class Stone
     {
-        public Point Point {get;}
+        public Point Point { get; }
 
-        public Color Color {get;}
+        public Color Color { get; }
+
+        public Stone SetColor(Color color) => new Stone(Point, color);
 
         public Stone(Point point, Color color = Color.None)
         {
@@ -16,7 +18,7 @@ namespace Pommel.Reversi.Domain.InGame
     public enum Color
     {
         None,
-        Black,
-        White
+        Dark,
+        Light
     }
 }
