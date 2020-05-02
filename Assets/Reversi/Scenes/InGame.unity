@@ -1060,6 +1060,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 047ee7f52ccde4d1fbe771278ca07854, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_stonePrefab: {fileID: 4795697894077286756, guid: bdae7cf34b28342a3a186c9490eef267,
+    type: 3}
+  m_stoneParent: {fileID: 614310665}
 --- !u!4 &1893039401
 Transform:
   m_ObjectHideFlags: 0
