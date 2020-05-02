@@ -11,11 +11,11 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
         void Refresh(IEnumerable<Stone> stones);
     }
 
-    public sealed class GameBoard : IGameBoardState
+    public sealed class GameBoardState : IGameBoardState
     {
         public IEnumerable<IStoneState> Stones { get; }
 
-        public GameBoard(IEnumerable<IStoneState> stones)
+        public GameBoardState(IEnumerable<IStoneState> stones)
         {
             Stones = stones.ToList();
         }
