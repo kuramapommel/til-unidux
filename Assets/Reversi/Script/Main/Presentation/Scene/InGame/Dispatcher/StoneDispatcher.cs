@@ -62,7 +62,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Dispatcher
                 game.Id
                 );
 
-            m_gameBoard.Instantiate(
+            m_gameBoard.InstantiateStones(
                 m_gameboardFactory.Create(game.Stones.Select(stone => m_stoneStateFactory.Create(stone.Point, stone.Color))),
                 async point =>
                 {

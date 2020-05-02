@@ -12,7 +12,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.View
 {
     public interface IGameBoard
     {
-        void Instantiate(IGameBoardState state, Func<Point, UniTask<IEnumerable<_Stone>>> putAsync);
+        void InstantiateStones(IGameBoardState state, Func<Point, UniTask<IEnumerable<_Stone>>> putAsync);
     }
 
     [RequireComponent(typeof(RectTransform))]
@@ -28,13 +28,13 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.View
             m_stoneFactory = stoneFactory;
         }
 
-        public void Instantiate(IGameBoardState state, Func<Point, UniTask<IEnumerable<_Stone>>> putAsync)
+        public void InstantiateStones(IGameBoardState state, Func<Point, UniTask<IEnumerable<_Stone>>> putAsync)
         {
             foreach (var stoneState in state.Stones)
             {
                 var stone = m_stoneFactory.Create(stoneState);
                 stone.OnPutAsObservable()
-                    .SelectMany(_ => putAsync(stoneState.Point).ToObservable())
+                    .ContinueWith(_ => putAsync(stoneState.Point).ToObservable())
                     .Subscribe(state.Refresh);
                 Stones.Add(stone);
             }

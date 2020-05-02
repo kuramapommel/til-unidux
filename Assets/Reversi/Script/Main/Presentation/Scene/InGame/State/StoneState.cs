@@ -13,24 +13,24 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
 
         IReadOnlyReactiveProperty<_Color> Color { get; }
 
-        void SetColor(_Color color); 
+        void SetColor(_Color color);
     }
 
     public sealed class StoneState : IStoneState
     {
-        private readonly IReactiveProperty<_Color> m_color = new ReactiveProperty<_Color>();
+        private readonly IReactiveProperty<_Color> m_color;
 
         public Point Point { get; }
 
         public IReadOnlyReactiveProperty<_Color> Color => m_color;
 
-        public void SetColor(_Color color) => m_color.Value = color;
-
         public StoneState(Point point, _ColorEnum color)
         {
             Point = point;
-            m_color.Value = color.Convert();
+            m_color = new ReactiveProperty<_Color>(color.Convert());
         }
+
+        public void SetColor(_Color color) => m_color.Value = color;
     }
 
     public static class ColorEnumExt

@@ -20,7 +20,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.View
 
         private Image m_image;
 
-        public IObservable<Unit> OnPutAsObservable() => m_button.OnClickAsObservable();
+        public IObservable<Unit> OnPutAsObservable() => m_button.OnClickAsObservable().TakeUntilDestroy(this);
 
         [Inject]
         public void Construct(IStoneState stoneState)
