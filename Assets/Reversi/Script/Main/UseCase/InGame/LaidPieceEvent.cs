@@ -6,49 +6,49 @@ using UniRx.Async;
 
 namespace Pommel.Reversi.UseCase.InGame
 {
-    public interface IPuttedStoneEvent : IEventMessage
+    public interface ILaidPieceEvent : IEventMessage
     {
         IGame Game { get; }
     }
 
-    public sealed class PuttedStoneEvent : IPuttedStoneEvent
+    public sealed class LaidPieceEvent : ILaidPieceEvent
     {
         public IGame Game { get; }
 
-        public PuttedStoneEvent(IGame game) => Game = game;
+        public LaidPieceEvent(IGame game) => Game = game;
     }
 
-    public sealed class PuttedStoneEventSubscriber : IEventSubscriber
+    public sealed class LaidPieceEventSubscriber : IEventSubscriber
     {
         private readonly Func<ResultDto, UniTask> m_onResult;
 
-        private readonly Func<PuttedDto, UniTask> m_onPut;
+        private readonly Func<LaidDto, UniTask> m_onLaid;
 
         private readonly IGameResultService m_gameResultService;
 
-        public PuttedStoneEventSubscriber(Func<ResultDto, UniTask> onResult, Func<PuttedDto, UniTask> onPut, IGameResultService gameResultService)
+        public LaidPieceEventSubscriber(Func<ResultDto, UniTask> onResult, Func<LaidDto, UniTask> onLaid, IGameResultService gameResultService)
         {
             m_onResult = onResult;
-            m_onPut = onPut;
+            m_onLaid = onLaid;
             m_gameResultService = gameResultService;
         }
 
         public async UniTask ReceivedMessage<EventMessage>(EventMessage message) where EventMessage : IEventMessage
         {
-            if (!(message is PuttedStoneEvent puttedStoneEvent)) throw new System.AggregateException();
+            if (!(message is LaidPieceEvent laidPieceEvent)) throw new System.AggregateException();
 
-            var game = puttedStoneEvent.Game;
+            var game = laidPieceEvent.Game;
             if (game.State == State.GameSet)
             {
                 var result = await m_gameResultService.FindById(game.ResultId);
                 _ = UniTask.WhenAll(
                     m_onResult(result),
-                    m_onPut(new PuttedDto(game.Stones))
+                    m_onLaid(new LaidDto(game.Pieces))
                     );
                 return;
             }
 
-            _ = m_onPut(new PuttedDto(game.Stones));
+            _ = m_onLaid(new LaidDto(game.Pieces));
         }
     }
 }

@@ -6,7 +6,7 @@ using Pommel.Reversi.Infrastructure.Service.InGame;
 using Pommel.Reversi.Infrastructure.Service.System;
 using Pommel.Reversi.Infrastructure.Store.InGame;
 using Pommel.Reversi.Infrastructure.Store.System;
-using Pommel.Reversi.Presentation.Scene.InGame.Dispatcher;
+using Pommel.Reversi.Presentation.Scene.InGame.Presenter;
 using Pommel.Reversi.Presentation.Scene.InGame.State;
 using Pommel.Reversi.Presentation.Scene.InGame.View;
 using Pommel.Reversi.UseCase.InGame;
@@ -16,14 +16,14 @@ using UniRx.Async;
 using UnityEngine;
 using Zenject;
 using _Color = Pommel.Reversi.Domain.InGame.Color;
-using _Stone = Pommel.Reversi.Presentation.Scene.InGame.View.Stone;
+using _Piece = Pommel.Reversi.Presentation.Scene.InGame.View.Piece;
 
 namespace Pommel.Reversi.Installer.Scene.Ingame
 {
     public sealed class GameInstaller : MonoInstaller
     {
         [SerializeField]
-        private _Stone m_stonePrefab;
+        private _Piece m_piecePrefab;
 
         [SerializeField]
         private GameBoard m_gameBoard;
@@ -31,13 +31,13 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
         public override void InstallBindings()
         {
             // factories
-            Container.BindIFactory<IEnumerable<IStoneState>, IGameBoardState>().To<GameBoardState>().AsCached();
-            Container.BindIFactory<Point, _Color, IStoneState>().To<StoneState>().AsCached();
-            Container.BindIFactory<IGameRepository, IEventPublisher, string, IPutStoneUseCase>().To<PutStoneUseCase>().AsCached();
+            Container.BindIFactory<IEnumerable<IPieceState>, IGameBoardState>().To<GameBoardState>().AsCached();
+            Container.BindIFactory<Point, _Color, IPieceState>().To<PieceState>().AsCached();
+            Container.BindIFactory<IGameRepository, IEventPublisher, string, ILayPieceUseCase>().To<LayPieceUseCase>().AsCached();
             Container.BindIFactory<IEventBroker, IEventPublisher>().To<EventPublisher>();
-            Container.BindIFactory<Func<ResultDto, UniTask>, Func<PuttedDto, UniTask>, IGameResultService, IEventSubscriber>().To<PuttedStoneEventSubscriber>().AsCached();
-            Container.BindIFactory<IStoneState, IStone>().To<_Stone>()
-                .FromComponentInNewPrefab(m_stonePrefab)
+            Container.BindIFactory<Func<ResultDto, UniTask>, Func<LaidDto, UniTask>, IGameResultService, IEventSubscriber>().To<LaidPieceEventSubscriber>().AsCached();
+            Container.BindIFactory<IPieceState, IPiece>().To<_Piece>()
+                .FromComponentInNewPrefab(m_piecePrefab)
                 .UnderTransform(m_gameBoard.GetComponent<RectTransform>())
                 .AsCached();
 
@@ -56,8 +56,8 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
             // view
             Container.BindInterfacesTo<GameBoard>().FromInstance(m_gameBoard).AsCached();
 
-            // dispatchers
-            Container.BindInterfacesTo<StoneDispatcher>().AsCached();
+            // presenters
+            Container.BindInterfacesTo<PiecePresenter>().AsCached();
         }
     }
 }

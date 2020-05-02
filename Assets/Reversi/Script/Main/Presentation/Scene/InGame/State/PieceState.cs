@@ -7,7 +7,7 @@ using _ColorEnum = Pommel.Reversi.Domain.InGame.Color;
 
 namespace Pommel.Reversi.Presentation.Scene.InGame.State
 {
-    public interface IStoneState
+    public interface IPieceState
     {
         Point Point { get; }
 
@@ -16,7 +16,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
         void SetColor(_Color color);
     }
 
-    public sealed class StoneState : IStoneState
+    public sealed class PieceState : IPieceState
     {
         private readonly IReactiveProperty<_Color> m_color;
 
@@ -24,7 +24,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
 
         public IReadOnlyReactiveProperty<_Color> Color => m_color;
 
-        public StoneState(Point point, _ColorEnum color)
+        public PieceState(Point point, _ColorEnum color)
         {
             Point = point;
             m_color = new ReactiveProperty<_Color>(color.Convert());

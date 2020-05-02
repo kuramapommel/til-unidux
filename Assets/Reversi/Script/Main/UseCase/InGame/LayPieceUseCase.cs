@@ -4,12 +4,12 @@ using UniRx.Async;
 
 namespace Pommel.Reversi.UseCase.InGame
 {
-    public interface IPutStoneUseCase
+    public interface ILayPieceUseCase
     {
         UniTask<IGame> Execute(int x, int y);
     }
 
-    public sealed class PutStoneUseCase : IPutStoneUseCase
+    public sealed class LayPieceUseCase : ILayPieceUseCase
     {
         private readonly IGameRepository m_gameRepository;
 
@@ -17,7 +17,7 @@ namespace Pommel.Reversi.UseCase.InGame
 
         private readonly string m_gameId;
 
-        public PutStoneUseCase(IGameRepository gameRepository, IEventPublisher publisher, string gameId)
+        public LayPieceUseCase(IGameRepository gameRepository, IEventPublisher publisher, string gameId)
         {
             m_gameRepository = gameRepository;
             m_publisher = publisher;
@@ -29,9 +29,9 @@ namespace Pommel.Reversi.UseCase.InGame
             // todo バリデーションチェック
             var point = new Point(x, y);
             var game = await m_gameRepository.FindById(m_gameId);
-            var putted = game.PutStone(point);
+            var putted = game.LayPiece(point);
             var savedGame = await m_gameRepository.Save(putted);
-            _ = m_publisher.Publish(new PuttedStoneEvent(savedGame));
+            _ = m_publisher.Publish(new LaidPieceEvent(savedGame));
             return savedGame;
         }
     }

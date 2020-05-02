@@ -6,31 +6,31 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
 {
     public interface IGameBoardState
     {
-        IEnumerable<IStoneState> Stones { get; }
+        IEnumerable<IPieceState> Pieces { get; }
 
-        void Refresh(IEnumerable<Stone> stones);
+        void Refresh(IEnumerable<Piece> pieces);
     }
 
     public sealed class GameBoardState : IGameBoardState
     {
-        public IEnumerable<IStoneState> Stones { get; }
+        public IEnumerable<IPieceState> Pieces { get; }
 
-        public GameBoardState(IEnumerable<IStoneState> stones)
+        public GameBoardState(IEnumerable<IPieceState> pieces)
         {
-            Stones = stones.ToList();
+            Pieces = pieces.ToList();
         }
 
-        public void Refresh(IEnumerable<Stone> stones)
+        public void Refresh(IEnumerable<Piece> pieces)
         {
-            foreach (var (stone, state) in stones
+            foreach (var (piece, state) in pieces
                 .Join(
-                    Stones,
-                    stone => stone.Point,
+                    Pieces,
+                    pieceEntity => pieceEntity.Point,
                     state => state.Point,
-                    (stone, state) => (stone, state)
+                    (pieceEntity, state) => (pieceEntity, state)
                 ))
             {
-                state.SetColor(stone.Color.Convert());
+                state.SetColor(piece.Color.Convert());
             }
         }
     }

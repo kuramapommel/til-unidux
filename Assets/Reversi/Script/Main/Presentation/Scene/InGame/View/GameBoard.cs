@@ -6,36 +6,36 @@ using UniRx;
 using UniRx.Async;
 using UnityEngine;
 using Zenject;
-using _Stone = Pommel.Reversi.Domain.InGame.Stone;
+using _Piece = Pommel.Reversi.Domain.InGame.Piece;
 
 namespace Pommel.Reversi.Presentation.Scene.InGame.View
 {
     public interface IGameBoard
     {
-        void InstantiateStones(IGameBoardState state, Func<Point, UniTask<IEnumerable<_Stone>>> putAsync);
+        void InstantiatePieces(IGameBoardState state, Func<Point, UniTask<IEnumerable<_Piece>>> layPieceAsync);
     }
 
     [RequireComponent(typeof(RectTransform))]
     public sealed class GameBoard : MonoBehaviour, IGameBoard
     {
-        private IFactory<IStoneState, IStone> m_stoneFactory;
+        private IFactory<IPieceState, IPiece> m_pieceFactory;
 
-        private IList<IStone> Stones { get; } = new List<IStone>();
+        private IList<IPiece> Pieces { get; } = new List<IPiece>();
 
         [Inject]
-        public void Construct(IFactory<IStoneState, IStone> stoneFactory)
+        public void Construct(IFactory<IPieceState, IPiece> pieceFactory)
         {
-            m_stoneFactory = stoneFactory;
+            m_pieceFactory = pieceFactory;
         }
 
-        public void InstantiateStones(IGameBoardState state, Func<Point, UniTask<IEnumerable<_Stone>>> putAsync)
+        public void InstantiatePieces(IGameBoardState state, Func<Point, UniTask<IEnumerable<_Piece>>> layPieceAsync)
         {
-            foreach (var stoneState in state.Stones)
+            foreach (var pieceState in state.Pieces)
             {
-                var stone = m_stoneFactory.Create(stoneState);
-                stone.OnPutAsObservable()
-                    .Subscribe(_ => putAsync(stoneState.Point));
-                Stones.Add(stone);
+                var piece = m_pieceFactory.Create(pieceState);
+                piece.OnLayAsObservable()
+                    .Subscribe(_ => layPieceAsync(pieceState.Point));
+                Pieces.Add(piece);
             }
         }
     }

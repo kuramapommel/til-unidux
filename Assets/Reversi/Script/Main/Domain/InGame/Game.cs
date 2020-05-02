@@ -17,9 +17,9 @@ namespace Pommel.Reversi.Domain.InGame
 
         Turn Turn { get; }
 
-        IEnumerable<Stone> Stones { get; }
+        IEnumerable<Piece> Pieces { get; }
 
-        IGame PutStone(Point point);
+        IGame LayPiece(Point point);
     }
 
     public sealed class Game : IGame
@@ -32,11 +32,11 @@ namespace Pommel.Reversi.Domain.InGame
 
         public Turn Turn { get; } = Turn.FirstPlayer;
 
-        public IEnumerable<Stone> Stones { get; } = Enumerable.Range(0, 8)
+        public IEnumerable<Piece> Pieces { get; } = Enumerable.Range(0, 8)
             .SelectMany(x => Enumerable.Range(0, 8)
-                .Select(y => new Stone(new Point(x, y))));
+                .Select(y => new Piece(new Point(x, y))));
 
-        public IGame PutStone(Point point)
+        public IGame LayPiece(Point point)
         {
             var (playerColor, opponentColor) = Turn == Turn.FirstPlayer
                 ? (Color.Light, Color.Dark)
@@ -44,10 +44,10 @@ namespace Pommel.Reversi.Domain.InGame
 
             var aroundOpponentPieces = point.AdjacentPoints
                     .Join(
-                        Stones,
+                        Pieces,
                         aroundPoint => (aroundPoint, opponentColor),
-                        stone => (stone.Point, stone.Color),
-                        (aroundPoint, stone) => stone
+                        piece => (piece.Point, piece.Color),
+                        (aroundPoint, piece) => piece
                     )
                     .ToArray();
 
@@ -57,26 +57,26 @@ namespace Pommel.Reversi.Domain.InGame
             var flipTarget = aroundOpponentPieces
                 .Select(opponentPiece => point.CreateSpecifiedVector(opponentPiece.Point)
                     .Join(
-                        Stones,
+                        Pieces,
                         vectorPiece => (vectorPiece.X, vectorPiece.Y),
-                        stone => (stone.Point.X, stone.Point.Y),
-                        (vectorPiece, stone) => stone)
-                    .TakeWhile(stone => stone.Color == playerColor || stone.Color == Color.None)
+                        piece => (piece.Point.X, piece.Point.Y),
+                        (vectorPiece, piece) => piece)
+                    .TakeWhile(piece => piece.Color == playerColor || piece.Color == Color.None)
                     .ToArray())
-                .Where(vectorStones => vectorStones.Any(stone => stone.Color == playerColor))
-                .SelectMany(vectorStones => vectorStones.Select(stone => stone.SetColor(playerColor)))
+                .Where(vectorPieces => vectorPieces.Any(piece => piece.Color == playerColor))
+                .SelectMany(vectorPieces => vectorPieces.Select(piece => piece.SetColor(playerColor)))
                 .ToArray();
 
-            var flippedPieces = Stones
+            var flippedPieces = Pieces
                 .GroupJoin(
                     flipTarget,
-                    stone => (stone.Point.X, stone.Point.Y),
+                    piece => (piece.Point.X, piece.Point.Y),
                     flipped => (flipped.Point.X, flipped.Point.Y),
-                    (stone, flippeds) => (stone, flippeds)
+                    (piece, flippeds) => (piece, flippeds)
                 )
                 .SelectMany(
                     aggregate => aggregate.flippeds.DefaultIfEmpty(),
-                    (aggregate, flipped) => flipped ?? aggregate.stone
+                    (aggregate, flipped) => flipped ?? aggregate.piece
                 )
                 .ToArray();
 
@@ -93,13 +93,13 @@ namespace Pommel.Reversi.Domain.InGame
             Id = id;
         }
 
-        private Game(string id, string resultId, State state, Turn turn, IEnumerable<Stone> stones)
+        private Game(string id, string resultId, State state, Turn turn, IEnumerable<Piece> pieces)
         {
             Id = id;
             ResultId = resultId;
             State = state;
             Turn = turn;
-            Stones = stones;
+            Pieces = pieces;
         }
     }
 

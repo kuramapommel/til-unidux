@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Pommel.Reversi.Domain.InGame;
-using UniRx.Async;
 
 namespace Pommel.Reversi.UseCase.InGame.Dto
 {
@@ -8,10 +7,10 @@ namespace Pommel.Reversi.UseCase.InGame.Dto
     {
     }
 
-    public sealed class PuttedDto
+    public sealed class LaidDto
     {
-        public IEnumerable<Stone> Stones { get; }
+        public IEnumerable<Piece> Pieces { get; }
 
-        public PuttedDto(IEnumerable<Stone> stones) => Stones = stones;
+        public LaidDto(IEnumerable<Piece> pieces) => Pieces = pieces;
     }
 }
