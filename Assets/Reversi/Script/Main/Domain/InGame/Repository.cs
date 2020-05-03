@@ -1,4 +1,6 @@
 using UniRx.Async;
+using System.Collections.Generic;
+using System;
 
 namespace Pommel.Reversi.Domain.InGame
 {
@@ -8,5 +10,7 @@ namespace Pommel.Reversi.Domain.InGame
         UniTask<IGame> FindById(string id);
 
         UniTask<IGame> Save(IGame game);
+
+        UniTask<IEnumerable<IGame>> Fetch(Func<IGame, bool> predicate);
     }
 }

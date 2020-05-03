@@ -20,6 +20,8 @@ namespace Pommel.Reversi.Domain.InGame
         IEnumerable<Piece> Pieces { get; }
 
         IGame LayPiece(Point point);
+
+        IGame Start();
     }
 
     public sealed class Game : IGame
@@ -35,6 +37,11 @@ namespace Pommel.Reversi.Domain.InGame
         public IEnumerable<Piece> Pieces { get; } = Enumerable.Range(0, 8)
             .SelectMany(x => Enumerable.Range(0, 8)
                 .Select(y => new Piece(new Point(x, y))));
+
+        public Game(string id)
+        {
+            Id = id;
+        }
 
         public IGame LayPiece(Point point)
         {
@@ -95,10 +102,14 @@ namespace Pommel.Reversi.Domain.InGame
             return new Game(Id, ResultId, State, Turn, flippedPieces);
         }
 
-        public Game(string id)
-        {
-            Id = id;
-        }
+        public IGame Start() => new Game(Id, ResultId, State.Playing, Turn,
+            Pieces.Select(piece =>
+            {
+                if (Point.InitialDarkPoints.Contains(piece.Point)) return piece.SetColor(Color.Dark);
+                if (Point.InitialLightPoints.Contains(piece.Point)) return piece.SetColor(Color.Light);
+                return piece;
+            })
+            .ToArray());
 
         private Game(string id, string resultId, State state, Turn turn, IEnumerable<Piece> pieces)
         {

@@ -56,5 +56,21 @@ namespace Pommel.Reversi.Domain.InGame
 
             throw new ArgumentException();
         }
+
+        public static IEnumerable<Point> InitialLightPoints => initialLightPoints.Value;
+
+        public static IEnumerable<Point> InitialDarkPoints => initialDarkPoints.Value;
+
+        private static readonly Lazy<IEnumerable<Point>> initialLightPoints = new Lazy<IEnumerable<Point>>(() => new[]
+        {
+            new Point(3, 3),
+            new Point(4, 4)
+        });
+
+        private static readonly Lazy<IEnumerable<Point>> initialDarkPoints = new Lazy<IEnumerable<Point>>(() => new[]
+        {
+            new Point(3, 4),
+            new Point(4, 3)
+        });
     }
 }
