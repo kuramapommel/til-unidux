@@ -7,24 +7,18 @@ namespace Pommel.Reversi.Infrastructure.Store.System
 {
     public sealed class EventBroker : IEventBroker
     {
-        private readonly IDictionary<int, IEventSubscriber> m_store = new Dictionary<int, IEventSubscriber>();
+        private readonly IDictionary<Type, IEventSubscriber> m_store = new Dictionary<Type, IEventSubscriber>();
 
-        public UniTask<EventMessage> SendMessage<EventMessage>(EventMessage message) where EventMessage : IEventMessage
-        {
-            var hash = typeof(EventMessage).GetHashCode();
-            return m_store.TryGetValue(hash, out var subscriber)
+        public UniTask<EventMessage> SendMessage<EventMessage>(EventMessage message) where EventMessage : IEventMessage => m_store.TryGetValue(typeof(EventMessage), out var subscriber)
                 ? subscriber.ReceivedMessage(message)
                     .ContinueWith(() => message)
                 : throw new IndexOutOfRangeException();
-        }
 
-        public UniTask RegisterSubscriber<EventMessage>(IEventSubscriber subscriber) where EventMessage : IEventMessage
+        public UniTask RegisterSubscriber<EventMessage>(IEventSubscriber subscriber) where EventMessage : IEventMessage => UniTask.Run(() =>
         {
-            var hash = typeof(EventMessage).GetHashCode();
-
-            if (m_store.ContainsKey(hash)) m_store.Remove(hash);
-            m_store.Add(hash, subscriber);
-            return UniTask.CompletedTask;
-        }
+            var key = typeof(EventMessage);
+            if (m_store.ContainsKey(key)) m_store.Remove(key);
+            m_store.Add(key, subscriber);
+        });
     }
 }

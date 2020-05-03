@@ -58,7 +58,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
 
                     m_gameBoard.InstantiatePieces(
                         m_gameState,
-                        point => laypieceUsecase.Execute(point.X, point.Y).ToObservable().Select(laid => laid.Pieces));
+                        laypieceUsecase.Execute);
                 },
                 UnityEngine.Debug.Log);
         }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -45,9 +44,12 @@ namespace Pommel.Reversi.Domain.InGame
 
         public IGame LayPiece(Point point)
         {
-            var (playerColor, opponentColor) = Turn == Turn.FirstPlayer
-                ? (Color.Light, Color.Dark)
-                : (Color.Dark, Color.Light);
+            // すでにおいてあった場合は置けない
+            if (Pieces.First(piece => piece.Point.X == point.X && piece.Point.Y == point.Y).Color != Color.None) return this;
+
+            var (playerColor, opponentColor, nextTurn) = Turn == Turn.FirstPlayer
+                ? (Color.Dark, Color.Light, Turn.SecondPlayer)
+                : (Color.Light, Color.Dark, Turn.FirstPlayer);
 
             var aroundOpponentPieces = point.AdjacentPoints
                     .Join(
@@ -59,10 +61,10 @@ namespace Pommel.Reversi.Domain.InGame
                     .ToArray();
 
             // 周りに敵の駒がない場合は置けない
-            if (!aroundOpponentPieces.Any()) throw new ArgumentException();
+            if (!aroundOpponentPieces.Any()) return this;
 
             var flipTarget = aroundOpponentPieces
-                .Select(opponentPiece =>
+                .SelectMany(opponentPiece =>
                 {
                     var vectorPieces = point.CreateSpecifiedVector(opponentPiece.Point)
                         .Join(
@@ -72,14 +74,19 @@ namespace Pommel.Reversi.Domain.InGame
                             (vectorPiece, piece) => piece)
                         .ToArray();
                     var targets = vectorPieces.TakeWhile(piece => piece.Color != playerColor);
-                    return (targets, other: vectorPieces.ElementAtOrDefault(targets.Count()));
+                    var betweenOther = vectorPieces.ElementAtOrDefault(targets.Count());
+
+                    if (targets.Any(piece => piece.Color == Color.None)
+                        || betweenOther == null
+                        || betweenOther.Color != playerColor
+                    ) return Enumerable.Empty<Piece>();
+
+                    return targets.Select(piece => piece.SetColor(playerColor));
                 })
-                .Where(aggregate =>
-                    aggregate.other != null
-                    && aggregate.other.Color == playerColor
-                    && !aggregate.targets.Any(piece => piece.Color == Color.None))
-                .SelectMany(aggregate => aggregate.targets.Select(piece => piece.SetColor(playerColor)))
                 .ToArray();
+
+            // 裏返す対象の駒がない場合は置けない
+            if (!flipTarget.Any()) return this;
 
             var flippedPieces = Pieces
                 .GroupJoin(
@@ -90,7 +97,10 @@ namespace Pommel.Reversi.Domain.InGame
                 )
                 .SelectMany(
                     aggregate => aggregate.flippeds.DefaultIfEmpty(),
-                    (aggregate, flipped) => flipped ?? aggregate.piece
+                    (aggregate, flipped) => flipped
+                        ?? (aggregate.piece.Point.X == point.X && aggregate.piece.Point.Y == point.Y
+                            ? aggregate.piece.SetColor(playerColor)
+                            : aggregate.piece)
                 )
                 .ToArray();
 
@@ -99,7 +109,7 @@ namespace Pommel.Reversi.Domain.InGame
             // todo 相手側が駒を置けない場合はプレイヤー側が続けて駒を置くことができるかチェック、できる場合はターンを保持したまま return
 
             // todo 両者置けない場合はゲームセットとして return
-            return new Game(Id, ResultId, State, Turn, flippedPieces);
+            return new Game(Id, ResultId, State, nextTurn, flippedPieces);
         }
 
         public IGame Start() => new Game(Id, ResultId, State.Playing, Turn,

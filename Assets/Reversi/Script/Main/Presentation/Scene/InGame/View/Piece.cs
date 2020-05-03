@@ -9,23 +9,26 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.View
 {
     public interface IPiece
     {
-        IObservable<Unit> OnLayAsObservable();
+        IObservable<Unit> OnLayAsObservable { get; }
     }
 
     [RequireComponent(typeof(Button))]
     [RequireComponent(typeof(Image))]
     public sealed class Piece : MonoBehaviour, IPiece
     {
-        private Button m_button;
-
         private Image m_image;
 
-        public IObservable<Unit> OnLayAsObservable() => m_button.OnClickAsObservable().TakeUntilDestroy(this);
+        public IObservable<Unit> OnLayAsObservable { get; private set; }
 
         [Inject]
         public void Construct(IPieceState pieceState)
         {
-            m_button = GetComponent<Button>();
+            var button = GetComponent<Button>();
+            OnLayAsObservable = button
+                .OnClickAsObservable()
+                .TakeUntilDestroy(this)
+                .Publish()
+                .RefCount();
             m_image = GetComponent<Image>();
 
             pieceState.Color.Subscribe(color => m_image.color = color);

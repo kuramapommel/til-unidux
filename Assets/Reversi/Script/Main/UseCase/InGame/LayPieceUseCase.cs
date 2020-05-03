@@ -26,12 +26,11 @@ namespace Pommel.Reversi.UseCase.InGame
 
         public async UniTask<IGame> Execute(int x, int y)
         {
-            // todo バリデーションチェック
             var point = new Point(x, y);
             var game = await m_gameRepository.FindById(m_gameId);
             var putted = game.LayPiece(point);
             var savedGame = await m_gameRepository.Save(putted);
-            _ = m_publisher.Publish(new LaidPieceEvent(savedGame));
+            _ = m_publisher.Publish<ILaidPieceEvent>(new LaidPieceEvent(savedGame));
             return savedGame;
         }
     }

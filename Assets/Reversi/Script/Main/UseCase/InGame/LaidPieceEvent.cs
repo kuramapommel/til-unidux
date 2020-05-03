@@ -35,7 +35,7 @@ namespace Pommel.Reversi.UseCase.InGame
 
         public async UniTask ReceivedMessage<EventMessage>(EventMessage message) where EventMessage : IEventMessage
         {
-            if (!(message is LaidPieceEvent laidPieceEvent)) throw new System.AggregateException();
+            if (!(message is ILaidPieceEvent laidPieceEvent)) throw new AggregateException();
 
             var game = laidPieceEvent.Game;
             if (game.State == State.GameSet)
