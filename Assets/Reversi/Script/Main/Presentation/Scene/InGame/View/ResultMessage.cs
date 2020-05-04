@@ -33,12 +33,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.View
                 .TakeUntilDestroy(this)
                 .Where(on => on.StateInfo.IsName("Open"))
                 .SkipWhile(on => on.StateInfo.normalizedTime <= 1.0f)
-                .Subscribe(_ =>
-                {
-                    // アニメーション終了後はそのままのサイズを維持する
-                    m_animator.enabled = false;
-                    transform.localScale = new Vector3(transform.localScale.x, 1f, transform.localScale.z);
-                });
+                .Subscribe(_ => transform.localScale = new Vector3(transform.localScale.x, 1f, transform.localScale.z));
 
             state.Winner
                 .Subscribe(winner =>
