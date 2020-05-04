@@ -49,7 +49,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
         {
             foreach (var (piece, state) in pieces
                 .Join(
-                    PieceStates,
+                    m_pieceStates,
                     pieceEntity => pieceEntity.Point,
                     state => state.Point,
                     (pieceEntity, state) => (pieceEntity, state)

@@ -45,7 +45,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
             m_eventBroker.RegisterSubscriber<ILaidPieceEvent>(
                 m_eventSubscriberFactory.Create(
                     async result => { }, // todo result 処理の実装
-                    async putted => m_gameState.Refresh(putted.Pieces),
+                    async game => m_gameState.Refresh(game.Pieces),
                     m_gameResultService));
 
             m_startGameUseCase.Execute()

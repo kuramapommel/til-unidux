@@ -66,7 +66,7 @@ namespace Pommel.Reversi.Domain.InGame
             var flipTarget = aroundOpponentPieces
                 .SelectMany(opponentPiece =>
                 {
-                    var vectorPieces = point.CreateSpecifiedVector(opponentPiece.Point)
+                    var vectorPieces = point.CreateSpecifiedVectorPoints(opponentPiece.Point)
                         .Join(
                             Pieces,
                             vectorPiece => (vectorPiece.X, vectorPiece.Y),
