@@ -13,9 +13,9 @@ namespace Pommel.Reversi.UseCase.InGame
     {
         private readonly IGameRepository m_gameRepository;
 
-        private readonly IFactory<string, IGame> m_gameFactory;
+        private readonly IFactory<string, string, IGame> m_gameFactory;
 
-        public CreateGameUseCase(IGameRepository gameRepository, IFactory<string, IGame> gameFactory)
+        public CreateGameUseCase(IGameRepository gameRepository, IFactory<string, string, IGame> gameFactory)
         {
             m_gameRepository = gameRepository;
             m_gameFactory = gameFactory;
@@ -25,8 +25,10 @@ namespace Pommel.Reversi.UseCase.InGame
         {
             // todo ID Generator 的なものをかませる
             var gameId = System.Guid.NewGuid().ToString();
+            // todo ID Generator 的なものをかませる
+            var resultId = System.Guid.NewGuid().ToString();
 
-            return await m_gameRepository.Save(m_gameFactory.Create(gameId));
+            return await m_gameRepository.Save(m_gameFactory.Create(gameId, resultId));
         }
     }
 }

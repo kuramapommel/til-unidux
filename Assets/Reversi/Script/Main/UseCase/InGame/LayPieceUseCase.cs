@@ -28,8 +28,11 @@ namespace Pommel.Reversi.UseCase.InGame
         {
             var point = new Point(x, y);
             var game = await m_gameRepository.FindById(m_gameId);
-            var putted = game.LayPiece(point);
-            var savedGame = await m_gameRepository.Save(putted);
+
+            // 置けない場合は何もしない
+            if (!game.IsValide(game.TurnPlayer, point, game.Pieces)) return game;
+            var laid = game.LayPiece(point);
+            var savedGame = await m_gameRepository.Save(laid);
             _ = m_publisher.Publish<ILaidPieceEvent>(new LaidPieceEvent(savedGame));
             return savedGame;
         }

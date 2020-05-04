@@ -8,8 +8,15 @@ namespace Pommel.Reversi.Domain.InGame
         (int white, int black) Count { get; }
 
         Winner Winner { get; }
+    }
 
-        // todo 報酬などあるならもたせる
+    public sealed class GameResult : IGameResult
+    {
+        public string Id { get; }
+
+        public (int white, int black) Count { get; }
+
+        public Winner Winner { get; }
     }
 
     public enum Winner

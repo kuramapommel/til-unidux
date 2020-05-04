@@ -13,7 +13,11 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
 
         IObservable<Unit> OnStart { get; }
 
+        IObservable<Winner> Winner { get; } 
+
         void Start(IEnumerable<Piece> pieces);
+
+        void Finish(Winner winner);
 
         void Refresh(IEnumerable<Piece> pieces);
     }
@@ -26,9 +30,13 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
 
         private readonly ISubject<Unit> m_onStart = new Subject<Unit>();
 
+        private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>();
+
         public IEnumerable<IPieceState> PieceStates => m_pieceStates;
 
         public IObservable<Unit> OnStart => m_onStart;
+
+        public IObservable<Winner> Winner => m_winner.SkipLatestValueOnSubscribe();
 
         public GameState(IFactory<Point, Color, IPieceState> pieceStateFactory)
         {
@@ -44,6 +52,8 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
             m_onStart.OnNext(Unit.Default);
             m_onStart.OnCompleted();
         }
+
+        public void Finish(Winner winner) => m_winner.Value = winner;
 
         public void Refresh(IEnumerable<Piece> pieces)
         {

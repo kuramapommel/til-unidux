@@ -9,10 +9,8 @@ namespace Pommel.Reversi.Infrastructure.Service.InGame
     {
         private readonly IGameResultStore m_store;
 
-        public UniTask<ResultDto> FindById(string id) => UniTask.Run(() =>
-        {
-            var result = m_store[id];
-            return new ResultDto();
-        });
+        public GameResultService(IGameResultStore store) => m_store = store;
+
+        public UniTask<ResultDto> FindById(string id) => UniTask.Run(() => m_store[id]);
     }
 }

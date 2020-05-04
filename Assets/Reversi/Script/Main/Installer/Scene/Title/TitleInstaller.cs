@@ -17,10 +17,11 @@ namespace Pommel.Reversi.Installer.Scene.Title
         public override void InstallBindings()
         {
             // factories
-            Container.BindIFactory<string, IGame>().To<Game>().AsCached();
+            Container.BindIFactory<string, string, IGame>().To<Game>().AsCached();
 
             // stores
             Container.Bind<IGameStore>().FromInstance(GameStore.Instance).AsSingle();
+            Container.Bind<IGameResultStore>().FromInstance(GameResultStore.Instance).AsSingle();
 
             // repositories
             Container.BindInterfacesTo<GameRepository>().AsCached();

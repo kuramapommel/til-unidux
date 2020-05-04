@@ -27,6 +27,9 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
         [SerializeField]
         private GameBoard m_gameBoard;
 
+        [SerializeField]
+        private ResultMessage m_resultMessage;
+
         public override void InstallBindings()
         {
             // factories
@@ -62,6 +65,7 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
 
             // view
             Container.BindInterfacesTo<GameBoard>().FromInstance(m_gameBoard).AsCached();
+            Container.BindInterfacesTo<ResultMessage>().FromInstance(m_resultMessage).AsCached();
 
             // presenters
             Container.BindInterfacesTo<PiecePresenter>().AsCached();
