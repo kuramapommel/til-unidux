@@ -1,39 +1,39 @@
 using System;
 using System.Collections.Generic;
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.Presentation.Scene.InGame.State;
+using Pommel.Reversi.Presentation.Model.InGame;
 using UniRx;
 using UniRx.Async;
 using UnityEngine;
 using Zenject;
 
-namespace Pommel.Reversi.Presentation.Scene.InGame.View
+namespace Pommel.Reversi.Presentation.View.InGame
 {
     public interface IGameBoard
     {
-        void InstantiatePieces(IGameState state, Func<int, int, UniTask<IGame>> layPiece);
+        void InstantiatePieces(IGameModel model, Func<int, int, UniTask<IGame>> layPiece);
     }
 
     [RequireComponent(typeof(RectTransform))]
     public sealed class GameBoard : MonoBehaviour, IGameBoard
     {
-        private IFactory<IPieceState, IPiece> m_pieceFactory;
+        private IFactory<IPieceModel, IPiece> m_pieceFactory;
 
         private IList<IPiece> Pieces { get; } = new List<IPiece>();
 
         [Inject]
-        public void Construct(IFactory<IPieceState, IPiece> pieceFactory)
+        public void Construct(IFactory<IPieceModel, IPiece> pieceFactory)
         {
             m_pieceFactory = pieceFactory;
         }
 
-        public void InstantiatePieces(IGameState state, Func<int, int, UniTask<IGame>> layPiece)
+        public void InstantiatePieces(IGameModel model, Func<int, int, UniTask<IGame>> layPiece)
         {
-            foreach (var pieceState in state.PieceStates)
+            foreach (var pieceModel in model.PieceModels)
             {
-                var piece = m_pieceFactory.Create(pieceState);
+                var piece = m_pieceFactory.Create(pieceModel);
                 piece.OnLayAsObservable
-                    .Subscribe(_ => layPiece(pieceState.Point.X, pieceState.Point.Y), Debug.Log);
+                    .Subscribe(_ => layPiece(pieceModel.Point.X, pieceModel.Point.Y), Debug.Log);
                 Pieces.Add(piece);
             }
         }

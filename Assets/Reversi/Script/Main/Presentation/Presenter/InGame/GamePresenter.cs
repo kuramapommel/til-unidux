@@ -1,5 +1,5 @@
 using System;
-using Pommel.Reversi.Presentation.Scene.InGame.State;
+using Pommel.Reversi.Presentation.Model.InGame;
 using Pommel.Reversi.UseCase.InGame;
 using Pommel.Reversi.UseCase.InGame.Dto;
 using Pommel.Reversi.UseCase.Shared;
@@ -7,7 +7,7 @@ using UniRx;
 using UniRx.Async;
 using Zenject;
 
-namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
+namespace Pommel.Reversi.Presentation.Presenter.InGame
 {
     public interface IGamePresenter
     {
@@ -21,7 +21,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
 
         private readonly IEventBroker m_eventBroker;
 
-        private readonly IGameState m_gameState;
+        private readonly IGameModel m_gameModel;
 
         private readonly IStartGameUseCase m_startGameUseCase;
 
@@ -29,14 +29,14 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
             IFactory<Func<ResultDto, UniTask>, Func<LaidDto, UniTask>, IGameResultService, IEventSubscriber> eventSubscriberFactory,
             IGameResultService gameResultService,
             IEventBroker eventBroker,
-            IGameState gameState,
+            IGameModel gameModel,
             IStartGameUseCase startGameUseCase
             )
         {
             m_eventSubscriberFactory = eventSubscriberFactory;
             m_gameResultService = gameResultService;
             m_eventBroker = eventBroker;
-            m_gameState = gameState;
+            m_gameModel = gameModel;
             m_startGameUseCase = startGameUseCase;
         }
 
@@ -44,14 +44,14 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
         {
             m_eventBroker.RegisterSubscriber<ILaidPieceEvent>(
                 m_eventSubscriberFactory.Create(
-                    async result => m_gameState.Finish(result.Winner), // todo result 処理の実装
-                    async game => m_gameState.Refresh(game.Pieces),
+                    async result => m_gameModel.Finish(result.Winner), // todo result 処理の実装
+                    async game => m_gameModel.Refresh(game.Pieces),
                     m_gameResultService));
 
             m_startGameUseCase.Execute()
                 .ToObservable()
                 .Subscribe(
-                    game => m_gameState.Start(game.Pieces),
+                    game => m_gameModel.Start(game.Pieces),
                     UnityEngine.Debug.Log
                     );
         }

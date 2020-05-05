@@ -5,11 +5,11 @@ using Pommel.Reversi.Domain.InGame;
 using UniRx;
 using Zenject;
 
-namespace Pommel.Reversi.Presentation.Scene.InGame.State
+namespace Pommel.Reversi.Presentation.Model.InGame
 {
-    public interface IGameState
+    public interface IGameModel
     {
-        IEnumerable<IPieceState> PieceStates { get; }
+        IEnumerable<IPieceModel> PieceModels { get; }
 
         IObservable<Unit> OnStart { get; }
 
@@ -22,32 +22,32 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
         void Refresh(IEnumerable<Piece> pieces);
     }
 
-    public sealed class GameState : IGameState
+    public sealed class GameModel : IGameModel
     {
-        private readonly IFactory<Point, Color, IPieceState> m_pieceStateFactory;
+        private readonly IFactory<Point, Color, IPieceModel> m_pieceModelFactory;
 
-        private readonly IList<IPieceState> m_pieceStates = new List<IPieceState>();
+        private readonly IList<IPieceModel> m_pieceModels = new List<IPieceModel>();
 
         private readonly ISubject<Unit> m_onStart = new Subject<Unit>();
 
         private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>();
 
-        public IEnumerable<IPieceState> PieceStates => m_pieceStates;
+        public IEnumerable<IPieceModel> PieceModels => m_pieceModels;
 
         public IObservable<Unit> OnStart => m_onStart;
 
         public IObservable<Winner> Winner => m_winner.SkipLatestValueOnSubscribe();
 
-        public GameState(IFactory<Point, Color, IPieceState> pieceStateFactory)
+        public GameModel(IFactory<Point, Color, IPieceModel> pieceModelFactory)
         {
-            m_pieceStateFactory = pieceStateFactory;
+            m_pieceModelFactory = pieceModelFactory;
         }
 
         public void Start(IEnumerable<Piece> pieces)
         {
-            foreach (var pieceState in pieces.Select(piece => m_pieceStateFactory.Create(piece.Point, piece.Color)))
+            foreach (var pieceModel in pieces.Select(piece => m_pieceModelFactory.Create(piece.Point, piece.Color)))
             {
-                m_pieceStates.Add(pieceState);
+                m_pieceModels.Add(pieceModel);
             }
             m_onStart.OnNext(Unit.Default);
             m_onStart.OnCompleted();
@@ -57,15 +57,15 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.State
 
         public void Refresh(IEnumerable<Piece> pieces)
         {
-            foreach (var (piece, state) in pieces
+            foreach (var (piece, model) in pieces
                 .Join(
-                    m_pieceStates,
+                    m_pieceModels,
                     pieceEntity => pieceEntity.Point,
-                    state => state.Point,
-                    (pieceEntity, state) => (pieceEntity, state)
+                    model => model.Point,
+                    (pieceEntity, model) => (pieceEntity, model)
                 ))
             {
-                state.SetColor(piece.Color.Convert());
+                model.SetColor(piece.Color.Convert());
             }
         }
     }

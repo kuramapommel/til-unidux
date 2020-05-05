@@ -1,11 +1,11 @@
 using System;
-using Pommel.Reversi.Presentation.Scene.InGame.State;
+using Pommel.Reversi.Presentation.Model.InGame;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace Pommel.Reversi.Presentation.Scene.InGame.View
+namespace Pommel.Reversi.Presentation.View.InGame
 {
     public interface IPiece
     {
@@ -21,7 +21,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.View
         public IObservable<Unit> OnLayAsObservable { get; private set; }
 
         [Inject]
-        public void Construct(IPieceState pieceState)
+        public void Construct(IPieceModel pieceModel)
         {
             var button = GetComponent<Button>();
             OnLayAsObservable = button
@@ -31,7 +31,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.View
                 .RefCount();
             m_image = GetComponent<Image>();
 
-            pieceState.Color.Subscribe(color => m_image.color = color);
+            pieceModel.Color.Subscribe(color => m_image.color = color);
         }
     }
 }

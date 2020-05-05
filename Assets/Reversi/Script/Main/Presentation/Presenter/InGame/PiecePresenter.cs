@@ -1,13 +1,13 @@
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.Presentation.Scene.InGame.State;
-using Pommel.Reversi.Presentation.Scene.InGame.View;
+using Pommel.Reversi.Presentation.Model.InGame;
+using Pommel.Reversi.Presentation.View.InGame;
 using Pommel.Reversi.UseCase.InGame;
 using Pommel.Reversi.UseCase.Shared;
 using UniRx;
 using UniRx.Async;
 using Zenject;
 
-namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
+namespace Pommel.Reversi.Presentation.Presenter.InGame
 {
     public interface IPiecePresenter
     {
@@ -23,7 +23,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
 
         private readonly IEventPublisher m_eventPublisher;
 
-        private readonly IGameState m_gameState;
+        private readonly IGameModel m_gameModel;
 
         private readonly IGameBoard m_gameBoard;
 
@@ -32,7 +32,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
             IGameRepository gameRepository,
             IGameService gameService,
             IEventPublisher eventPublisher,
-            IGameState gameState,
+            IGameModel gameModel,
             IGameBoard gameBoard
             )
         {
@@ -40,13 +40,13 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
             m_gameRepository = gameRepository;
             m_gameService = gameService;
             m_eventPublisher = eventPublisher;
-            m_gameState = gameState;
+            m_gameModel = gameModel;
             m_gameBoard = gameBoard;
         }
 
         public void Initialize()
         {
-            m_gameState.OnStart
+            m_gameModel.OnStart
                 .ContinueWith(_ => m_gameService.FetchPlaying().ToObservable())
                 .Subscribe(game =>
                 {
@@ -57,7 +57,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.Presenter
                             );
 
                     m_gameBoard.InstantiatePieces(
-                        m_gameState,
+                        m_gameModel,
                         laypieceUsecase.Execute);
                 },
                 UnityEngine.Debug.Log);

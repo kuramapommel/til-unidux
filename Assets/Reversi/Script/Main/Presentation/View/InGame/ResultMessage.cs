@@ -1,12 +1,12 @@
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.Presentation.Scene.InGame.State;
+using Pommel.Reversi.Presentation.Model.InGame;
 using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace Pommel.Reversi.Presentation.Scene.InGame.View
+namespace Pommel.Reversi.Presentation.View.InGame
 {
     public interface IResultMessage
     {
@@ -22,7 +22,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.View
         private Text m_text;
 
         [Inject]
-        public void Construct(IGameState state)
+        public void Construct(IGameModel model)
         {
             m_animator = GetComponent<Animator>();
             m_stateMachineTrigger = m_animator.GetBehaviour<ObservableStateMachineTrigger>();
@@ -35,7 +35,7 @@ namespace Pommel.Reversi.Presentation.Scene.InGame.View
                 .SkipWhile(on => on.StateInfo.normalizedTime <= 1.0f)
                 .Subscribe(_ => transform.localScale = new Vector3(transform.localScale.x, 1f, transform.localScale.z));
 
-            state.Winner
+            model.Winner
                 .Subscribe(winner =>
                 {
                     switch (winner)

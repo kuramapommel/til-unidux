@@ -26,10 +26,10 @@ namespace Pommel.Reversi.Installer.Scene.Title
             // repositories
             Container.BindInterfacesTo<GameRepository>().AsCached();
 
-            // usecase
+            // usecases
             Container.BindInterfacesTo<CreateGameUseCase>().AsCached();
 
-            // view
+            // views
             Container.BindInterfacesTo<TitleTapArea>().FromInstance(m_titleTapArea).AsCached();
 
             // presenters
