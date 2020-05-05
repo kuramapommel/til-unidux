@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace Pommel.Reversi.Presentation.Scene.Title.View
+namespace Pommel.Reversi.Presentation.View.Title
 {
     public interface ITitleTapArea
     {

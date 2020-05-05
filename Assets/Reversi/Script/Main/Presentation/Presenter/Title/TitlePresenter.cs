@@ -1,11 +1,11 @@
 using Pommel.Reversi.Presentation.Project; // todo static に依存するのをやめる
 using Pommel.Reversi.Presentation.Project.SceneChange;
-using Pommel.Reversi.Presentation.Scene.Title.View;
+using Pommel.Reversi.Presentation.View.Title;
 using Pommel.Reversi.UseCase.InGame;
 using UniRx;
 using Zenject;
 
-namespace Pommel.Reversi.Presentation.Scene.Title.Presenter
+namespace Pommel.Reversi.Presentation.Presenter.Title
 {
     public interface ITitlePresenter
     {

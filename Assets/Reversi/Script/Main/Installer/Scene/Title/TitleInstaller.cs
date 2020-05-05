@@ -1,8 +1,8 @@
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Infrastructure.Repository.InGame;
 using Pommel.Reversi.Infrastructure.Store.InGame;
-using Pommel.Reversi.Presentation.Scene.Title.Presenter;
-using Pommel.Reversi.Presentation.Scene.Title.View;
+using Pommel.Reversi.Presentation.Presenter.Title;
+using Pommel.Reversi.Presentation.View.Title;
 using Pommel.Reversi.UseCase.InGame;
 using UnityEngine;
 using Zenject;
