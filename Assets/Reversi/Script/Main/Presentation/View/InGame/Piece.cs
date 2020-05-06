@@ -30,10 +30,5 @@ namespace Pommel.Reversi.Presentation.View.InGame
 
             pieceModel.Color.Subscribe(color => m_image.color = color);
         }
-
-        public sealed class Factory : PlaceholderFactory<IPiece>
-        {
-
-        }
     }
 }

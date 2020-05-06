@@ -33,11 +33,9 @@ namespace Pommel.Reversi.Presentation.View.Title
                     await m_sceneLoader.LoadSceneAsync(
                         "InGame",
                         LoadSceneMode.Additive,
-                        container =>
-                        {
-                            container.Bind<IGameModel>().FromInstance(model).AsCached();
-                        });
+                        container => container.Bind<IGameModel>().FromInstance(model).AsCached());
                     await SceneManager.UnloadSceneAsync("Title");
+                    await model.Start();
                 });
         }
     }

@@ -1,6 +1,5 @@
 using Pommel.Reversi.Infrastructure.Service.InGame;
 using Pommel.Reversi.Presentation.Model.InGame;
-using Pommel.Reversi.Presentation.Presenter.InGame;
 using Pommel.Reversi.Presentation.View.InGame;
 using UnityEngine;
 using Zenject;
@@ -33,9 +32,6 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
             // views
             Container.BindInterfacesTo<GameBoard>().FromInstance(m_gameBoard).AsCached();
             Container.BindInterfacesTo<ResultMessage>().FromInstance(m_resultMessage).AsCached();
-
-            // presenters
-            Container.BindInterfacesTo<GamePresenter>().AsCached();
         }
     }
 }
