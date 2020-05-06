@@ -9,7 +9,7 @@ using Pommel.Reversi.Presentation.Model.InGame;
 using Pommel.Reversi.Presentation.View.Title;
 using Pommel.Reversi.UseCase.InGame;
 using Pommel.Reversi.UseCase.InGame.Dto;
-using Pommel.Reversi.UseCase.Shared;
+using Pommel.Reversi.UseCase.System;
 using UniRx.Async;
 using UnityEngine;
 using Zenject;

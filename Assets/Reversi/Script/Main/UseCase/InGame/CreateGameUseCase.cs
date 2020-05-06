@@ -24,9 +24,9 @@ namespace Pommel.Reversi.UseCase.InGame
         public async UniTask<IGame> Execute()
         {
             // todo ID Generator 的なものをかませる
-            var gameId = System.Guid.NewGuid().ToString();
+            var gameId = global::System.Guid.NewGuid().ToString();
             // todo ID Generator 的なものをかませる
-            var resultId = System.Guid.NewGuid().ToString();
+            var resultId = global::System.Guid.NewGuid().ToString();
 
             return await m_gameRepository.Save(m_gameFactory.Create(gameId, resultId));
         }

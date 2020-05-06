@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Pommel.Reversi.UseCase.Shared;
+using Pommel.Reversi.UseCase.System;
 using UniRx.Async;
 
 namespace Pommel.Reversi.Infrastructure.Store.System

@@ -1,6 +1,6 @@
 using UniRx.Async;
 
-namespace Pommel.Reversi.UseCase.Shared
+namespace Pommel.Reversi.UseCase.System
 {
     public interface IEventSubscriber
     {
