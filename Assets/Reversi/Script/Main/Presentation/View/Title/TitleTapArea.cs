@@ -1,8 +1,8 @@
 using Pommel.Reversi.Presentation.Model.InGame;
-using Pommel.Reversi.Presentation.Project; // todo static に依存するのをやめる
-using Pommel.Reversi.Presentation.Project.SceneChange;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Zenject;
 
@@ -17,9 +17,12 @@ namespace Pommel.Reversi.Presentation.View.Title
     {
         private Button m_tapArea;
 
+        private ZenjectSceneLoader m_sceneLoader;
+
         [Inject]
-        public void Construct(IGameModel model)
+        public void Construct(IGameModel model, ZenjectSceneLoader sceneLoader)
         {
+            m_sceneLoader = sceneLoader;
             m_tapArea = GetComponent<Button>();
             m_tapArea
                 .OnClickAsObservable()
@@ -27,7 +30,14 @@ namespace Pommel.Reversi.Presentation.View.Title
                 .Subscribe(async _ =>
                 {
                     await model.CreateGameAsync();
-                    GameCore.ChangeScene(Page.InGamePage);
+                    await m_sceneLoader.LoadSceneAsync(
+                        "InGame",
+                        LoadSceneMode.Additive,
+                        container =>
+                        {
+                            container.Bind<IGameModel>().FromInstance(model).AsCached();
+                        });
+                    await SceneManager.UnloadSceneAsync("Title");
                 });
         }
     }

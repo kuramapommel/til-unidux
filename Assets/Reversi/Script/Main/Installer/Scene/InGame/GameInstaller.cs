@@ -1,11 +1,7 @@
-
-using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Infrastructure.Service.InGame;
 using Pommel.Reversi.Presentation.Model.InGame;
 using Pommel.Reversi.Presentation.Presenter.InGame;
 using Pommel.Reversi.Presentation.View.InGame;
-using Pommel.Reversi.UseCase.InGame;
-using Pommel.Reversi.UseCase.Shared;
 using UnityEngine;
 using Zenject;
 using _Piece = Pommel.Reversi.Presentation.View.InGame.Piece;

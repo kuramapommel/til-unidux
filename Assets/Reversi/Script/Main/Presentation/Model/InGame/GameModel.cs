@@ -54,7 +54,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         public IObservable<IGame> OnStart => m_onStart;
 
-        public IObservable<Winner> Winner => m_winner.SkipLatestValueOnSubscribe();
+        public IObservable<Winner> Winner => m_winner;
 
         public GameModel(
             IFactory<string, Point, Color, ILayPieceUseCase, IPieceModel> pieceModelFactory,
