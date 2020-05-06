@@ -6,7 +6,7 @@ namespace Pommel.Reversi.UseCase.InGame
 {
     public interface ILayPieceUseCase
     {
-        UniTask<IGame> Execute(int x, int y);
+        UniTask<IGame> Execute(string gameId, int x, int y);
     }
 
     public sealed class LayPieceUseCase : ILayPieceUseCase
@@ -15,19 +15,16 @@ namespace Pommel.Reversi.UseCase.InGame
 
         private readonly IEventPublisher m_publisher;
 
-        private readonly string m_gameId;
-
-        public LayPieceUseCase(IGameRepository gameRepository, IEventPublisher publisher, string gameId)
+        public LayPieceUseCase(IGameRepository gameRepository, IEventPublisher publisher)
         {
             m_gameRepository = gameRepository;
             m_publisher = publisher;
-            m_gameId = gameId;
         }
 
-        public async UniTask<IGame> Execute(int x, int y)
+        public async UniTask<IGame> Execute(string gameId, int x, int y)
         {
             var point = new Point(x, y);
-            var game = await m_gameRepository.FindById(m_gameId);
+            var game = await m_gameRepository.FindById(gameId);
 
             // 置けない場合は何もしない
             if (!game.IsValide(game.TurnPlayer, point, game.Pieces)) return game;

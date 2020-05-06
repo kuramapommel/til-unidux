@@ -1011,7 +1011,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   _parentNewObjectsUnderSceneContext: 0
-  _contractNames: []
+  _contractNames:
+  - InGame
   _parentContractNames: []
 --- !u!4 &1837485669
 Transform:
@@ -1060,6 +1061,7 @@ MonoBehaviour:
   m_piecePrefab: {fileID: 4795697894077286756, guid: bdae7cf34b28342a3a186c9490eef267,
     type: 3}
   m_gameBoard: {fileID: 614310668}
+  m_resultMessage: {fileID: 0}
 --- !u!4 &1893039401
 Transform:
   m_ObjectHideFlags: 0

@@ -1,6 +1,8 @@
 using System;
 using Pommel.Reversi.Domain.InGame;
+using Pommel.Reversi.UseCase.InGame;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using _Color = UnityEngine.Color;
 using _ColorEnum = Pommel.Reversi.Domain.InGame.Color;
@@ -14,23 +16,33 @@ namespace Pommel.Reversi.Presentation.Model.InGame
         IReadOnlyReactiveProperty<_Color> Color { get; }
 
         void SetColor(_Color color);
+
+        UniTask<IGame> Lay();
     }
 
     public sealed class PieceModel : IPieceModel
     {
+        private readonly string m_gameId;
+
         private readonly IReactiveProperty<_Color> m_color;
+
+        private readonly ILayPieceUseCase m_layPieceUseCase;
 
         public Point Point { get; }
 
         public IReadOnlyReactiveProperty<_Color> Color => m_color;
 
-        public PieceModel(Point point, _ColorEnum color)
+        public PieceModel(string gameId, Point point, _ColorEnum color, ILayPieceUseCase layPieceUseCase)
         {
+            m_gameId = gameId;
             Point = point;
             m_color = new ReactiveProperty<_Color>(color.Convert());
+            m_layPieceUseCase = layPieceUseCase;
         }
 
         public void SetColor(_Color color) => m_color.Value = color;
+
+        public UniTask<IGame> Lay() => m_layPieceUseCase.Execute(m_gameId, Point.X, Point.Y);
     }
 
     public static class ColorEnumExt

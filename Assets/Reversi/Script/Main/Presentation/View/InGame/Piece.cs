@@ -23,15 +23,17 @@ namespace Pommel.Reversi.Presentation.View.InGame
         [Inject]
         public void Construct(IPieceModel pieceModel)
         {
-            var button = GetComponent<Button>();
-            OnLayAsObservable = button
-                .OnClickAsObservable()
+            GetComponent<Button>().OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Publish()
-                .RefCount();
+                .Subscribe(_ => pieceModel.Lay());
             m_image = GetComponent<Image>();
 
             pieceModel.Color.Subscribe(color => m_image.color = color);
+        }
+
+        public sealed class Factory : PlaceholderFactory<IPiece>
+        {
+
         }
     }
 }
