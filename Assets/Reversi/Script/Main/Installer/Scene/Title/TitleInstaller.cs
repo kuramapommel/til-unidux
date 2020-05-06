@@ -23,7 +23,7 @@ namespace Pommel.Reversi.Installer.Scene.Title
     public sealed class TitleInstaller : MonoInstaller
     {
         [SerializeField]
-        private TitleTapArea m_titleTapArea;
+        private TitleTapArea m_titleTapArea = default;
 
         public override void InstallBindings()
         {

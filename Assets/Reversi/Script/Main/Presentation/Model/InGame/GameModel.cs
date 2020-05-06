@@ -96,9 +96,13 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             m_onStart.OnCompleted();
         }
 
-        public async UniTask Finish(Winner winner) => m_winner.Value = winner;
+        public UniTask Finish(Winner winner)
+        {
+            m_winner.Value = winner;
+            return UniTask.CompletedTask;
+        }
 
-        public async UniTask Refresh(IEnumerable<Piece> pieces)
+        public UniTask Refresh(IEnumerable<Piece> pieces)
         {
             foreach (var (piece, model) in pieces
                 .Join(
@@ -110,6 +114,8 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             {
                 model.SetColor(piece.Color.Convert());
             }
+
+            return UniTask.CompletedTask;
         }
     }
 }

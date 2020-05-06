@@ -10,13 +10,13 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
     public sealed class GameInstaller : MonoInstaller
     {
         [SerializeField]
-        private _Piece m_piecePrefab;
+        private _Piece m_piecePrefab = default;
 
         [SerializeField]
-        private GameBoard m_gameBoard;
+        private GameBoard m_gameBoard = default;
 
         [SerializeField]
-        private ResultMessage m_resultMessage;
+        private ResultMessage m_resultMessage = default;
 
         public override void InstallBindings()
         {
