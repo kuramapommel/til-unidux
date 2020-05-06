@@ -1,4 +1,5 @@
 using Pommel.Reversi.Presentation.Model.InGame;
+using Pommel.Reversi.Presentation.Model.System;
 using UniRx;
 using UniRx.Async;
 using UnityEngine;
@@ -17,26 +18,23 @@ namespace Pommel.Reversi.Presentation.View.Title
     {
         private Button m_tapArea;
 
-        private ZenjectSceneLoader m_sceneLoader;
-
         [Inject]
-        public void Construct(IGameModel model, ZenjectSceneLoader sceneLoader)
+        public void Construct(IGameModel model, ITransitionModel transitionModel)
         {
-            m_sceneLoader = sceneLoader;
             m_tapArea = GetComponent<Button>();
             m_tapArea
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(async _ =>
-                {
-                    await model.CreateGameAsync();
-                    await m_sceneLoader.LoadSceneAsync(
-                        "InGame",
-                        LoadSceneMode.Additive,
-                        container => container.Bind<IGameModel>().FromInstance(model).AsCached());
-                    await SceneManager.UnloadSceneAsync("Title");
-                    await model.Start();
-                });
+                .Subscribe(_ =>
+                    model.CreateGameAsync()
+                    .ContinueWith(__ => transitionModel.LoadSceneAsync(
+                        loadSceneName: "InGame",
+                        mode: LoadSceneMode.Additive,
+                        unloadSceneName: "Title",
+                        container => container.Bind<IGameModel>().FromInstance(model).AsCached()))
+                    .ContinueWith(() => model.Start())
+                    .ToObservable()
+                    );
         }
     }
 }
