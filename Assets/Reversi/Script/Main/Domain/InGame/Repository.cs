@@ -1,16 +1,16 @@
-using UniRx.Async;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using LanguageExt;
 
 namespace Pommel.Reversi.Domain.InGame
 {
     // 試合集約のrepository
     public interface IGameRepository
     {
-        UniTask<IGame> FindById(string id);
+        EitherAsync<IError, IGame> FindById(string id);
 
-        UniTask<IGame> Save(IGame game);
+        EitherAsync<IError, IGame> Save(IGame game);
 
-        UniTask<IEnumerable<IGame>> Fetch(Func<IGame, bool> predicate);
+        EitherAsync<IError, IEnumerable<IGame>> Fetch(Func<IGame, bool> predicate);
     }
 }

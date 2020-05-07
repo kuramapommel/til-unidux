@@ -25,7 +25,7 @@ namespace Pommel.Reversi.Presentation.View.InGame
         {
             GetComponent<Button>().OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => pieceModel.Lay());
+                .Subscribe(_ => pieceModel.Lay(), Debug.Log);
             m_image = GetComponent<Image>();
 
             pieceModel.Color.Subscribe(color => m_image.color = color);

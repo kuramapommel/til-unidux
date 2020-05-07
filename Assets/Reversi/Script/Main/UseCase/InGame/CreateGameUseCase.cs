@@ -1,6 +1,9 @@
+using System;
+using Pommel.Reversi.Domain;
 using Pommel.Reversi.Domain.InGame;
 using UniRx.Async;
 using Zenject;
+using static LanguageExt.Prelude;
 
 namespace Pommel.Reversi.UseCase.InGame
 {
@@ -21,14 +24,14 @@ namespace Pommel.Reversi.UseCase.InGame
             m_gameFactory = gameFactory;
         }
 
-        public async UniTask<IGame> Execute()
-        {
-            // todo ID Generator 的なものをかませる
-            var gameId = global::System.Guid.NewGuid().ToString();
-            // todo ID Generator 的なものをかませる
-            var resultId = global::System.Guid.NewGuid().ToString();
-
-            return await m_gameRepository.Save(m_gameFactory.Create(gameId, resultId));
-        }
+        public async UniTask<IGame> Execute() =>
+            await match(
+                from gameId in RightAsync<IError, string>(Guid.NewGuid().ToString()) // todo ID Generator 的なものをかませる
+                from resultId in RightAsync<IError, string>(Guid.NewGuid().ToString()) // todo ID Generator 的なものをかませる
+                from saved in m_gameRepository.Save(m_gameFactory.Create(gameId, resultId))
+                select saved,
+                Right: game => game,
+                Left: error => throw error.Exception
+                );
     }
 }
