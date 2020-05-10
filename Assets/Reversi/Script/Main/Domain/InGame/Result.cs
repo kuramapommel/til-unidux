@@ -21,6 +21,7 @@ namespace Pommel.Reversi.Domain.InGame
 
     public enum Winner
     {
+        Undecided,
         White,
         Black,
         Draw

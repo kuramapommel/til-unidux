@@ -8,6 +8,7 @@ using Pommel.Reversi.UseCase.System;
 using UniRx;
 using UniRx.Async;
 using Zenject;
+using static Pommel.Reversi.Domain.InGame.Winner;
 
 namespace Pommel.Reversi.Presentation.Model.InGame
 {
@@ -48,7 +49,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         private readonly ISubject<IGame> m_onStart = new Subject<IGame>();
 
-        private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>();
+        private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>(Undecided);
 
         public IEnumerable<IPieceModel> PieceModels => m_pieceModels;
 
