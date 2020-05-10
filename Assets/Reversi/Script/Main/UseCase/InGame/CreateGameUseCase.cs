@@ -28,7 +28,7 @@ namespace Pommel.Reversi.UseCase.InGame
             await match(
                 from gameId in RightAsync<IError, string>(Guid.NewGuid().ToString()) // todo ID Generator 的なものをかませる
                 from resultId in RightAsync<IError, string>(Guid.NewGuid().ToString()) // todo ID Generator 的なものをかませる
-                from saved in m_gameRepository.Save(m_gameFactory.Create(gameId, resultId))
+                from saved in m_gameRepository.Save(m_gameFactory.Create(gameId, resultId)).ToAsync()
                 select saved,
                 Right: game => game,
                 Left: error => throw error.Exception

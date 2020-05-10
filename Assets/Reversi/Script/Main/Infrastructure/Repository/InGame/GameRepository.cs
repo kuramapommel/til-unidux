@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using LanguageExt;
 using Pommel.Reversi.Domain;
 using Pommel.Reversi.Domain.InGame;
@@ -23,12 +24,12 @@ namespace Pommel.Reversi.Infrastructure.Repository.InGame
             m_resultStore = resultStore;
         }
 
-        public EitherAsync<IError, IGame> FindById(string id) => m_store.TryGetValue(id, out var game)
-            ? RightAsync<IError, IGame>(game)
-            : LeftAsync<IError, IGame>(new DomainError(new ArgumentOutOfRangeException(), "存在しないゲームIDが指定されました"));
+        public Task<Either<IError, IGame>> FindById(string id) => Task.FromResult(m_store.TryGetValue(id, out var game)
+            ? Right<IError, IGame>(game)
+            : Left<IError, IGame>(new DomainError(new ArgumentOutOfRangeException(), "存在しないゲームIDが指定されました")));
 
 
-        public EitherAsync<IError, IGame> Save(IGame game)
+        public Task<Either<IError, IGame>> Save(IGame game)
         {
             if (m_store.ContainsKey(game.Id)) m_store.Remove(game.Id);
             m_store.Add(game.Id, game);
@@ -51,10 +52,10 @@ namespace Pommel.Reversi.Infrastructure.Repository.InGame
             return FindById(game.Id);
         }
 
-        public EitherAsync<IError, IEnumerable<IGame>> Fetch(Func<IGame, bool> predicate)
+        public Task<Either<IError, IEnumerable<IGame>>> Fetch(Func<IGame, bool> predicate)
         {
             var games = m_store.Values.Where(predicate);
-            return games.Any() ? RightAsync<IError, IEnumerable<IGame>>(games) : LeftAsync<IError, IEnumerable<IGame>>(new DomainError(new ArgumentOutOfRangeException(), "該当のゲームが存在しません"));
+            return Task.FromResult(games.Any() ? Right<IError, IEnumerable<IGame>>(games) : Left<IError, IEnumerable<IGame>>(new DomainError(new ArgumentOutOfRangeException(), "該当のゲームが存在しません")));
         }
     }
 }

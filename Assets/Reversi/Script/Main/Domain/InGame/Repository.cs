@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using LanguageExt;
 
 namespace Pommel.Reversi.Domain.InGame
@@ -7,10 +8,10 @@ namespace Pommel.Reversi.Domain.InGame
     // 試合集約のrepository
     public interface IGameRepository
     {
-        EitherAsync<IError, IGame> FindById(string id);
+        Task<Either<IError, IGame>> FindById(string id);
 
-        EitherAsync<IError, IGame> Save(IGame game);
+        Task<Either<IError, IGame>> Save(IGame game);
 
-        EitherAsync<IError, IEnumerable<IGame>> Fetch(Func<IGame, bool> predicate);
+        Task<Either<IError, IEnumerable<IGame>>> Fetch(Func<IGame, bool> predicate);
     }
 }

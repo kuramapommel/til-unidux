@@ -1,8 +1,8 @@
+using System;
 using Pommel.Reversi.Domain;
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.UseCase.System;
 using UniRx.Async;
-using System;
 using static LanguageExt.Prelude;
 
 namespace Pommel.Reversi.UseCase.InGame
@@ -27,12 +27,12 @@ namespace Pommel.Reversi.UseCase.InGame
         public async UniTask<IGame> Execute(string gameId, int x, int y) =>
             await match(
                 from point in RightAsync<IError, Point>(new Point(x, y))
-                from game in m_gameRepository.FindById(gameId)
+                from game in m_gameRepository.FindById(gameId).ToAsync()
                 from _ in game.IsValide(game.TurnPlayer, point, game.Pieces)
                     ? RightAsync<IError, bool>(true)
                     : LeftAsync<IError, bool>(new DomainError(new ArgumentOutOfRangeException(), "その場所には置くことができません")) // todo invalid 時の妥当なエラー処理
                 from laid in RightAsync<IError, IGame>(game.LayPiece(point))
-                from saved in m_gameRepository.Save(laid)
+                from saved in m_gameRepository.Save(laid).ToAsync()
                 select saved,
                 Right: game =>
                 {
