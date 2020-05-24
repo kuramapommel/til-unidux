@@ -90,7 +90,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
             m_messageReceiver.Receive<ILaidPieceEvent>()
                 .Where(message => message.Game.State == State.GameSet)
-                .ContinueWith(message => m_gameResltService.FindById(message.Game.ResultId).ToObservable())
+                .SelectMany(message => m_gameResltService.FindById(message.Game.ResultId).ToObservable())
                 .Subscribe(result => Finish(result.Winner)); // todo add IDisposable
 
             m_messageReceiver.Receive<ILaidPieceEvent>()

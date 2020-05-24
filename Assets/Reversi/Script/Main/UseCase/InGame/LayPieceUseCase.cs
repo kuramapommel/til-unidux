@@ -39,11 +39,6 @@ namespace Pommel.Reversi.UseCase.InGame
                     m_messagePublisher.Publish<ILaidPieceEvent>(new LaidPieceEvent(game));
                     return game;
                 },
-                Left: error =>
-                {
-                    UnityEngine.Debug.Log(error.Exception);
-                    UnityEngine.Debug.Log(error.Message);
-                    throw error.Exception;
-                });
+                Left: error => throw error.Exception);
     }
 }
