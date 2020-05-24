@@ -1,7 +1,7 @@
 using System;
 using Pommel.Reversi.Domain;
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.UseCase.System;
+using UniRx;
 using UniRx.Async;
 using static LanguageExt.Prelude;
 
@@ -16,12 +16,12 @@ namespace Pommel.Reversi.UseCase.InGame
     {
         private readonly IGameRepository m_gameRepository;
 
-        private readonly IEventPublisher m_publisher;
+        private readonly IMessagePublisher m_messagePublisher;
 
-        public LayPieceUseCase(IGameRepository gameRepository, IEventPublisher publisher)
+        public LayPieceUseCase(IGameRepository gameRepository, IMessageBroker messagePublisher)
         {
             m_gameRepository = gameRepository;
-            m_publisher = publisher;
+            m_messagePublisher = messagePublisher;
         }
 
         public async UniTask<IGame> Execute(string gameId, int x, int y) =>
@@ -36,9 +36,14 @@ namespace Pommel.Reversi.UseCase.InGame
                 select saved,
                 Right: game =>
                 {
-                    _ = m_publisher.Publish<ILaidPieceEvent>(new LaidPieceEvent(game));
+                    m_messagePublisher.Publish<ILaidPieceEvent>(new LaidPieceEvent(game));
                     return game;
                 },
-                Left: error => throw error.Exception);
+                Left: error =>
+                {
+                    UnityEngine.Debug.Log(error.Exception);
+                    UnityEngine.Debug.Log(error.Message);
+                    throw error.Exception;
+                });
     }
 }

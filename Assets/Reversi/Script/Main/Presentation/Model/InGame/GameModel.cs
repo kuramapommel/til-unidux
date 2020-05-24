@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.UseCase.InGame;
-using Pommel.Reversi.UseCase.InGame.Dto;
-using Pommel.Reversi.UseCase.System;
 using UniRx;
 using UniRx.Async;
 using Zenject;
@@ -33,11 +31,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
     {
         private readonly IFactory<string, Point, Color, ILayPieceUseCase, IPieceModel> m_pieceModelFactory;
 
-        private readonly IFactory<Func<ResultDto, UniTask>, Func<LaidDto, UniTask>, IGameResultService, IEventSubscriber> m_eventSubscriberFactory;
-
         private readonly IGameResultService m_gameResultService;
-
-        private readonly IEventBroker m_eventBroker;
 
         private readonly ICreateGameUseCase m_createGameUseCase;
 
@@ -51,6 +45,10 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>(Undecided);
 
+        private readonly IMessageReceiver m_messageReceiver;
+
+        private readonly IGameResultService m_gameResltService;
+
         public IEnumerable<IPieceModel> PieceModels => m_pieceModels;
 
         public IObservable<IGame> OnStart => m_onStart;
@@ -59,25 +57,21 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         public GameModel(
             IFactory<string, Point, Color, ILayPieceUseCase, IPieceModel> pieceModelFactory,
-            IFactory<Func<ResultDto, UniTask>, Func<LaidDto, UniTask>, IGameResultService, IEventSubscriber> eventSubscriberFactory,
             IGameResultService gameResultService,
-            IEventBroker eventBroker,
             ICreateGameUseCase createGameUseCase,
             IStartGameUseCase startGameUseCase,
-            ILayPieceUseCase layPieceUseCase
+            ILayPieceUseCase layPieceUseCase,
+            IMessageBroker messageReceiver,
+            IGameResultService gameResltService
             )
         {
             m_pieceModelFactory = pieceModelFactory;
-            m_eventSubscriberFactory = eventSubscriberFactory;
             m_gameResultService = gameResultService;
-            m_eventBroker = eventBroker;
             m_createGameUseCase = createGameUseCase;
             m_startGameUseCase = startGameUseCase;
             m_layPieceUseCase = layPieceUseCase;
-
-            m_eventBroker.RegisterSubscriber<ILaidPieceEvent>(
-                m_eventSubscriberFactory.Create(result => Finish(result.Winner), game => Refresh(game.Pieces), m_gameResultService)
-                );
+            m_messageReceiver = messageReceiver;
+            m_gameResltService = gameResltService;
         }
 
         public UniTask<IGame> CreateGameAsync() => m_createGameUseCase.Execute();
@@ -93,6 +87,15 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             {
                 m_pieceModels.Add(pieceModel);
             }
+
+            m_messageReceiver.Receive<ILaidPieceEvent>()
+                .Where(message => message.Game.State == State.GameSet)
+                .ContinueWith(message => m_gameResltService.FindById(message.Game.ResultId).ToObservable())
+                .Subscribe(result => Finish(result.Winner)); // todo add IDisposable
+
+            m_messageReceiver.Receive<ILaidPieceEvent>()
+                .Subscribe(message => Refresh(message.Game.Pieces)); // todo add IDisposable
+
             m_onStart.OnNext(game);
             m_onStart.OnCompleted();
         }
