@@ -7,9 +7,9 @@ using UnityEngine;
 using _Color = UnityEngine.Color;
 using _ColorEnum = Pommel.Reversi.Domain.InGame.Color;
 
-namespace Pommel.Reversi.Presentation.Model.InGame
+namespace Pommel.Reversi.Presentation.State.InGame
 {
-    public interface IPieceModel
+    public interface IPieceState
     {
         Point Point { get; }
 
@@ -20,7 +20,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
         UniTask<IGame> Lay();
     }
 
-    public sealed class PieceModel : IPieceModel
+    public sealed class PieceState : IPieceState
     {
         private readonly string m_gameId;
 
@@ -32,7 +32,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         public IReadOnlyReactiveProperty<_Color> Color => m_color;
 
-        public PieceModel(string gameId, Point point, _ColorEnum color, ILayPieceUseCase layPieceUseCase)
+        public PieceState(string gameId, Point point, _ColorEnum color, ILayPieceUseCase layPieceUseCase)
         {
             m_gameId = gameId;
             Point = point;

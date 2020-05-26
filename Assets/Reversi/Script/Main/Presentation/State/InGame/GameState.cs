@@ -7,12 +7,13 @@ using UniRx;
 using UniRx.Async;
 using Zenject;
 using static Pommel.Reversi.Domain.InGame.Winner;
+using _State = Pommel.Reversi.Domain.InGame.State;
 
-namespace Pommel.Reversi.Presentation.Model.InGame
+namespace Pommel.Reversi.Presentation.State.InGame
 {
-    public interface IGameModel
+    public interface IGameState
     {
-        IEnumerable<IPieceModel> PieceModels { get; }
+        IEnumerable<IPieceState> PieceStates { get; }
 
         IObservable<IGame> OnStart { get; }
 
@@ -27,9 +28,9 @@ namespace Pommel.Reversi.Presentation.Model.InGame
         UniTask Refresh(IEnumerable<Piece> pieces);
     }
 
-    public sealed class GameModel : IGameModel
+    public sealed class GameState : IGameState
     {
-        private readonly IFactory<string, Point, Color, ILayPieceUseCase, IPieceModel> m_pieceModelFactory;
+        private readonly IFactory<string, Point, Color, ILayPieceUseCase, IPieceState> m_pieceStateFactory;
 
         private readonly IGameResultService m_gameResultService;
 
@@ -39,7 +40,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         private readonly ILayPieceUseCase m_layPieceUseCase;
 
-        private readonly IList<IPieceModel> m_pieceModels = new List<IPieceModel>();
+        private readonly IList<IPieceState> m_pieceStates = new List<IPieceState>();
 
         private readonly ISubject<IGame> m_onStart = new Subject<IGame>();
 
@@ -47,14 +48,14 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         private readonly IMessageReceiver m_messageReceiver;
 
-        public IEnumerable<IPieceModel> PieceModels => m_pieceModels;
+        public IEnumerable<IPieceState> PieceStates => m_pieceStates;
 
         public IObservable<IGame> OnStart => m_onStart;
 
         public IObservable<Winner> Winner => m_winner;
 
-        public GameModel(
-            IFactory<string, Point, Color, ILayPieceUseCase, IPieceModel> pieceModelFactory,
+        public GameState(
+            IFactory<string, Point, Color, ILayPieceUseCase, IPieceState> pieceStateFactory,
             IGameResultService gameResultService,
             ICreateGameUseCase createGameUseCase,
             IStartGameUseCase startGameUseCase,
@@ -62,7 +63,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             IMessageBroker messageReceiver
             )
         {
-            m_pieceModelFactory = pieceModelFactory;
+            m_pieceStateFactory = pieceStateFactory;
             m_gameResultService = gameResultService;
             m_createGameUseCase = createGameUseCase;
             m_startGameUseCase = startGameUseCase;
@@ -75,17 +76,17 @@ namespace Pommel.Reversi.Presentation.Model.InGame
         public async UniTask Start()
         {
             var game = await m_startGameUseCase.Execute();
-            foreach (var pieceModel in game.Pieces.Select(piece => m_pieceModelFactory.Create(
+            foreach (var pieceState in game.Pieces.Select(piece => m_pieceStateFactory.Create(
                 game.Id,
                 piece.Point,
                 piece.Color,
                 m_layPieceUseCase)))
             {
-                m_pieceModels.Add(pieceModel);
+                m_pieceStates.Add(pieceState);
             }
 
             m_messageReceiver.Receive<ILaidPieceEvent>()
-                .Where(message => message.Game.State == State.GameSet)
+                .Where(message => message.Game.State == _State.GameSet)
                 .SelectMany(message => m_gameResultService.FindById(message.Game.ResultId).ToObservable())
                 .Subscribe(result => Finish(result.Winner)); // todo add IDisposable
 
@@ -104,15 +105,15 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         public UniTask Refresh(IEnumerable<Piece> pieces)
         {
-            foreach (var (piece, model) in pieces
+            foreach (var (piece, state) in pieces
                 .Join(
-                    m_pieceModels,
+                    m_pieceStates,
                     pieceEntity => pieceEntity.Point,
-                    model => model.Point,
-                    (pieceEntity, model) => (pieceEntity, model)
+                    state => state.Point,
+                    (pieceEntity, state) => (pieceEntity, state)
                 ))
             {
-                model.SetColor(piece.Color.Convert());
+                state.SetColor(piece.Color.Convert());
             }
 
             return UniTask.CompletedTask;

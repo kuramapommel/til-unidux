@@ -3,18 +3,18 @@ using UniRx.Async;
 using UnityEngine.SceneManagement;
 using Zenject;
 
-namespace Pommel.Reversi.Presentation.Model.System
+namespace Pommel.Reversi.Presentation.State.System
 {
-    public interface ITransitionModel
+    public interface ITransitionState
     {
         UniTask LoadSceneAsync(string loadSceneName, LoadSceneMode mode = LoadSceneMode.Single, string unloadSceneName = default, Action<DiContainer> bind = default);
     }
 
-    public sealed class TransitionModel : ITransitionModel
+    public sealed class TransitionState : ITransitionState
     {
         private readonly ZenjectSceneLoader m_sceneLoader;
 
-        public TransitionModel(ZenjectSceneLoader sceneLoader)
+        public TransitionState(ZenjectSceneLoader sceneLoader)
         {
             m_sceneLoader = sceneLoader;
         }

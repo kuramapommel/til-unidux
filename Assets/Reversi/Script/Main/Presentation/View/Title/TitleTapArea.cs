@@ -1,5 +1,5 @@
-using Pommel.Reversi.Presentation.Model.InGame;
-using Pommel.Reversi.Presentation.Model.System;
+using Pommel.Reversi.Presentation.State.InGame;
+using Pommel.Reversi.Presentation.State.System;
 using UniRx;
 using UniRx.Async;
 using UnityEngine;
@@ -19,20 +19,20 @@ namespace Pommel.Reversi.Presentation.View.Title
         private Button m_tapArea;
 
         [Inject]
-        public void Construct(IGameModel model, ITransitionModel transitionModel)
+        public void Construct(IGameState state, ITransitionState transitionState)
         {
             m_tapArea = GetComponent<Button>();
             m_tapArea
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
                 .Subscribe(_ =>
-                    model.CreateGameAsync()
-                    .ContinueWith(__ => transitionModel.LoadSceneAsync(
+                    state.CreateGameAsync()
+                    .ContinueWith(__ => transitionState.LoadSceneAsync(
                         loadSceneName: "InGame",
                         mode: LoadSceneMode.Additive,
                         unloadSceneName: "Title",
-                        container => container.Bind<IGameModel>().FromInstance(model).AsCached()))
-                    .ContinueWith(() => model.Start())
+                        container => container.Bind<IGameState>().FromInstance(state).AsCached()))
+                    .ContinueWith(() => state.Start())
                     .ToObservable()
                     );
         }

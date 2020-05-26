@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Pommel.Reversi.Presentation.Model.InGame;
+using Pommel.Reversi.Presentation.State.InGame;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -16,14 +16,14 @@ namespace Pommel.Reversi.Presentation.View.InGame
         private IList<IPiece> Pieces { get; } = new List<IPiece>();
 
         [Inject]
-        public void Construct(IFactory<IPieceModel, IPiece> pieceFactory, IGameModel gameModel)
+        public void Construct(IFactory<IPieceState, IPiece> pieceFactory, IGameState gameState)
         {
-            gameModel.OnStart
+            gameState.OnStart
                 .Subscribe(_ =>
                 {
-                    foreach (var pieceModel in gameModel.PieceModels)
+                    foreach (var pieceState in gameState.PieceStates)
                     {
-                        var piece = pieceFactory.Create(pieceModel);
+                        var piece = pieceFactory.Create(pieceState);
                         Pieces.Add(piece);
                     }
                 },
