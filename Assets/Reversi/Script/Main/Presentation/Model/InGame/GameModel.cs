@@ -47,8 +47,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         private readonly IMessageReceiver m_messageReceiver;
 
-        private readonly IGameResultService m_gameResltService;
-
         public IEnumerable<IPieceModel> PieceModels => m_pieceModels;
 
         public IObservable<IGame> OnStart => m_onStart;
@@ -61,8 +59,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             ICreateGameUseCase createGameUseCase,
             IStartGameUseCase startGameUseCase,
             ILayPieceUseCase layPieceUseCase,
-            IMessageBroker messageReceiver,
-            IGameResultService gameResltService
+            IMessageBroker messageReceiver
             )
         {
             m_pieceModelFactory = pieceModelFactory;
@@ -71,7 +68,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             m_startGameUseCase = startGameUseCase;
             m_layPieceUseCase = layPieceUseCase;
             m_messageReceiver = messageReceiver;
-            m_gameResltService = gameResltService;
         }
 
         public UniTask<IGame> CreateGameAsync() => m_createGameUseCase.Execute();
@@ -90,7 +86,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
             m_messageReceiver.Receive<ILaidPieceEvent>()
                 .Where(message => message.Game.State == State.GameSet)
-                .SelectMany(message => m_gameResltService.FindById(message.Game.ResultId).ToObservable())
+                .SelectMany(message => m_gameResultService.FindById(message.Game.ResultId).ToObservable())
                 .Subscribe(result => Finish(result.Winner)); // todo add IDisposable
 
             m_messageReceiver.Receive<ILaidPieceEvent>()
