@@ -40,7 +40,7 @@ namespace Pommel.Reversi.Installer.Scene.Title
             Container.BindInterfacesTo<StartGameUseCase>().AsCached();
             Container.BindInterfacesTo<LayPieceUseCase>().AsCached();
 
-            // models
+            // viewmodels
             Container.BindInterfacesTo<GameState>().AsCached();
             Container.BindInterfacesTo<TransitionState>().AsSingle();
 
