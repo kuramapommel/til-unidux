@@ -2,6 +2,7 @@ using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Infrastructure.Repository.InGame;
 using Pommel.Reversi.Infrastructure.Service.InGame;
 using Pommel.Reversi.Infrastructure.Store.InGame;
+using Pommel.Reversi.Presentation.Model.InGame;
 using Pommel.Reversi.Presentation.State.InGame;
 using Pommel.Reversi.Presentation.State.System;
 using Pommel.Reversi.Presentation.View.Title;
@@ -21,7 +22,7 @@ namespace Pommel.Reversi.Installer.Scene.Title
         public override void InstallBindings()
         {
             // factories
-            Container.BindIFactory<string, Point, _Color, ILayPieceUseCase, IPieceState>().To<IPieceState>().AsCached();
+            Container.BindIFactory<string, Point, _Color, IPieceModel, IPieceState>().To<PieceState>().AsCached();
             Container.BindIFactory<string, string, IGame>().To<Game>().AsCached();
 
             // stores
@@ -39,6 +40,10 @@ namespace Pommel.Reversi.Installer.Scene.Title
             Container.BindInterfacesTo<CreateGameUseCase>().AsCached();
             Container.BindInterfacesTo<StartGameUseCase>().AsCached();
             Container.BindInterfacesTo<LayPieceUseCase>().AsCached();
+
+            // models
+            Container.BindInterfacesTo<GameModel>().AsCached();
+            Container.BindInterfacesTo<PieceModel>().AsSingle();
 
             // viewmodels
             Container.BindInterfacesTo<GameState>().AsCached();

@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.UseCase.InGame;
+using Pommel.Reversi.Presentation.Model.InGame;
 using UniRx;
 using UniRx.Async;
 using Zenject;
 using static Pommel.Reversi.Domain.InGame.Winner;
-using _State = Pommel.Reversi.Domain.InGame.State;
 
 namespace Pommel.Reversi.Presentation.State.InGame
 {
@@ -19,34 +19,28 @@ namespace Pommel.Reversi.Presentation.State.InGame
 
         IObservable<Winner> Winner { get; }
 
-        UniTask<IGame> CreateGameAsync();
+        Task<IGame> CreateGameAsync();
 
-        UniTask Start();
+        Task Start();
 
-        UniTask Finish(Winner winner);
+        Task Finish(Winner winner);
 
-        UniTask Refresh(IEnumerable<Piece> pieces);
+        Task Refresh(IEnumerable<Piece> pieces);
     }
 
     public sealed class GameState : IGameState
     {
-        private readonly IFactory<string, Point, Color, ILayPieceUseCase, IPieceState> m_pieceStateFactory;
+        private readonly IGameModel m_gameModel;
 
-        private readonly IGameResultService m_gameResultService;
+        private readonly IPieceModel m_pieceModel;
 
-        private readonly ICreateGameUseCase m_createGameUseCase;
-
-        private readonly IStartGameUseCase m_startGameUseCase;
-
-        private readonly ILayPieceUseCase m_layPieceUseCase;
+        private readonly IFactory<string, Point, Color, IPieceModel, IPieceState> m_pieceStateFactory;
 
         private readonly IList<IPieceState> m_pieceStates = new List<IPieceState>();
 
         private readonly ISubject<IGame> m_onStart = new Subject<IGame>();
 
         private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>(Undecided);
-
-        private readonly IMessageReceiver m_messageReceiver;
 
         public IEnumerable<IPieceState> PieceStates => m_pieceStates;
 
@@ -55,56 +49,49 @@ namespace Pommel.Reversi.Presentation.State.InGame
         public IObservable<Winner> Winner => m_winner;
 
         public GameState(
-            IFactory<string, Point, Color, ILayPieceUseCase, IPieceState> pieceStateFactory,
-            IGameResultService gameResultService,
-            ICreateGameUseCase createGameUseCase,
-            IStartGameUseCase startGameUseCase,
-            ILayPieceUseCase layPieceUseCase,
-            IMessageBroker messageReceiver
+            IGameModel gameModel,
+            IPieceModel pieceModel,
+            IFactory<string, Point, Color, IPieceModel, IPieceState> pieceStateFactory
             )
         {
+            m_gameModel = gameModel;
+            m_pieceModel = pieceModel;
             m_pieceStateFactory = pieceStateFactory;
-            m_gameResultService = gameResultService;
-            m_createGameUseCase = createGameUseCase;
-            m_startGameUseCase = startGameUseCase;
-            m_layPieceUseCase = layPieceUseCase;
-            m_messageReceiver = messageReceiver;
         }
 
-        public UniTask<IGame> CreateGameAsync() => m_createGameUseCase.Execute();
+        public async Task<IGame> CreateGameAsync() => await m_gameModel.CreateGameAsync();
 
-        public async UniTask Start()
+        public async Task Start()
         {
-            var game = await m_startGameUseCase.Execute();
+            var game = await m_gameModel.StartGameAsync();
             foreach (var pieceState in game.Pieces.Select(piece => m_pieceStateFactory.Create(
                 game.Id,
                 piece.Point,
                 piece.Color,
-                m_layPieceUseCase)))
+                m_pieceModel)))
             {
                 m_pieceStates.Add(pieceState);
             }
 
-            m_messageReceiver.Receive<ILaidPieceEvent>()
-                .Where(message => message.Game.State == _State.GameSet)
-                .SelectMany(message => m_gameResultService.FindById(message.Game.ResultId).ToObservable())
+            m_gameModel.OnResult
                 .Subscribe(result => Finish(result.Winner)); // todo add IDisposable
 
-            m_messageReceiver.Receive<ILaidPieceEvent>()
+            m_gameModel.OnLaid
                 .Subscribe(message => Refresh(message.Game.Pieces)); // todo add IDisposable
 
             m_onStart.OnNext(game);
             m_onStart.OnCompleted();
         }
 
-        public UniTask Finish(Winner winner)
+        public async Task Finish(Winner winner)
         {
+            await UniTask.CompletedTask;
             m_winner.Value = winner;
-            return UniTask.CompletedTask;
         }
 
-        public UniTask Refresh(IEnumerable<Piece> pieces)
+        public async Task Refresh(IEnumerable<Piece> pieces)
         {
+            await UniTask.CompletedTask;
             foreach (var (piece, state) in pieces
                 .Join(
                     m_pieceStates,
@@ -115,8 +102,6 @@ namespace Pommel.Reversi.Presentation.State.InGame
             {
                 state.SetColor(piece.Color.Convert());
             }
-
-            return UniTask.CompletedTask;
         }
     }
 }

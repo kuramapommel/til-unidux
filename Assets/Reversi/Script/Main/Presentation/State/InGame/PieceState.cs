@@ -1,8 +1,8 @@
 using System;
+using System.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.UseCase.InGame;
+using Pommel.Reversi.Presentation.Model.InGame;
 using UniRx;
-using UniRx.Async;
 using UnityEngine;
 using _Color = UnityEngine.Color;
 using _ColorEnum = Pommel.Reversi.Domain.InGame.Color;
@@ -17,32 +17,32 @@ namespace Pommel.Reversi.Presentation.State.InGame
 
         void SetColor(_Color color);
 
-        UniTask<IGame> Lay();
+        Task<IGame> Lay();
     }
 
     public sealed class PieceState : IPieceState
     {
+        private readonly IPieceModel m_pieceModel;
+
         private readonly string m_gameId;
 
         private readonly IReactiveProperty<_Color> m_color;
-
-        private readonly ILayPieceUseCase m_layPieceUseCase;
 
         public Point Point { get; }
 
         public IReadOnlyReactiveProperty<_Color> Color => m_color;
 
-        public PieceState(string gameId, Point point, _ColorEnum color, ILayPieceUseCase layPieceUseCase)
+        public PieceState(string gameId, Point point, _ColorEnum color, IPieceModel pieceModel)
         {
             m_gameId = gameId;
             Point = point;
             m_color = new ReactiveProperty<_Color>(color.Convert());
-            m_layPieceUseCase = layPieceUseCase;
+            m_pieceModel = pieceModel;
         }
 
         public void SetColor(_Color color) => m_color.Value = color;
 
-        public UniTask<IGame> Lay() => m_layPieceUseCase.Execute(m_gameId, Point.X, Point.Y);
+        public async Task<IGame> Lay() => await m_pieceModel.LayPiece(m_gameId, Point.X, Point.Y);
     }
 
     public static class ColorEnumExt

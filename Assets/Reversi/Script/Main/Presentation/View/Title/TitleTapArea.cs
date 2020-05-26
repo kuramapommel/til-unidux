@@ -26,13 +26,13 @@ namespace Pommel.Reversi.Presentation.View.Title
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
                 .Subscribe(_ =>
-                    state.CreateGameAsync()
+                    state.CreateGameAsync().AsUniTask()
                     .ContinueWith(__ => transitionState.LoadSceneAsync(
                         loadSceneName: "InGame",
                         mode: LoadSceneMode.Additive,
                         unloadSceneName: "Title",
                         container => container.Bind<IGameState>().FromInstance(state).AsCached()))
-                    .ContinueWith(() => state.Start())
+                    .ContinueWith(() => state.Start().AsUniTask())
                     .ToObservable()
                     );
         }
