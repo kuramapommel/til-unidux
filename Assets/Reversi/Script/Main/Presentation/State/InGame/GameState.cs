@@ -74,10 +74,10 @@ namespace Pommel.Reversi.Presentation.State.InGame
             }
 
             m_gameModel.OnResult
-                .Subscribe(result => Finish(result.Winner)); // todo add IDisposable
+                .Subscribe(result => Finish(result.Winner).AsUniTask().Forget()); // todo add IDisposable
 
             m_gameModel.OnLaid
-                .Subscribe(message => Refresh(message.Game.Pieces)); // todo add IDisposable
+                .Subscribe(message => Refresh(message.Game.Pieces).AsUniTask().Forget()); // todo add IDisposable
 
             m_onStart.OnNext(game);
             m_onStart.OnCompleted();
