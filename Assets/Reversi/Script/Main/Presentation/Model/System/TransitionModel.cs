@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Pommel.Reversi.Domain.Transition;
 using UniRx.Async;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -8,24 +9,19 @@ namespace Pommel.Reversi.Presentation.Model.System
 {
     public interface ITransitionModel
     {
-        Task LoadSceneAsync(string loadSceneName, Action<DiContainer> bind = default);
+        Task LoadSceneAsync(IScene scene, Action<DiContainer> bind = default);
 
-        Task AddSceneAsync(string loadSceneName, Action<DiContainer> bind = default);
-
-        Task RemoveSceneAsync(string unloadSceneName);
+        Task UnloadSceneAsync(IScene scene);
     }
 
     public sealed class TransitionModel : ITransitionModel
     {
         private readonly ZenjectSceneLoader m_sceneLoader;
 
-        public async Task LoadSceneAsync(string loadSceneName, Action<DiContainer> bind = default) =>
-            await m_sceneLoader.LoadSceneAsync(loadSceneName, LoadSceneMode.Single, bind ?? (_ => { }));
+        public async Task LoadSceneAsync(IScene scene, Action<DiContainer> bind = default) =>
+            await m_sceneLoader.LoadSceneAsync(scene.Id, scene.IsBase ? LoadSceneMode.Single : LoadSceneMode.Additive, bind ?? (_ => { }));
 
-        public async Task AddSceneAsync(string loadSceneName, Action<DiContainer> bind = default) =>
-            await m_sceneLoader.LoadSceneAsync(loadSceneName, LoadSceneMode.Additive, bind ?? (_ => { }));
-
-        public async Task RemoveSceneAsync(string unloadSceneName) =>
-            await SceneManager.UnloadSceneAsync(unloadSceneName);
+        public async Task UnloadSceneAsync(IScene scene) =>
+            await SceneManager.UnloadSceneAsync(scene.Id);
     }
 }

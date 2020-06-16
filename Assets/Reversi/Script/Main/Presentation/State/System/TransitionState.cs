@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Pommel.Reversi.Domain.Transition;
 using Pommel.Reversi.Presentation.Model.System;
 using UniRx;
 using UniRx.Async;
@@ -22,7 +23,7 @@ namespace Pommel.Reversi.Presentation.State.System
         private readonly ITransitionModel m_transitionModel;
 
         // todo tuple やめて scene entity を domain に切る
-        private readonly IReactiveCollection<(string name, bool isBase)> m_scenes = new ReactiveCollection<(string name, bool isBase)>();
+        private readonly IReactiveCollection<IScene> m_scenes = new ReactiveCollection<IScene>();
 
         public TransitionState(ZenjectSceneLoader sceneLoader)
         {
@@ -30,15 +31,11 @@ namespace Pommel.Reversi.Presentation.State.System
 
             m_scenes
                 .ObserveAdd()
-                .Subscribe(addEvent => (
-                    addEvent.Value.isBase
-                        ? m_transitionModel.LoadSceneAsync(addEvent.Value.name).AsUniTask()
-                        : m_transitionModel.AddSceneAsync(addEvent.Value.name).AsUniTask()
-                    ).Forget());
+                .Subscribe(addEvent => m_transitionModel.LoadSceneAsync(addEvent.Value).AsUniTask().Forget());
 
             m_scenes
                 .ObserveRemove()
-                .Subscribe(removeEvent => m_transitionModel.RemoveSceneAsync(removeEvent.Value.name).AsUniTask().Forget());
+                .Subscribe(removeEvent => m_transitionModel.UnloadSceneAsync(removeEvent.Value).AsUniTask().Forget());
         }
 
         public async UniTask LoadSceneAsync(string loadSceneName, LoadSceneMode mode = LoadSceneMode.Single, string unloadSceneName = default, Action<DiContainer> bind = default)
@@ -47,41 +44,41 @@ namespace Pommel.Reversi.Presentation.State.System
             if (unloadSceneName != default) await SceneManager.UnloadSceneAsync(unloadSceneName);
         }
 
-        public async Task LoadAsync(string baseSceneName, params string[] childrenSceneNames) => await LoadAsync(baseSceneName, childrenSceneNames);
+        public async Task LoadAsync(IScene baseScene, params IScene[] childrenScenes) => await LoadAsync(baseScene, childrenScenes);
 
-        public async Task LoadAsync(string baseSceneName, IEnumerable<string> childrenSceneNames)
+        public async Task LoadAsync(IScene baseScene, IEnumerable<IScene> childrenScenes)
         {
             await UniTask.CompletedTask;
 
             m_scenes.Clear();
-            m_scenes.Add((baseSceneName, true));
-            foreach (var name in childrenSceneNames)
+            m_scenes.Add(baseScene);
+            foreach (var scene in childrenScenes)
             {
-                m_scenes.Add((name, false));
+                m_scenes.Add(scene);
             }
         }
 
-        public async Task AddAsync(params string[] sceneNames) => await AddAsync(sceneNames.AsEnumerable());
+        public async Task AddAsync(params IScene[] scenes) => await AddAsync(scenes.AsEnumerable());
 
-        public async Task AddAsync(IEnumerable<string> sceneNames)
+        public async Task AddAsync(IEnumerable<IScene> scenes)
         {
             await UniTask.CompletedTask;
 
-            foreach (var name in sceneNames)
+            foreach (var scene in scenes)
             {
-                m_scenes.Add((name, false));
+                m_scenes.Add(scene);
             }
         }
 
-        public async Task RemoveAsync(params string[] sceneNames) => await RemoveAsync(sceneNames.AsEnumerable());
+        public async Task RemoveAsync(params IScene[] scenes) => await RemoveAsync(scenes.AsEnumerable());
 
-        public async Task RemoveAsync(IEnumerable<string> sceneNames)
+        public async Task RemoveAsync(IEnumerable<IScene> scenes)
         {
             await UniTask.CompletedTask;
 
-            foreach (var name in sceneNames)
+            foreach (var scene in scenes)
             {
-                m_scenes.Remove((name, false));
+                m_scenes.Remove(scene);
             }
         }
     }
