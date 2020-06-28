@@ -3,9 +3,9 @@ using Pommel.Reversi.Presentation.State.System;
 using UniRx;
 using UniRx.Async;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Zenject;
+using _Scene = Pommel.Reversi.Domain.Transition.Scene;
 
 namespace Pommel.Reversi.Presentation.View.Title
 {
@@ -25,15 +25,10 @@ namespace Pommel.Reversi.Presentation.View.Title
             m_tapArea
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ =>
-                    state.CreateGameAsync().AsUniTask()
-                    .ContinueWith(__ => transitionState.LoadSceneAsync(
-                        loadSceneName: "InGame",
-                        mode: LoadSceneMode.Additive,
-                        unloadSceneName: "Title",
-                        container => container.Bind<IGameState>().FromInstance(state).AsCached()))
-                    .ContinueWith(() => state.Start().AsUniTask())
-                    .ToObservable()
+                .Subscribe(_ => state.CreateGameAsync().AsUniTask()
+                    .ContinueWith(__ => transitionState.AddAsync(_Scene.InGame, container => container.Bind<IGameState>().FromInstance(state).AsCached()))
+                    .ContinueWith(__ => transitionState.RemoveAsync(_Scene.Title))
+                    .Forget()
                     );
         }
     }

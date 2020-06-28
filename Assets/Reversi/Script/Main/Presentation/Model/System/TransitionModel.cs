@@ -18,6 +18,8 @@ namespace Pommel.Reversi.Presentation.Model.System
     {
         private readonly ZenjectSceneLoader m_sceneLoader;
 
+        public TransitionModel(ZenjectSceneLoader sceneLoader) => m_sceneLoader = sceneLoader;
+
         public async Task LoadSceneAsync(IScene scene, Action<DiContainer> bind = default) =>
             await m_sceneLoader.LoadSceneAsync(scene.Id, scene.IsBase ? LoadSceneMode.Single : LoadSceneMode.Additive, bind ?? (_ => { }));
 

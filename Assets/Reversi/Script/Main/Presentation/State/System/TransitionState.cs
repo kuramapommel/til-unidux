@@ -6,68 +6,45 @@ using Pommel.Reversi.Domain.Transition;
 using Pommel.Reversi.Presentation.Model.System;
 using UniRx;
 using UniRx.Async;
-using UnityEngine.SceneManagement;
 using Zenject;
 
 namespace Pommel.Reversi.Presentation.State.System
 {
     public interface ITransitionState
     {
-        UniTask LoadSceneAsync(string loadSceneName, LoadSceneMode mode = LoadSceneMode.Single, string unloadSceneName = default, Action<DiContainer> bind = default);
+        Task AddAsync(IScene scene, Action<DiContainer> bind = default);
+
+        Task RemoveAsync(params IScene[] scenes);
+
+        Task RemoveAsync(IEnumerable<IScene> scenes);
     }
 
     public sealed class TransitionState : ITransitionState
     {
-        private readonly ZenjectSceneLoader m_sceneLoader;
-
         private readonly ITransitionModel m_transitionModel;
 
-        // todo tuple やめて scene entity を domain に切る
-        private readonly IReactiveCollection<IScene> m_scenes = new ReactiveCollection<IScene>();
+        private readonly IReactiveDictionary<IScene, Action<DiContainer>> m_transitionMap = new ReactiveDictionary<IScene, Action<DiContainer>>();
 
-        public TransitionState(ZenjectSceneLoader sceneLoader)
+        public TransitionState(ITransitionModel transitionModel)
         {
-            m_sceneLoader = sceneLoader;
+            m_transitionModel = transitionModel;
 
-            m_scenes
+            m_transitionMap
                 .ObserveAdd()
-                .Subscribe(addEvent => m_transitionModel.LoadSceneAsync(addEvent.Value).AsUniTask().Forget());
+                .Subscribe(addEvent => m_transitionModel.LoadSceneAsync(addEvent.Key, addEvent.Value).AsUniTask().Forget());
 
-            m_scenes
+            m_transitionMap
                 .ObserveRemove()
-                .Subscribe(removeEvent => m_transitionModel.UnloadSceneAsync(removeEvent.Value).AsUniTask().Forget());
+                .Subscribe(removeEvent =>
+                {
+                    m_transitionModel.UnloadSceneAsync(removeEvent.Key).AsUniTask().Forget();
+                });
         }
 
-        public async UniTask LoadSceneAsync(string loadSceneName, LoadSceneMode mode = LoadSceneMode.Single, string unloadSceneName = default, Action<DiContainer> bind = default)
-        {
-            await m_sceneLoader.LoadSceneAsync(loadSceneName, mode, bind ?? (_ => { }));
-            if (unloadSceneName != default) await SceneManager.UnloadSceneAsync(unloadSceneName);
-        }
-
-        public async Task LoadAsync(IScene baseScene, params IScene[] childrenScenes) => await LoadAsync(baseScene, childrenScenes);
-
-        public async Task LoadAsync(IScene baseScene, IEnumerable<IScene> childrenScenes)
+        public async Task AddAsync(IScene scene, Action<DiContainer> bind = default)
         {
             await UniTask.CompletedTask;
-
-            m_scenes.Clear();
-            m_scenes.Add(baseScene);
-            foreach (var scene in childrenScenes)
-            {
-                m_scenes.Add(scene);
-            }
-        }
-
-        public async Task AddAsync(params IScene[] scenes) => await AddAsync(scenes.AsEnumerable());
-
-        public async Task AddAsync(IEnumerable<IScene> scenes)
-        {
-            await UniTask.CompletedTask;
-
-            foreach (var scene in scenes)
-            {
-                m_scenes.Add(scene);
-            }
+            m_transitionMap.Add(scene, bind);
         }
 
         public async Task RemoveAsync(params IScene[] scenes) => await RemoveAsync(scenes.AsEnumerable());
@@ -78,7 +55,7 @@ namespace Pommel.Reversi.Presentation.State.System
 
             foreach (var scene in scenes)
             {
-                m_scenes.Remove(scene);
+                m_transitionMap.Remove(scene);
             }
         }
     }

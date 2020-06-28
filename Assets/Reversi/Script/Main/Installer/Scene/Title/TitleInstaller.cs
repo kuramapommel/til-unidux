@@ -4,7 +4,6 @@ using Pommel.Reversi.Infrastructure.Service.InGame;
 using Pommel.Reversi.Infrastructure.Store.InGame;
 using Pommel.Reversi.Presentation.Model.InGame;
 using Pommel.Reversi.Presentation.State.InGame;
-using Pommel.Reversi.Presentation.State.System;
 using Pommel.Reversi.Presentation.View.Title;
 using Pommel.Reversi.UseCase.InGame;
 using UniRx;
@@ -47,7 +46,6 @@ namespace Pommel.Reversi.Installer.Scene.Title
 
             // viewmodels
             Container.BindInterfacesTo<GameState>().AsCached();
-            Container.BindInterfacesTo<TransitionState>().AsSingle();
 
             // views
             Container.BindInterfacesTo<TitleTapArea>().FromInstance(m_titleTapArea).AsCached();

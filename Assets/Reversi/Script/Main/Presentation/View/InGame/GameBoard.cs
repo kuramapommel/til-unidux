@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Pommel.Reversi.Presentation.State.InGame;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using Zenject;
 
@@ -28,6 +29,8 @@ namespace Pommel.Reversi.Presentation.View.InGame
                     }
                 },
                 UnityEngine.Debug.Log);
+
+            gameState.Start().AsUniTask().Forget();
         }
     }
 }
