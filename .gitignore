@@ -61,3 +61,7 @@ UserPrefs.xml
 # ================== #
 EditorTestResults.xml
 
+# ========== #
+# mono crash #
+# ========== #
+*.blob
