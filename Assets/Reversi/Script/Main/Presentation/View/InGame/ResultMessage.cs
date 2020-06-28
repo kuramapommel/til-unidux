@@ -1,10 +1,13 @@
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Presentation.State.InGame;
+using Pommel.Reversi.Presentation.State.System;
 using UniRx;
+using UniRx.Async;
 using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using _Scene = Pommel.Reversi.Domain.Transition.Scene;
 
 namespace Pommel.Reversi.Presentation.View.InGame
 {
@@ -22,7 +25,7 @@ namespace Pommel.Reversi.Presentation.View.InGame
         private Text m_text;
 
         [Inject]
-        public void Construct(IGameState state)
+        public void Construct(IGameState state, ITransitionState transitionState)
         {
             m_animator = GetComponent<Animator>();
             m_stateMachineTrigger = m_animator.GetBehaviour<ObservableStateMachineTrigger>();
@@ -34,6 +37,15 @@ namespace Pommel.Reversi.Presentation.View.InGame
                 .Where(on => on.StateInfo.IsName("Open"))
                 .SkipWhile(on => on.StateInfo.normalizedTime <= 1.0f)
                 .Subscribe(_ => transform.localScale = new Vector3(transform.localScale.x, 1f, transform.localScale.z));
+
+            GetComponent<Button>()
+                .OnClickAsObservable()
+                .TakeUntilDestroy(this)
+                .Subscribe(_ => state.CreateGameAsync().AsUniTask()
+                    .ContinueWith(__ => transitionState.AddAsync(_Scene.Title))
+                    .ContinueWith(__ => transitionState.RemoveAsync(_Scene.InGame))
+                    .Forget()
+                    );
 
             state.Winner
                 .Subscribe(winner =>
