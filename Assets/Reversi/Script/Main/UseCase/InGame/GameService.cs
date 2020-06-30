@@ -1,5 +1,5 @@
+using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
-using UniRx.Async;
 
 namespace Pommel.Reversi.UseCase.InGame
 {

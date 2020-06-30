@@ -1,8 +1,8 @@
+using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Presentation.State.InGame;
 using Pommel.Reversi.Presentation.State.System;
 using UniRx;
-using UniRx.Async;
 using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;

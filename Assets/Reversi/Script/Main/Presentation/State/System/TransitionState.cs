@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.Transition;
 using Pommel.Reversi.Presentation.Model.System;
 using UniRx;
-using UniRx.Async;
 using Zenject;
 
 namespace Pommel.Reversi.Presentation.State.System

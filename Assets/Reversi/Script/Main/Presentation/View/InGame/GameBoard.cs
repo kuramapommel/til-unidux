@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Presentation.State.InGame;
 using UniRx;
-using UniRx.Async;
 using UnityEngine;
 using Zenject;
 

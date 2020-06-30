@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Presentation.Model.InGame;
 using UniRx;
-using UniRx.Async;
 using Zenject;
 using static Pommel.Reversi.Domain.InGame.Winner;
 

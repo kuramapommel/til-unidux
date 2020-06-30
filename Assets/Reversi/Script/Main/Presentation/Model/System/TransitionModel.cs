@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.Transition;
-using UniRx.Async;
 using UnityEngine.SceneManagement;
 using Zenject;
 

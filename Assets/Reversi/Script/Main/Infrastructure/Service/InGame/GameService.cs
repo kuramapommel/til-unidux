@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Infrastructure.Store.InGame;
 using Pommel.Reversi.UseCase.InGame;
-using UniRx.Async;
 
 namespace Pommel.Reversi.Infrastructure.Service.InGame
 {

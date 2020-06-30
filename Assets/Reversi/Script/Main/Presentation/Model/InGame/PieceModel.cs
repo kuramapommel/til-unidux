@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.UseCase.InGame;
 using UniRx;
-using UniRx.Async;
 
 namespace Pommel.Reversi.Presentation.Model.InGame
 {
