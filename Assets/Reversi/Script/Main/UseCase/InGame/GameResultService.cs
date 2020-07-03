@@ -1,10 +1,10 @@
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using Pommel.Reversi.UseCase.InGame.Dto;
 
 namespace Pommel.Reversi.UseCase.InGame
 {
     public interface IGameResultService
     {
-        UniTask<ResultDto> FindById(string id);
+        Task<ResultDto> FindById(string id);
     }
 }

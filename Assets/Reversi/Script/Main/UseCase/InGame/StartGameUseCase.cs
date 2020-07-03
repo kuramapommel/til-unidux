@@ -21,9 +21,11 @@ namespace Pommel.Reversi.UseCase.InGame
         public EitherAsync<IError, IGame> Execute() =>
                 from games in m_gameRepository.Fetch(game => game.State == _State.NotYet).ToAsync()
                 from game in games
-                    .HeadOrLeft<IError, IGame>(new DomainError(new ArgumentOutOfRangeException(), "該当のゲームが存在しません"))
+                    .HeadOrLeft(new DomainError(new ArgumentOutOfRangeException(), "該当のゲームが存在しません") as IError)
                     .ToAsync()
-                from started in RightAsync<IError, IGame>(game.Start())
+                from started in Try(() => game.Start())
+                    .ToEitherAsync()
+                    .MapLeft(e => new DomainError(e) as IError)
                 from saved in m_gameRepository.Save(started).ToAsync()
                 select saved;
     }

@@ -61,7 +61,8 @@ namespace Pommel.Reversi.Domain.InGame
 
         public IGame MakeMatch(IPlayer first, IPlayer second) =>
             State == State.NotYet
-            ? new Game(Id, ResultId, State,
+            ? new Game(Id, ResultId,
+                State.MakedMatch,
                 first,
                 second,
                 Turn,
@@ -72,6 +73,9 @@ namespace Pommel.Reversi.Domain.InGame
 
         public IGame LayPiece(Point point)
         {
+            // todo 妥当な例外に置き換える
+            if (State != State.Playing) throw new Exception();
+
             // 配置済みの箇所を指定された場合は例外
             if (Pieces.First(piece => piece.Point.X == point.X && piece.Point.Y == point.Y).Color != Color.None) throw new ArgumentException();
 
@@ -104,10 +108,10 @@ namespace Pommel.Reversi.Domain.InGame
             var nonePoints = flippedPieces.Where(flippedPiece => flippedPiece.Color == Color.None).ToArray();
 
             // 相手側が駒を置くことができるかチェック、できる場合はターンきりかえて return
-            if (nonePoints.Any(nonePoint => this.IsValide(opponent, nonePoint.Point, flippedPieces))) return new Game(Id, ResultId, State, FirstPlayer, SecondPlayer, opponent, flippedPieces);
+            if (nonePoints.Any(nonePoint => this.IsValid(opponent, nonePoint.Point, flippedPieces))) return new Game(Id, ResultId, State, FirstPlayer, SecondPlayer, opponent, flippedPieces);
 
             // 相手側が駒を置けない場合はプレイヤー側が続けて駒を置くことができるかチェック、できる場合はターンを保持したまま return
-            if (nonePoints.Any(nonePoint => this.IsValide(Turn, nonePoint.Point, flippedPieces))) return new Game(Id, ResultId, State, FirstPlayer, SecondPlayer, Turn, flippedPieces);
+            if (nonePoints.Any(nonePoint => this.IsValid(Turn, nonePoint.Point, flippedPieces))) return new Game(Id, ResultId, State, FirstPlayer, SecondPlayer, Turn, flippedPieces);
 
             // 両者置けない場合はゲームセットとして return
             return new Game(Id, ResultId, State.GameSet, FirstPlayer, SecondPlayer, opponent, flippedPieces);
@@ -136,7 +140,7 @@ namespace Pommel.Reversi.Domain.InGame
 
     public static class GameExtension
     {
-        public static bool IsValide(this IGame source, Turn player, Point point, IEnumerable<Piece> pieces)
+        public static bool IsValid(this IGame source, Turn player, Point point, IEnumerable<Piece> pieces)
         {
             if (pieces.First(piece => piece.Point.X == point.X && piece.Point.Y == point.Y).Color != Color.None) return false;
 
@@ -182,6 +186,7 @@ namespace Pommel.Reversi.Domain.InGame
     public enum State
     {
         NotYet,
+        MakedMatch,
         Playing,
         GameSet
     }

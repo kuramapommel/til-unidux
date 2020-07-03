@@ -1,4 +1,3 @@
-using Pommel.Reversi.Infrastructure.Service.InGame;
 using Pommel.Reversi.Presentation.State.InGame;
 using Pommel.Reversi.Presentation.View.InGame;
 using UnityEngine;
@@ -25,9 +24,6 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
                 .FromComponentInNewPrefab(m_piecePrefab)
                 .UnderTransform(m_gameBoard.GetComponent<RectTransform>())
                 .AsCached();
-
-            // domain services
-            Container.BindInterfacesTo<GameService>().AsCached();
 
             // views
             Container.BindInterfacesTo<GameBoard>().FromInstance(m_gameBoard).AsCached();

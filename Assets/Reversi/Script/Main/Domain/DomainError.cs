@@ -15,10 +15,10 @@ namespace Pommel.Reversi.Domain
 
         public string Message { get; }
 
-        public DomainError(Exception exception, string message)
+        public DomainError(Exception exception, string message = null)
         {
             Exception = exception;
-            Message = message;
+            Message = message ?? exception.Message;
         }
     }
 }
