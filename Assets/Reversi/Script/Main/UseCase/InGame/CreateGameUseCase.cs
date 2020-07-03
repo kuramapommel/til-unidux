@@ -2,7 +2,6 @@ using System;
 using LanguageExt;
 using Pommel.Reversi.Domain;
 using Pommel.Reversi.Domain.InGame;
-using Zenject;
 using static LanguageExt.Prelude;
 
 namespace Pommel.Reversi.UseCase.InGame
@@ -16,9 +15,9 @@ namespace Pommel.Reversi.UseCase.InGame
     {
         private readonly IGameRepository m_gameRepository;
 
-        private readonly IFactory<string, string, IGame> m_gameFactory;
+        private readonly IGameFactory m_gameFactory;
 
-        public CreateGameUseCase(IGameRepository gameRepository, IFactory<string, string, IGame> gameFactory)
+        public CreateGameUseCase(IGameRepository gameRepository, IGameFactory gameFactory)
         {
             m_gameRepository = gameRepository;
             m_gameFactory = gameFactory;

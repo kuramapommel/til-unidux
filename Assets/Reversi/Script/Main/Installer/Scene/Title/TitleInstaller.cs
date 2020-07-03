@@ -21,8 +21,8 @@ namespace Pommel.Reversi.Installer.Scene.Title
         public override void InstallBindings()
         {
             // factories
-            Container.BindIFactory<string, Point, _Color, IPieceModel, IPieceState>().To<PieceState>().AsCached();
-            Container.BindIFactory<string, string, IGame>().To<Game>().AsCached();
+            Container.BindInterfacesTo<PieceStateFactory>().AsCached();
+            Container.BindInterfacesTo<GameFactory>().AsCached();
 
             // stores
             Container.Bind<IGameStore>().FromInstance(GameStore.Instance).AsSingle();
@@ -49,6 +49,16 @@ namespace Pommel.Reversi.Installer.Scene.Title
 
             // views
             Container.BindInterfacesTo<TitleTapArea>().FromInstance(m_titleTapArea).AsCached();
+        }
+
+        private sealed class PieceStateFactory : IPieceStateFactory
+        {
+            public IPieceState Create(string gameId, Point point, _Color color, IPieceModel pieceModel) => new PieceState(gameId, point, color, pieceModel);
+        }
+
+        private sealed class GameFactory : IGameFactory
+        {
+            public IGame Create(string id, string resultId) => new Game(id, resultId);
         }
     }
 }

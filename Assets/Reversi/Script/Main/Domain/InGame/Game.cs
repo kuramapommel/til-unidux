@@ -24,6 +24,11 @@ namespace Pommel.Reversi.Domain.InGame
         IGame Start();
     }
 
+    public interface IGameFactory
+    {
+        IGame Create(string id, string resultId);
+    }
+
     public sealed class Game : IGame
     {
         public string Id { get; }

@@ -12,7 +12,7 @@ namespace Pommel.Reversi.Installer.Scene.Base
         public override void InstallBindings()
         {
             // views
-            Container.BindInterfacesTo<EntryPoint>().FromInstance(m_entryPoint).AsCached();
+            Container.BindInterfacesTo<EntryPoint>().FromInstance(m_entryPoint).AsSingle();
         }
     }
 }

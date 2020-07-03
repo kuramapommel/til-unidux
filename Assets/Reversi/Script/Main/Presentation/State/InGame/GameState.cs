@@ -6,7 +6,6 @@ using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Presentation.Model.InGame;
 using UniRx;
-using Zenject;
 using static Pommel.Reversi.Domain.InGame.Winner;
 
 namespace Pommel.Reversi.Presentation.State.InGame
@@ -34,7 +33,7 @@ namespace Pommel.Reversi.Presentation.State.InGame
 
         private readonly IPieceModel m_pieceModel;
 
-        private readonly IFactory<string, Point, Color, IPieceModel, IPieceState> m_pieceStateFactory;
+        private readonly IPieceStateFactory m_pieceStateFactory;
 
         private readonly IList<IPieceState> m_pieceStates = new List<IPieceState>();
 
@@ -51,7 +50,7 @@ namespace Pommel.Reversi.Presentation.State.InGame
         public GameState(
             IGameModel gameModel,
             IPieceModel pieceModel,
-            IFactory<string, Point, Color, IPieceModel, IPieceState> pieceStateFactory
+            IPieceStateFactory pieceStateFactory
             )
         {
             m_gameModel = gameModel;

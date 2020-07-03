@@ -20,6 +20,11 @@ namespace Pommel.Reversi.Presentation.State.InGame
         Task<IGame> Lay();
     }
 
+    public interface IPieceStateFactory
+    {
+        IPieceState Create(string gameId, Point point, _ColorEnum color, IPieceModel pieceModel);
+    }
+
     public sealed class PieceState : IPieceState
     {
         private readonly IPieceModel m_pieceModel;
