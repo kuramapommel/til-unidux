@@ -23,7 +23,7 @@ namespace Pommel.Reversi.UseCase.InGame
         public EitherAsync<IError, IGame> Execute(string gameId, int x, int y) =>
                 from point in RightAsync<IError, Point>(new Point(x, y))
                 from game in m_gameRepository.FindById(gameId).ToAsync()
-                from _ in game.IsValide(game.TurnPlayer, point, game.Pieces)
+                from _ in game.IsValide(game.Turn, point, game.Pieces)
                     ? RightAsync<IError, bool>(true)
                     : LeftAsync<IError, bool>(new DomainError(new ArgumentOutOfRangeException(), "その場所には置くことができません")) // todo invalid 時の妥当なエラー処理
                 from laid in RightAsync<IError, IGame>(game.LayPiece(point))
