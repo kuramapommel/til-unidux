@@ -48,6 +48,7 @@ namespace Pommel.Reversi.Presentation.View.InGame
                     );
 
             state.Winner
+                .TakeUntilDestroy(this)
                 .Subscribe(winner =>
                 {
                     switch (winner)

@@ -9,7 +9,6 @@ namespace Pommel.Reversi.Presentation.View.InGame
 {
     public interface IPiece
     {
-        IObservable<Unit> OnLayAsObservable { get; }
     }
 
     [RequireComponent(typeof(Button))]
@@ -17,8 +16,6 @@ namespace Pommel.Reversi.Presentation.View.InGame
     public sealed class Piece : MonoBehaviour, IPiece
     {
         private Image m_image;
-
-        public IObservable<Unit> OnLayAsObservable { get; private set; }
 
         [Inject]
         public void Construct(IPieceState pieceState)

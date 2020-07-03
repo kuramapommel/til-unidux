@@ -18,6 +18,8 @@ namespace Pommel.Reversi.Presentation.State.InGame
 
         IObservable<Winner> Winner { get; }
 
+        IObservable<IPlayer> OnPlayerChanged { get; }
+
         Task<IGame> CreateGameAsync();
 
         Task Start();
@@ -41,11 +43,15 @@ namespace Pommel.Reversi.Presentation.State.InGame
 
         private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>(Undecided);
 
+        private readonly IReactiveProperty<IPlayer> m_onPlayerChanged = new ReactiveProperty<IPlayer>(Player.None);
+
         public IEnumerable<IPieceState> PieceStates => m_pieceStates;
 
         public IObservable<IGame> OnStart => m_onStart;
 
         public IObservable<Winner> Winner => m_winner;
+
+        public IObservable<IPlayer> OnPlayerChanged => m_onPlayerChanged;
 
         public GameState(
             IGameModel gameModel,
@@ -76,8 +82,15 @@ namespace Pommel.Reversi.Presentation.State.InGame
                 .Subscribe(result => Finish(result.Winner).AsUniTask().Forget()); // todo add IDisposable
 
             m_gameModel.OnLaid
-                .Subscribe(message => Refresh(message.Game.Pieces).AsUniTask().Forget()); // todo add IDisposable
+                .Subscribe(message =>
+                {
+                    Refresh(message.Game.Pieces).AsUniTask().Forget();
+                    m_onPlayerChanged.Value = message.Game.Turn == Turn.First
+                        ? message.Game.FirstPlayer
+                        : message.Game.SecondPlayer;
+                }); // todo add IDisposable
 
+            m_onPlayerChanged.Value = game.FirstPlayer;
             m_onStart.OnNext(game);
             m_onStart.OnCompleted();
         }

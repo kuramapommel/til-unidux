@@ -17,6 +17,12 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
         [SerializeField]
         private ResultMessage m_resultMessage = default;
 
+        [SerializeField]
+        private PlayerInfo m_firstPlayerInfo = default;
+
+        [SerializeField]
+        private PlayerInfo m_secondPlayerInfo = default;
+
         public override void InstallBindings()
         {
             // factories
@@ -28,6 +34,8 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
             // views
             Container.BindInterfacesTo<GameBoard>().FromInstance(m_gameBoard).AsCached();
             Container.BindInterfacesTo<ResultMessage>().FromInstance(m_resultMessage).AsCached();
+            Container.Bind<IFirstPlayerInfo>().FromInstance(m_firstPlayerInfo).AsCached();
+            Container.Bind<ISecondPlayerInfo>().FromInstance(m_secondPlayerInfo).AsCached();
         }
     }
 }
