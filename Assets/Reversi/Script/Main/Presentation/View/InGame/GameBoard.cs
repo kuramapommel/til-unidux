@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Presentation.State.InGame;
 using UniRx;
@@ -20,13 +21,10 @@ namespace Pommel.Reversi.Presentation.View.InGame
         public void Construct(IFactory<IPieceState, IPiece> pieceFactory, IGameState gameState)
         {
             gameState.OnStart
+                .TakeUntilDestroy(this)
                 .Subscribe(_ =>
                 {
-                    foreach (var pieceState in gameState.PieceStates)
-                    {
-                        var piece = pieceFactory.Create(pieceState);
-                        Pieces.Add(piece);
-                    }
+                    foreach (var piece in gameState.PieceStates.Select(pieceFactory.Create)) Pieces.Add(piece);
                 },
                 UnityEngine.Debug.Log);
 

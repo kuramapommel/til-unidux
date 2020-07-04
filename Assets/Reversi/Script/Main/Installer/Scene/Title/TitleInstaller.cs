@@ -23,19 +23,28 @@ namespace Pommel.Reversi.Installer.Scene.Title
             // factories
             Container.BindInterfacesTo<PieceStateFactory>().AsCached();
             Container.BindInterfacesTo<GameFactory>().AsCached();
+            Container.BindInterfacesTo<PlayerStateFactory>().AsCached();
+            Container.BindInterfacesTo<PlayerFactory>().AsCached();
+            Container.BindInterfacesTo<MatchingFactory>().AsCached();
 
             // stores
             Container.Bind<IGameStore>().FromInstance(GameStore.Instance).AsSingle();
             Container.Bind<IGameResultStore>().FromInstance(GameResultStore.Instance).AsSingle();
+            Container.Bind<ILaidResultStore>().FromInstance(LaidResultStore.Instance).AsSingle();
+            Container.Bind<IMatchingStore>().FromInstance(MatchingStore.Instance).AsSingle();
 
             // repositories
             Container.BindInterfacesTo<GameRepository>().AsCached();
+            Container.BindInterfacesTo<MatchingRepository>().AsCached();
 
             // domain services
             Container.BindInterfacesTo<GameResultService>().AsCached();
+            Container.BindInterfacesTo<LaidResultService>().AsCached();
             Container.Bind<IMessageBroker>().To<LaidPieceMessageBroker>().AsCached();
 
             // usecases
+            Container.BindInterfacesTo<CreateMatchingUseCase>().AsCached();
+            Container.BindInterfacesTo<EntryMatchingUseCase>().AsCached();
             Container.BindInterfacesTo<CreateGameUseCase>().AsCached();
             Container.BindInterfacesTo<StartGameUseCase>().AsCached();
             Container.BindInterfacesTo<LayPieceUseCase>().AsCached();
@@ -58,7 +67,22 @@ namespace Pommel.Reversi.Installer.Scene.Title
 
         private sealed class GameFactory : IGameFactory
         {
-            public IGame Create(string id, string resultId) => new Game(id, resultId);
+            public IGame Create(string id, string resultId, string matchingId) => new Game(id, resultId, matchingId);
+        }
+
+        private sealed class PlayerStateFactory : IPlayerStateFactory
+        {
+            public IPlayerState Create(string playerId, string name, bool isTurnPlayer) => new PlayerState(playerId, name, isTurnPlayer);
+        }
+
+        private sealed class PlayerFactory : IPlayerFactory
+        {
+            public IPlayer Create(string id, string name) => new Player.Impl(id, name);
+        }
+
+        public sealed class MatchingFactory : IMatchingFactory
+        {
+            public IMatching Create(string id, IPlayer first) => new Matching(id, first);
         }
     }
 }

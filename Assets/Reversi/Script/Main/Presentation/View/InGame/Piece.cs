@@ -1,4 +1,3 @@
-using System;
 using Pommel.Reversi.Presentation.State.InGame;
 using UniRx;
 using UnityEngine;

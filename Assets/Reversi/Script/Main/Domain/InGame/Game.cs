@@ -13,17 +13,15 @@ namespace Pommel.Reversi.Domain.InGame
         // todo 型作る
         string ResultId { get; }
 
+        string MatchingId { get; }
+
+        IEnumerable<string> HistoryIds { get; }
+
         State State { get; }
-
-        IPlayer FirstPlayer { get; }
-
-        IPlayer SecondPlayer { get; }
 
         Turn Turn { get; }
 
         IEnumerable<Piece> Pieces { get; }
-
-        IGame MakeMatch(IPlayer first, IPlayer second);
 
         IGame LayPiece(Point point);
 
@@ -32,20 +30,20 @@ namespace Pommel.Reversi.Domain.InGame
 
     public interface IGameFactory
     {
-        IGame Create(string id, string resultId);
+        IGame Create(string id, string resultId, string matchingId);
     }
 
     public sealed class Game : IGame
     {
         public string Id { get; }
 
-        public string ResultId { get; } = string.Empty;
+        public string ResultId { get; }
+
+        public string MatchingId { get; }
+
+        public IEnumerable<string> HistoryIds { get; } = Enumerable.Empty<string>();
 
         public State State { get; } = State.NotYet;
-
-        public IPlayer FirstPlayer { get; } = Player.None;
-
-        public IPlayer SecondPlayer { get; } = Player.None;
 
         public Turn Turn { get; } = Turn.First;
 
@@ -53,23 +51,12 @@ namespace Pommel.Reversi.Domain.InGame
             .SelectMany(x => Enumerable.Range(0, 8)
                 .Select(y => new Piece(new Point(x, y))));
 
-        public Game(string id, string resultId)
+        public Game(string id, string resultId, string matchingId)
         {
             Id = id;
             ResultId = resultId;
+            MatchingId = matchingId;
         }
-
-        public IGame MakeMatch(IPlayer first, IPlayer second) =>
-            State == State.NotYet
-            ? new Game(Id, ResultId,
-                State.MakedMatch,
-                first,
-                second,
-                Turn,
-                Pieces
-                )
-            // todo 妥当な例外に置き換える
-            : throw new Exception();
 
         public IGame LayPiece(Point point)
         {
@@ -105,19 +92,23 @@ namespace Pommel.Reversi.Domain.InGame
                 )
                 .ToArray();
 
+            // todo ID Generator 的なものをかませる
+            var laidLogId = Guid.NewGuid().ToString();
             var nonePoints = flippedPieces.Where(flippedPiece => flippedPiece.Color == Color.None).ToArray();
 
             // 相手側が駒を置くことができるかチェック、できる場合はターンきりかえて return
-            if (nonePoints.Any(nonePoint => this.IsValid(opponent, nonePoint.Point, flippedPieces))) return new Game(Id, ResultId, State, FirstPlayer, SecondPlayer, opponent, flippedPieces);
+            if (nonePoints.Any(nonePoint => this.IsValid(opponent, nonePoint.Point, flippedPieces)))
+                return new Game(Id, ResultId, MatchingId, HistoryIds.Append(laidLogId), State, opponent, flippedPieces);
 
             // 相手側が駒を置けない場合はプレイヤー側が続けて駒を置くことができるかチェック、できる場合はターンを保持したまま return
-            if (nonePoints.Any(nonePoint => this.IsValid(Turn, nonePoint.Point, flippedPieces))) return new Game(Id, ResultId, State, FirstPlayer, SecondPlayer, Turn, flippedPieces);
+            if (nonePoints.Any(nonePoint => this.IsValid(Turn, nonePoint.Point, flippedPieces)))
+                return new Game(Id, ResultId, MatchingId, HistoryIds.Append(laidLogId), State, Turn, flippedPieces);
 
             // 両者置けない場合はゲームセットとして return
-            return new Game(Id, ResultId, State.GameSet, FirstPlayer, SecondPlayer, opponent, flippedPieces);
+            return new Game(Id, ResultId, MatchingId, HistoryIds.Append(laidLogId), State.GameSet, opponent, flippedPieces);
         }
 
-        public IGame Start() => new Game(Id, ResultId, State.Playing, FirstPlayer, SecondPlayer, Turn,
+        public IGame Start() => new Game(Id, ResultId, MatchingId, HistoryIds, State.Playing, Turn,
             Pieces.Select(piece =>
             {
                 if (Point.InitialDarkPoints.Contains(piece.Point)) return piece.SetColor(Color.Dark);
@@ -126,15 +117,15 @@ namespace Pommel.Reversi.Domain.InGame
             })
             .ToArray());
 
-        private Game(string id, string resultId, State state, IPlayer firstPlayer, IPlayer secondPlayer, Turn turn, IEnumerable<Piece> pieces)
+        private Game(string id, string resultId, string matchingId, IEnumerable<string> historyIds, State state, Turn turn, IEnumerable<Piece> pieces)
         {
             Id = id;
             ResultId = resultId;
+            MatchingId = matchingId;
             State = state;
-            FirstPlayer = firstPlayer;
-            SecondPlayer = secondPlayer;
             Turn = turn;
             Pieces = pieces;
+            HistoryIds = historyIds;
         }
     }
 
@@ -186,7 +177,6 @@ namespace Pommel.Reversi.Domain.InGame
     public enum State
     {
         NotYet,
-        MakedMatch,
         Playing,
         GameSet
     }

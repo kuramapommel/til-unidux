@@ -27,6 +27,15 @@ namespace Pommel.Reversi.UseCase.InGame.Dto
     {
         public IEnumerable<Piece> Pieces { get; }
 
-        public LaidDto(IEnumerable<Piece> pieces) => Pieces = pieces;
+        public IPlayer NextTurnPlayer { get; }
+
+        public LaidDto(
+            IEnumerable<Piece> pieces,
+            IPlayer nextTurnPlayer
+            )
+        {
+            Pieces = pieces;
+            NextTurnPlayer = nextTurnPlayer;
+        }
     }
 }

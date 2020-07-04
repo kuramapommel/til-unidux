@@ -14,11 +14,13 @@ namespace Pommel.Reversi.Presentation.State.InGame
     {
         IEnumerable<IPieceState> PieceStates { get; }
 
+        IPlayerState FirstPlayerState { get; }
+
+        IPlayerState SecondPlayerState { get; }
+
         IObservable<IGame> OnStart { get; }
 
         IObservable<Winner> Winner { get; }
-
-        IObservable<IPlayer> OnPlayerChanged { get; }
 
         Task<IGame> CreateGameAsync();
 
@@ -37,34 +39,61 @@ namespace Pommel.Reversi.Presentation.State.InGame
 
         private readonly IPieceStateFactory m_pieceStateFactory;
 
+        private readonly IPlayerStateFactory m_playerStateFactory;
+
         private readonly IList<IPieceState> m_pieceStates = new List<IPieceState>();
+
+        private readonly IDictionary<bool, IPlayerState> m_playerStateMap = new Dictionary<bool, IPlayerState>();
 
         private readonly ISubject<IGame> m_onStart = new Subject<IGame>();
 
         private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>(Undecided);
 
-        private readonly IReactiveProperty<IPlayer> m_onPlayerChanged = new ReactiveProperty<IPlayer>(Player.None);
-
         public IEnumerable<IPieceState> PieceStates => m_pieceStates;
+
+        public IPlayerState FirstPlayerState => m_playerStateMap.TryGetValue(true, out var player)
+            ? player
+            : throw new InvalidOperationException("先手プレイヤーが初期化されていません");
+
+        public IPlayerState SecondPlayerState => m_playerStateMap.TryGetValue(false, out var player)
+            ? player
+            : throw new InvalidOperationException("先手プレイヤーが初期化されていません");
 
         public IObservable<IGame> OnStart => m_onStart;
 
         public IObservable<Winner> Winner => m_winner;
 
-        public IObservable<IPlayer> OnPlayerChanged => m_onPlayerChanged;
-
         public GameState(
             IGameModel gameModel,
             IPieceModel pieceModel,
-            IPieceStateFactory pieceStateFactory
+            IPieceStateFactory pieceStateFactory,
+            IPlayerStateFactory playerStateFactory
             )
         {
             m_gameModel = gameModel;
             m_pieceModel = pieceModel;
             m_pieceStateFactory = pieceStateFactory;
+            m_playerStateFactory = playerStateFactory;
         }
 
-        public async Task<IGame> CreateGameAsync() => await m_gameModel.CreateGameAsync();
+        public async Task<IGame> CreateGameAsync()
+        {
+            // todo 一時的に仮実装
+            var firstPlayer = (id: Guid.NewGuid().ToString(), name: "左側の人");
+            var secondPlayer = (id: Guid.NewGuid().ToString(), name: "migigawa no hito");
+            var matching = await m_gameModel.CreateMatchingAsync(firstPlayer.id, firstPlayer.name);
+            var entried = await m_gameModel.EntryMatchingAsync(matching.Id, secondPlayer.id, secondPlayer.name);
+            var game = await m_gameModel.CreateGameAsync(entried);
+
+            m_playerStateMap.Add(
+                true,
+                m_playerStateFactory.Create(firstPlayer.id, firstPlayer.name, true));
+            m_playerStateMap.Add(
+                false,
+                m_playerStateFactory.Create(secondPlayer.id, secondPlayer.name, false));
+
+            return game;
+        }
 
         public async Task Start()
         {
@@ -84,13 +113,16 @@ namespace Pommel.Reversi.Presentation.State.InGame
             m_gameModel.OnLaid
                 .Subscribe(message =>
                 {
-                    Refresh(message.Game.Pieces).AsUniTask().Forget();
-                    m_onPlayerChanged.Value = message.Game.Turn == Turn.First
-                        ? message.Game.FirstPlayer
-                        : message.Game.SecondPlayer;
+                    Refresh(message.Pieces).AsUniTask().Forget();
+
+                    var (nextPlayer, notNextPlayer) = message.NextTurnPlayer.Id == FirstPlayerState.Id
+                        ? (FirstPlayerState, SecondPlayerState)
+                        : (SecondPlayerState, FirstPlayerState);
+
+                    nextPlayer.SetIsNextTurn(true);
+                    notNextPlayer.SetIsNextTurn(false);
                 }); // todo add IDisposable
 
-            m_onPlayerChanged.Value = game.FirstPlayer;
             m_onStart.OnNext(game);
             m_onStart.OnCompleted();
         }

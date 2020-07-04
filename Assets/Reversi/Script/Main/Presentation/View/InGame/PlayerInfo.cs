@@ -29,10 +29,8 @@ namespace Pommel.Reversi.Presentation.View.InGame
 
         private Text m_colorText;
 
-        private string m_id;
-
         [Inject]
-        public void Construct(IGameState state)
+        public void Construct(IGameState gameState)
         {
             (m_nameText, m_colorText) = GetComponentsInChildren<Text>()
                 .Aggregate(
@@ -46,22 +44,19 @@ namespace Pommel.Reversi.Presentation.View.InGame
                     }
                 );
 
-            state.OnStart
-                .TakeUntilDestroy(this)
-                .Subscribe(game =>
-                {
-                    var player = m_isFirst
-                        ? game.FirstPlayer
-                        : game.SecondPlayer;
+            var playerState = m_isFirst
+                ? gameState.FirstPlayerState
+                : gameState.SecondPlayerState;
 
-                    m_id = player.Id;
-                    m_nameText.text = player.Name;
-                    m_colorText.gameObject.SetActive(m_isFirst);
-                });
-
-            state.OnPlayerChanged
+            playerState.Name
                 .TakeUntilDestroy(this)
-                .Subscribe(playerInfo => m_colorText.gameObject.SetActive(m_id == playerInfo.Id));
+                .Subscribe(name => m_nameText.text = name);
+
+            playerState.IsTurnPlayer
+                .TakeUntilDestroy(this)
+                .Subscribe(m_colorText.gameObject.SetActive);
+
+            m_colorText.gameObject.SetActive(m_isFirst);
         }
     }
 }
