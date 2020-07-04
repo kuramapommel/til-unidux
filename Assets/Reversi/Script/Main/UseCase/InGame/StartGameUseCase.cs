@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using LanguageExt;
 using Pommel.Reversi.Domain;
 using Pommel.Reversi.Domain.InGame;
@@ -20,9 +21,9 @@ namespace Pommel.Reversi.UseCase.InGame
 
         public EitherAsync<IError, IGame> Execute() =>
                 from games in m_gameRepository.Fetch(game => game.State == _State.NotYet).ToAsync()
-                from game in games
-                    .HeadOrLeft(new DomainError(new ArgumentOutOfRangeException(), "該当のゲームが存在しません") as IError)
-                    .ToAsync()
+                from game in Try(() => games.First())
+                    .ToEitherAsync()
+                    .MapLeft(_ => new DomainError(new ArgumentOutOfRangeException(), "該当のゲームが存在しません") as IError)
                 from started in Try(() => game.Start())
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)

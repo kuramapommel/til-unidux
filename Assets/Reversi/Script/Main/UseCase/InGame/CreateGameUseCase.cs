@@ -26,7 +26,10 @@ namespace Pommel.Reversi.UseCase.InGame
         public EitherAsync<IError, IGame> Execute() =>
                 from gameId in RightAsync<IError, string>(Guid.NewGuid().ToString()) // todo ID Generator 的なものをかませる
                 from resultId in RightAsync<IError, string>(Guid.NewGuid().ToString()) // todo ID Generator 的なものをかませる
-                from saved in m_gameRepository.Save(m_gameFactory.Create(gameId, resultId)).ToAsync()
+                from game in Try(() => m_gameFactory.Create(gameId, resultId))
+                    .ToEitherAsync()
+                    .MapLeft(e => new DomainError(e) as IError)
+                from saved in m_gameRepository.Save(game).ToAsync()
                 select saved;
     }
 }

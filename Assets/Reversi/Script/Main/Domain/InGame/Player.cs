@@ -9,6 +9,11 @@ namespace Pommel.Reversi.Domain.InGame
         string Name { get; }
     }
 
+    public interface IPlayerFactory
+    {
+        IPlayer Create(string id, string name);
+    }
+
     public static class Player
     {
         public sealed class Impl : IPlayer

@@ -11,11 +11,14 @@ namespace Pommel.Reversi.Domain.InGame
 
         IPlayer SecondPlayer { get; }
 
-        IMatching Create(IPlayer first);
-
-        IMatching Join(IPlayer second);
+        IMatching Entry(IPlayer second);
 
         IMatching Make();
+    }
+
+    public interface IMatchingFactory
+    {
+        IMatching Create(string id, IPlayer first);
     }
 
     public sealed class Matching : IMatching
@@ -26,9 +29,16 @@ namespace Pommel.Reversi.Domain.InGame
 
         public IPlayer SecondPlayer { get; }
 
-        public IMatching Create(IPlayer first) => new Matching(first, SecondPlayer);
+        public Matching(string id, IPlayer first)
+        {
+            Id = id;
+            FirstPlayer = first;
+            SecondPlayer = Player.None;
+        }
 
-        public IMatching Join(IPlayer second) => new Matching(FirstPlayer, second);
+        public IMatching Create(IPlayer first) => new Matching(Id, first, SecondPlayer);
+
+        public IMatching Entry(IPlayer second) => new Matching(Id, FirstPlayer, second);
 
         public IMatching Make()
         {
@@ -48,11 +58,12 @@ namespace Pommel.Reversi.Domain.InGame
                 }
             );
 
-            return new Matching(first, second);
+            return new Matching(Id, first, second);
         }
 
-        private Matching(IPlayer first, IPlayer second)
+        private Matching(string id, IPlayer first, IPlayer second)
         {
+            Id = id;
             FirstPlayer = first;
             SecondPlayer = second;
         }
