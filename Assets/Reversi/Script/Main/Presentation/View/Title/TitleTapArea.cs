@@ -25,11 +25,9 @@ namespace Pommel.Reversi.Presentation.View.Title
             m_tapArea
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => state.CreateGameAsync().AsUniTask()
-                    .ContinueWith(__ => transitionState.AddAsync(_Scene.InGame, container => container.Bind<IGameState>().FromInstance(state).AsCached()))
-                    .ContinueWith(__ => transitionState.RemoveAsync(_Scene.Title))
-                    .Forget()
-                    );
+                .SelectMany(_ => state.CreateGameAsync().AsUniTask().ToObservable())
+                .SelectMany(_ => transitionState.AddAsync(_Scene.InGame, container => container.Bind<IGameState>().FromInstance(state).AsCached()).AsUniTask().ToObservable())
+                .Subscribe(_ => transitionState.RemoveAsync(_Scene.Title).AsUniTask().Forget());
         }
     }
 }
