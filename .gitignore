@@ -65,3 +65,10 @@ EditorTestResults.xml
 # mono crash #
 # ========== #
 *.blob
+
+# ========================= #
+# MagicOnion server project #
+# ========================= #
+!/Server/*.cs
+!/Server/*.csproj
+!/Server/*.sln
