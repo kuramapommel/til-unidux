@@ -1,0 +1,1 @@
+./mpc/osx/mpc -i "../Assembly-CSharp.csproj" -o "../Assets/Reversi/Script/Main/Generated/MessagePack.Generated.cs" -r "MessagePackGeneratedResolver" -n "Pommel.Generated"

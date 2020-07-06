@@ -1,4 +1,6 @@
+using System;
 using Pommel.Reversi.Domain.InGame;
+using Pommel.Reversi.Infrastructure.Networking.Client;
 using Pommel.Reversi.Infrastructure.Repository.InGame;
 using Pommel.Reversi.Infrastructure.Service.InGame;
 using Pommel.Reversi.Infrastructure.Store.InGame;
@@ -6,10 +8,10 @@ using Pommel.Reversi.Presentation.Model.InGame;
 using Pommel.Reversi.Presentation.State.InGame;
 using Pommel.Reversi.Presentation.View.Title;
 using Pommel.Reversi.UseCase.InGame;
-using UniRx;
 using UnityEngine;
 using Zenject;
 using _Color = Pommel.Reversi.Domain.InGame.Color;
+using _LaidPieceMessageBroker = Pommel.Reversi.Infrastructure.Service.InGame.LaidPieceMessageBroker;
 
 namespace Pommel.Reversi.Installer.Scene.Title
 {
@@ -26,6 +28,7 @@ namespace Pommel.Reversi.Installer.Scene.Title
             Container.BindInterfacesTo<PlayerStateFactory>().AsCached();
             Container.BindInterfacesTo<PlayerFactory>().AsCached();
             Container.BindInterfacesTo<MatchingFactory>().AsCached();
+            Container.BindInterfacesTo<InGameClientFactory>().AsCached();
 
             // stores
             Container.Bind<IGameStore>().FromInstance(GameStore.Instance).AsSingle();
@@ -40,7 +43,7 @@ namespace Pommel.Reversi.Installer.Scene.Title
             // domain services
             Container.BindInterfacesTo<GameResultService>().AsCached();
             Container.BindInterfacesTo<LaidResultService>().AsCached();
-            Container.Bind<IMessageBroker>().To<LaidPieceMessageBroker>().AsCached();
+            Container.BindInterfacesTo<_LaidPieceMessageBroker>().AsCached();
 
             // usecases
             Container.BindInterfacesTo<CreateMatchingUseCase>().AsCached();
@@ -80,9 +83,14 @@ namespace Pommel.Reversi.Installer.Scene.Title
             public IPlayer Create(string id, string name) => new Player.Impl(id, name);
         }
 
-        public sealed class MatchingFactory : IMatchingFactory
+        private sealed class MatchingFactory : IMatchingFactory
         {
             public IMatching Create(string id, IPlayer first) => new Matching(id, first);
+        }
+
+        private sealed class InGameClientFactory : IInGameClientFactory
+        {
+            public IInGameClient Create(Action<string, int, int> onLay) => new InGameClient(onLay);
         }
     }
 }

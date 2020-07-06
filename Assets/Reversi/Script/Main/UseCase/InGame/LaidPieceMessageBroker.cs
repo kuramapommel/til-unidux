@@ -19,4 +19,18 @@ namespace Pommel.Reversi.UseCase.InGame
 
         public LaidPieceEvent(IGame game) => Game = game;
     }
+
+    public readonly struct LayEvent
+    {
+        public string GameId { get; }
+        public int X { get; }
+        public int Y { get; }
+
+        public LayEvent(string gameId, int x, int y)
+        {
+            GameId = gameId;
+            X = x;
+            Y = y;
+        }
+    }
 }

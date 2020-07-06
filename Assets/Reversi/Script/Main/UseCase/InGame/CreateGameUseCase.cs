@@ -17,10 +17,17 @@ namespace Pommel.Reversi.UseCase.InGame
 
         private readonly IGameFactory m_gameFactory;
 
-        public CreateGameUseCase(IGameRepository gameRepository, IGameFactory gameFactory)
+        private readonly ILaidPieceMessagePublisher m_laidPieceMessagePublisher;
+
+        public CreateGameUseCase(
+            IGameRepository gameRepository,
+            IGameFactory gameFactory,
+            ILaidPieceMessagePublisher laidPieceMessagePublisher
+            )
         {
             m_gameRepository = gameRepository;
             m_gameFactory = gameFactory;
+            m_laidPieceMessagePublisher = laidPieceMessagePublisher;
         }
 
         public EitherAsync<IError, IGame> Execute(IMatching matching) =>
@@ -30,6 +37,11 @@ namespace Pommel.Reversi.UseCase.InGame
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)
                 from saved in m_gameRepository.Save(game).ToAsync()
+                    .Map(savedGame =>
+                    {
+                        m_laidPieceMessagePublisher.Join();
+                        return savedGame;
+                    })
                 select saved;
     }
 }

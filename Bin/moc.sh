@@ -1,0 +1,1 @@
+./MagicOnion.Generator/bin/moc/osx-x64/moc -i "../Server/Server.csproj" -o "../Assets/Reversi/Script/Main/Generated/MagicOnion.Generated.cs" -n "Pommel.Generated"

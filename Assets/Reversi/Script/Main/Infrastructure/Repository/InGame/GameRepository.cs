@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using LanguageExt;
 using Pommel.Reversi.Domain;
 using Pommel.Reversi.Domain.InGame;
+using Pommel.Reversi.Infrastructure.Networking.Client;
 using Pommel.Reversi.Infrastructure.Store.InGame;
 using Pommel.Reversi.UseCase.InGame.Dto;
 using static LanguageExt.Prelude;
@@ -22,16 +23,23 @@ namespace Pommel.Reversi.Infrastructure.Repository.InGame
 
         private readonly IMatchingStore m_matchingStore;
 
+        private readonly IInGameClientFactory m_inGameClientFatory;
+
+        private readonly IDictionary<bool, IInGameClient> m_inGameClientContainer = new Dictionary<bool, IInGameClient>();
+
         public GameRepository(
             IGameStore store,
             IGameResultStore resultStore,
             ILaidResultStore laidResultStore,
-            IMatchingStore matchingStore)
+            IMatchingStore matchingStore,
+            IInGameClientFactory inGameClientFactory
+            )
         {
             m_store = store;
             m_resultStore = resultStore;
             m_laidResultStore = laidResultStore;
             m_matchingStore = matchingStore;
+            m_inGameClientFatory = inGameClientFactory;
         }
 
         public Task<Either<IError, IGame>> FindById(string id) => Task.FromResult(
@@ -42,6 +50,13 @@ namespace Pommel.Reversi.Infrastructure.Repository.InGame
         {
             if (m_store.ContainsKey(game.Id)) m_store.Remove(game.Id);
             m_store.Add(game.Id, game);
+
+            var inGameClient = m_inGameClientContainer.TryGetValue(true, out var client)
+                ? client
+                : m_inGameClientFatory.Create();
+
+            _ = inGameClient.SaveAsync(game);
+            if (!m_inGameClientContainer.ContainsKey(true)) m_inGameClientContainer.Add(true, inGameClient);
 
             if (!m_matchingStore.TryGetValue(game.MatchingId, out var matching))
                 return Left<IError, IGame>(new DomainError(new ArgumentOutOfRangeException(), "存在しないマッチングが指定されました"));

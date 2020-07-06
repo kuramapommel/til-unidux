@@ -6,7 +6,6 @@ using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.UseCase.InGame;
 using Pommel.Reversi.UseCase.InGame.Dto;
 using UniRx;
-using _State = Pommel.Reversi.Domain.InGame.State;
 
 namespace Pommel.Reversi.Presentation.Model.InGame
 {
@@ -39,7 +38,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         private readonly IStartGameUseCase m_startGameUseCase;
 
-        private readonly IMessageReceiver m_messageReceiver;
+        private readonly ILaidPieceMessageReciever m_laidPieceMessageReciever;
 
         public GameModel(
             IGameResultService gameResultService,
@@ -48,7 +47,8 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             IEntryMatchingUseCase entryMatchingUseCase,
             ICreateGameUseCase createGameUseCase,
             IStartGameUseCase startGameUseCase,
-            IMessageBroker messageReceiver
+            ILaidPieceMessageReciever laidPieceMessageReciever,
+            ILayPieceUseCase layPieceUseCase
             )
         {
             m_gameResultService = gameResultService;
@@ -57,7 +57,20 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             m_entryMatchingUseCase = entryMatchingUseCase;
             m_createGameUseCase = createGameUseCase;
             m_startGameUseCase = startGameUseCase;
-            m_messageReceiver = messageReceiver;
+            m_laidPieceMessageReciever = laidPieceMessageReciever;
+
+            m_laidPieceMessageReciever
+                .OnLay
+                .Subscribe(eventInfo =>
+                    layPieceUseCase.Execute(eventInfo.GameId, eventInfo.X, eventInfo.Y)
+                    .Match(
+                        Right: game => game,
+                        // todo error handling
+                        Left: error => throw error.Exception
+                    )
+                    .AsUniTask()
+                    .ToObservable()
+                );
         }
 
         public async Task<IMatching> CreateMatchingAsync(string playerId, string playerName) =>
@@ -97,12 +110,11 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             .AsUniTask();
 
         public IObservable<ResultDto> OnResult =>
-            m_messageReceiver.Receive<ILaidPieceEvent>()
-                .Where(message => message.Game.State == _State.GameSet)
+            m_laidPieceMessageReciever.OnResult
                 .SelectMany(message => m_gameResultService.FindById(message.Game.ResultId).AsUniTask().ToObservable());
 
         public IObservable<LaidDto> OnLaid =>
-            m_messageReceiver.Receive<ILaidPieceEvent>()
+            m_laidPieceMessageReciever.OnLaid
             .SelectMany(message => m_laidResultService.FindById(message.Game.HistoryIds.LastOrDefault()).AsUniTask().ToObservable());
     }
 }
