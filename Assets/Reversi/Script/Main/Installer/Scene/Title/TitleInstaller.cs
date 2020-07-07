@@ -1,4 +1,3 @@
-using System;
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Infrastructure.Networking.Client;
 using Pommel.Reversi.Infrastructure.Repository.InGame;
@@ -90,7 +89,7 @@ namespace Pommel.Reversi.Installer.Scene.Title
 
         private sealed class InGameClientFactory : IInGameClientFactory
         {
-            public IInGameClient Create(Action<string, int, int> onLay) => new InGameClient(onLay);
+            public IInGameClient Create() => new InGameClient();
         }
     }
 }
