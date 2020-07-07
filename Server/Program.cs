@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using MagicOnion.Hosting;
 using MagicOnion.Server;
 using Grpc.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Pommel.Server.UseCase.InGame;
 
 namespace Pommel.Server
 {
@@ -22,6 +24,14 @@ namespace Pommel.Server
                 .UseMagicOnion(
                     new MagicOnionOptions(isReturnExceptionStackTraceInErrorDetail: true),
                     new ServerPort("localhost", 12345, ServerCredentials.Insecure))
+                .ConfigureServices((hostContext, services) =>
+                {
+                    // dependency injection
+                    services.AddSingleton<IStartGameUseCase, StartGameUseCase>();
+                    services.AddSingleton<ILayPieceUseCase, LayPieceUseCase>();
+                    services.AddSingleton<ICreateMatchingUseCase, CreateMatchingUseCase>();
+                    services.AddSingleton<ICreateGameUseCase, CreateGameUseCase>();
+                })
                 .RunConsoleAsync();
         }
     }
