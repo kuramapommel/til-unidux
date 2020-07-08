@@ -1,7 +1,5 @@
 using Pommel.Reversi.Presentation.Model.System;
-using Pommel.Reversi.Presentation.State.System;
-using Pommel.Reversi.UseCase.InGame;
-using UniRx;
+using Pommel.Reversi.Presentation.ViewModel.System;
 using Zenject;
 
 namespace Pommel.Reversi.Installer.Project
@@ -10,9 +8,6 @@ namespace Pommel.Reversi.Installer.Project
     {
         public override void InstallBindings()
         {
-            // domain services
-            Container.Bind<IMessageBroker>().To<LaidPieceMessageBroker>().AsSingle();
-
             // models
             Container.BindInterfacesTo<TransitionModel>().AsSingle();
 

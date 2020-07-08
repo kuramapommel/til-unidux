@@ -81,12 +81,13 @@ namespace Pommel.Generated.Resolvers
 
         static MagicOnionResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(4)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(5)
             {
                 {typeof(global::MagicOnion.DynamicArgumentTuple<int, int, int>), 0 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, int, int>), 1 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string>), 2 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string>), 3 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, global::Pommel.Api.Protocol.InGame.Game>), 1 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, int, int>), 2 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string>), 3 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string>), 4 },
             };
         }
 
@@ -101,9 +102,10 @@ namespace Pommel.Generated.Resolvers
             switch (key)
             {
                 case 0: return new global::MagicOnion.DynamicArgumentTupleFormatter<int, int, int>(default(int), default(int), default(int));
-                case 1: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, int, int>(default(string), default(int), default(int));
-                case 2: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string>(default(string), default(string), default(string));
-                case 3: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string>(default(string), default(string));
+                case 1: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, global::Pommel.Api.Protocol.InGame.Game>(default(string), default(global::Pommel.Api.Protocol.InGame.Game));
+                case 2: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, int, int>(default(string), default(int), default(int));
+                case 3: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string>(default(string), default(string), default(string));
+                case 4: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string>(default(string), default(string));
                 default: return null;
             }
         }
@@ -267,30 +269,20 @@ namespace Pommel.Api.Hubs {
         {
             switch (methodId)
             {
-                case -180705133: // OnCreateMatching
-                {
-                    var result = MessagePackSerializer.Deserialize<string>(data, serializerOptions);
-                    receiver.OnCreateMatching(result); break;
-                }
                 case -1297457280: // OnJoin
                 {
                     var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string, string>>(data, serializerOptions);
                     receiver.OnJoin(result.Item1, result.Item2, result.Item3); break;
                 }
-                case 2034815902: // OnCreateGame
-                {
-                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string>>(data, serializerOptions);
-                    receiver.OnCreateGame(result.Item1, result.Item2); break;
-                }
                 case 995394406: // OnStartGame
                 {
-                    var result = MessagePackSerializer.Deserialize<global::Pommel.Api.Protocol.InGame.Game>(data, serializerOptions);
-                    receiver.OnStartGame(result); break;
+                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, global::Pommel.Api.Protocol.InGame.Game>>(data, serializerOptions);
+                    receiver.OnStartGame(result.Item1, result.Item2); break;
                 }
                 case -237469886: // OnLay
                 {
-                    var result = MessagePackSerializer.Deserialize<global::Pommel.Api.Protocol.InGame.Game>(data, serializerOptions);
-                    receiver.OnLay(result); break;
+                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, global::Pommel.Api.Protocol.InGame.Game>>(data, serializerOptions);
+                    receiver.OnLay(result.Item1, result.Item2); break;
                 }
                 case 1937311401: // OnResult
                 {

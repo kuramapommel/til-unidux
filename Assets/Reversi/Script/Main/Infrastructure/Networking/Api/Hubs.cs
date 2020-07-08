@@ -15,15 +15,11 @@ namespace Pommel.Api.Hubs
 
     public interface IInGameReceiver
     {
-        void OnCreateMatching(string matchingId);
-
         void OnJoin(string matchingId, string playerId, string playerName);
 
-        void OnCreateGame(string gameId, string matchingId);
+        void OnStartGame(string nextPlayerId, Game game);
 
-        void OnStartGame(Game game);
-
-        void OnLay(Game game);
+        void OnLay(string nextPlayerId, Game game);
 
         void OnResult(int darkCount, int lightCount, int winner);
     }

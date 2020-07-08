@@ -30,20 +30,17 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
 
         Task CreateGameAsync(string matchingId);
 
-        IObservable<string> OnCreateMatchingAsObservable();
+        IObservable<(string matchingId, string playerId, string playerName)> OnCreateMatchingAsObservable();
 
         IObservable<(string matchingId, string playerId, string playerName)> OnJoinAsObservable();
 
         IObservable<(string gameId, string matchingId)> OnCreateGameAsObservable();
 
-        IObservable<_Game> OnStartGameAsObservable();
+        IObservable<(string nextPlayerId, _Game game)> OnStartGameAsObservable();
 
-        IObservable<_Game> OnLayAsObservable();
-    }
+        IObservable<(string nextPlayerId, _Game game)> OnLayAsObservable();
 
-    public interface IInGameClientFactory
-    {
-        IInGameClient Create();
+        IObservable<(int darkCount, int lightCount, int winner)> OnResultAsObservable();
     }
 
     public sealed class InGameClient : IInGameClient
@@ -54,15 +51,17 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
 
         private readonly IInGameHub m_inGameHub;
 
-        private readonly IReactiveProperty<string> m_onCreateMatching = new ReactiveProperty<string>();
+        private readonly ISubject<(string matchingId, string playerId, string playerName)> m_onCreateMatching = new Subject<(string matchingId, string playerId, string playerName)>();
 
-        private readonly IReactiveProperty<(string matchingId, string playerId, string playerName)> m_onJoin = new ReactiveProperty<(string matchingId, string playerId, string playerName)>();
+        private readonly ISubject<(string matchingId, string playerId, string playerName)> m_onJoin = new Subject<(string matchingId, string playerId, string playerName)>();
 
-        private readonly IReactiveProperty<(string gameId, string matchingId)> m_onCreateGame = new ReactiveProperty<(string gameId, string matchingId)>();
+        private readonly ISubject<(string gameId, string matchingId)> m_onCreateGame = new Subject<(string gameId, string matchingId)>();
 
-        private readonly IReactiveProperty<_Game> m_onStartGame = new ReactiveProperty<_Game>();
+        private readonly ISubject<(int darkCount, int whiteCount, int winner)> m_onResult = new Subject<(int darkCount, int whiteCount, int winner)>();
 
-        private readonly IReactiveProperty<_Game> m_onLay = new ReactiveProperty<_Game>();
+        private readonly ISubject<(string nextPlayerId, _Game game)> m_onStartGame = new Subject<(string nextPlayerId, _Game game)>();
+
+        private readonly ISubject<(string nextPlayerId, _Game game)> m_onLay = new Subject<(string nextPlayerId, _Game game)>();
 
         public InGameClient()
         {
@@ -110,41 +109,62 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
         {
             var matchingId = await m_inGameService.CreateMatchingAsync(playerId, playerName);
             Debug.Log($"matchingId is {matchingId}");
+
+            m_onCreateMatching.OnNext((matchingId, playerId, playerName));
+            m_onCreateMatching.OnCompleted();
         }
 
         public async Task CreateGameAsync(string matchingId)
         {
             var gameId = await m_inGameService.CreateGameAsync(matchingId);
             Debug.Log($"gameId is {gameId}");
+
+            m_onCreateGame.OnNext((gameId, matchingId));
+            m_onCreateGame.OnCompleted();
         }
 
-        public IObservable<string> OnCreateMatchingAsObservable() => m_onCreateMatching;
+        public IObservable<(string matchingId, string playerId, string playerName)> OnCreateMatchingAsObservable() => m_onCreateMatching;
 
         public IObservable<(string matchingId, string playerId, string playerName)> OnJoinAsObservable() => m_onJoin;
 
         public IObservable<(string gameId, string matchingId)> OnCreateGameAsObservable() => m_onCreateGame;
 
-        public IObservable<_Game> OnStartGameAsObservable() => m_onStartGame;
+        public IObservable<(string nextPlayerId, _Game game)> OnStartGameAsObservable() => m_onStartGame;
 
-        public IObservable<_Game> OnLayAsObservable() => m_onLay;
+        public IObservable<(string nextPlayerId, _Game game)> OnLayAsObservable() => m_onLay;
 
-        void IInGameReceiver.OnCreateMatching(string matchingId) => m_onCreateMatching.Value = matchingId;
+        public IObservable<(int darkCount, int lightCount, int winner)> OnResultAsObservable() => m_onResult;
 
-        void IInGameReceiver.OnJoin(string matchingId, string playerId, string playerName) => m_onJoin.Value = (matchingId, playerId, playerName);
+        void IInGameReceiver.OnJoin(string matchingId, string playerId, string playerName)
+        {
+            m_onJoin.OnNext((matchingId, playerId, playerName));
+        }
 
-        void IInGameReceiver.OnCreateGame(string gameId, string matchingId) => m_onCreateGame.Value = (gameId, matchingId);
+        void IInGameReceiver.OnStartGame(string nextPlayerId, _Game game)
+        {
+            m_onStartGame.OnNext((nextPlayerId, game));
+            m_onStartGame.OnCompleted();
+        }
 
-        void IInGameReceiver.OnStartGame(_Game game) => m_onStartGame.Value = game;
-
-        void IInGameReceiver.OnLay(_Game game) => m_onLay.Value = game;
+        void IInGameReceiver.OnLay(string nextPlayerId, _Game game)
+        {
+            m_onLay.OnNext((nextPlayerId, game));
+        }
 
         void IInGameReceiver.OnResult(int darkCount, int lightCount, int winner)
         {
-            // todo result イベント発火
+            m_onResult.OnNext((darkCount, lightCount, winner));
+            m_onResult.OnCompleted();
         }
 
         async void IDisposable.Dispose()
         {
+            m_onCreateMatching.OnCompleted();
+            m_onCreateGame.OnCompleted();
+            m_onJoin.OnCompleted();
+            m_onLay.OnCompleted();
+            m_onStartGame.OnCompleted();
+            m_onResult.OnCompleted();
             await m_channel.ShutdownAsync();
             await m_inGameHub.DisposeAsync();
         }

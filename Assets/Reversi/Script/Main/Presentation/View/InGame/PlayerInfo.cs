@@ -1,5 +1,5 @@
 using System.Linq;
-using Pommel.Reversi.Presentation.State.InGame;
+using Pommel.Reversi.Presentation.ViewModel.InGame;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,7 +30,7 @@ namespace Pommel.Reversi.Presentation.View.InGame
         private Text m_colorText;
 
         [Inject]
-        public void Construct(IGameState gameState)
+        public void Construct(IGameViewModel gameState)
         {
             (m_nameText, m_colorText) = GetComponentsInChildren<Text>()
                 .Aggregate(

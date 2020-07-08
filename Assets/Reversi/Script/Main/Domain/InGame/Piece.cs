@@ -6,8 +6,6 @@ namespace Pommel.Reversi.Domain.InGame
 
         public Color Color { get; }
 
-        public Piece SetColor(Color color) => new Piece(Point, color);
-
         public Piece(Point point, Color color = Color.None)
         {
             Point = point;

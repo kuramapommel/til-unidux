@@ -44,18 +44,20 @@ namespace Pommel.Server.Infrastructure.Controller.Hub
         public async Task StartGameAsync(string gameId) =>
             await m_startGameUseCase.Execute(gameId)
                 .Match(
-                    Right: game => Broadcast(m_room).OnStartGame(new _Game
-                    {
-                        Id = game.Id,
-                        Pieces = game.Pieces
-                            .Select(piece => new _Piece
-                            {
-                                X = piece.Point.X,
-                                Y = piece.Point.Y,
-                                Color = (int)piece.Color
-                            })
-                            .ToArray()
-                    }),
+                    Right: game => Broadcast(m_room).OnStartGame(
+                        Context.CallContext.RequestHeaders.Get("player-id").Value,
+                        new _Game
+                        {
+                            Id = game.Id,
+                            Pieces = game.Pieces
+                                .Select(piece => new _Piece
+                                {
+                                    X = piece.Point.X,
+                                    Y = piece.Point.Y,
+                                    Color = (int)piece.Color
+                                })
+                                .ToArray()
+                        }),
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
@@ -63,18 +65,20 @@ namespace Pommel.Server.Infrastructure.Controller.Hub
         public async Task LayAsync(string gameId, int x, int y) =>
             await m_layPieceUseCase.Execute(gameId, x, y)
                 .Match(
-                    Right: game => Broadcast(m_room).OnLay(new _Game
-                    {
-                        Id = game.Id,
-                        Pieces = game.Pieces
-                            .Select(piece => new _Piece
-                            {
-                                X = piece.Point.X,
-                                Y = piece.Point.Y,
-                                Color = (int)piece.Color
-                            })
-                            .ToArray()
-                    }),
+                    Right: game => Broadcast(m_room).OnLay(
+                        Context.CallContext.RequestHeaders.Get("player-id").Value,
+                        new _Game
+                        {
+                            Id = game.Id,
+                            Pieces = game.Pieces
+                                .Select(piece => new _Piece
+                                {
+                                    X = piece.Point.X,
+                                    Y = piece.Point.Y,
+                                    Color = (int)piece.Color
+                                })
+                                .ToArray()
+                        }),
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
