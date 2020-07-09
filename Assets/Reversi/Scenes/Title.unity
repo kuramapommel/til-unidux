@@ -491,6 +491,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_titleTapArea: {fileID: 292793722}
+  m_gameStartModal: {fileID: 879197115}
 --- !u!4 &692228305
 Transform:
   m_ObjectHideFlags: 0
@@ -849,6 +850,7 @@ GameObject:
   - component: {fileID: 879197112}
   - component: {fileID: 879197114}
   - component: {fileID: 879197113}
+  - component: {fileID: 879197115}
   m_Layer: 5
   m_Name: GameStartModal
   m_TagString: Untagged
@@ -917,6 +919,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 879197111}
   m_CullTransparentMesh: 0
+--- !u!114 &879197115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 879197111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c48ae5a6604314212902d9a50d960b5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &901066497
 GameObject:
   m_ObjectHideFlags: 0

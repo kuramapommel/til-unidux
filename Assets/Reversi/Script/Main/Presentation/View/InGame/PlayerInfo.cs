@@ -37,8 +37,11 @@ namespace Pommel.Reversi.Presentation.View.InGame
                     (name: default(Text), color: default(Text)),
                     (playerInfo, text) =>
                     {
-                        if (text.name == "Name") return (text, playerInfo.color);
-                        if (text.name == "Color") return (playerInfo.name, text);
+                        switch (text.name)
+                        {
+                            case "Name": return (text, playerInfo.color);
+                            case "Color": return (playerInfo.name, text);
+                        }
 
                         return playerInfo;
                     }

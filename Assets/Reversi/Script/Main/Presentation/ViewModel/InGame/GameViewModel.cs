@@ -150,7 +150,7 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
 
         public IObservable<IPlayerViewModel> OnInitializeSecondPlayer() => m_onInitializeSecondPlayer;
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             m_onInitializeFirstPlayer.OnCompleted();
             m_onInitializeSecondPlayer.OnCompleted();
