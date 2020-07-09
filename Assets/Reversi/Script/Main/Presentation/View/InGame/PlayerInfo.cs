@@ -44,17 +44,21 @@ namespace Pommel.Reversi.Presentation.View.InGame
                     }
                 );
 
-            var playerState = m_isFirst
-                ? gameState.FirstPlayerState
-                : gameState.SecondPlayerState;
+            var onInitializePlayer = m_isFirst
+                ? gameState.OnInitializeFirstPlayer()
+                : gameState.OnInitializeSecondPlayer();
 
-            playerState.Name
-                .TakeUntilDestroy(this)
-                .Subscribe(name => m_nameText.text = name);
+            onInitializePlayer
+                .Subscribe(playerState =>
+                {
+                    playerState.Name
+                        .TakeUntilDestroy(this)
+                        .Subscribe(name => m_nameText.text = name);
 
-            playerState.IsTurnPlayer
-                .TakeUntilDestroy(this)
-                .Subscribe(m_colorText.gameObject.SetActive);
+                    playerState.IsTurnPlayer
+                        .TakeUntilDestroy(this)
+                        .Subscribe(m_colorText.gameObject.SetActive);
+                });
 
             m_colorText.gameObject.SetActive(m_isFirst);
         }
