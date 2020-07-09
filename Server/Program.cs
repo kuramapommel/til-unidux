@@ -5,6 +5,7 @@ using MagicOnion.Server;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Pommel.Server.UseCase.InGame;
+using Pommel.Server.Domain.InGame;
 
 namespace Pommel.Server
 {
@@ -26,6 +27,7 @@ namespace Pommel.Server
                     new ServerPort("localhost", 12345, ServerCredentials.Insecure))
                 .ConfigureServices((hostContext, services) =>
                 {
+                    // todo 分割しないとやばいことになるので分割する
                     // dependency injection
                     services.AddSingleton<IStartGameUseCase, StartGameUseCase>();
                     services.AddSingleton<ILayPieceUseCase, LayPieceUseCase>();
