@@ -45,7 +45,7 @@ namespace Pommel.Server.Infrastructure.Controller.Hub
             await m_startGameUseCase.Execute(gameId)
                 .Match(
                     Right: game => Broadcast(m_room).OnStartGame(
-                        Context.CallContext.RequestHeaders.Get("player-id").Value,
+                        m_playerId,
                         new _Game
                         {
                             Id = game.Id,
@@ -66,7 +66,7 @@ namespace Pommel.Server.Infrastructure.Controller.Hub
             await m_layPieceUseCase.Execute(gameId, x, y)
                 .Match(
                     Right: game => Broadcast(m_room).OnLay(
-                        Context.CallContext.RequestHeaders.Get("player-id").Value,
+                        m_playerId,
                         new _Game
                         {
                             Id = game.Id,
