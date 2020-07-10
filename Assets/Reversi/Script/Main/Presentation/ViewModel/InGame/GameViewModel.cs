@@ -8,15 +8,11 @@ using UniRx;
 
 namespace Pommel.Reversi.Presentation.ViewModel.InGame
 {
-    public interface IGameViewModel : IDisposable
+    public interface IGameViewModel
     {
         Task CreateMatchingAsync(string playerId, string playerName);
 
         Task EntryMatchingAsync(string matchingId, string playerId, string playerName);
-
-        IObservable<IPlayerViewModel> OnInitializeFirstPlayer();
-
-        IObservable<IPlayerViewModel> OnInitializeSecondPlayer();
 
         IEnumerable<IPieceViewModel> PieceStates { get; }
 
@@ -47,19 +43,15 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
 
         private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>();
 
-        private readonly ISubject<IPlayerViewModel> m_onInitializeFirstPlayer = new Subject<IPlayerViewModel>();
-
-        private readonly ISubject<IPlayerViewModel> m_onInitializeSecondPlayer = new Subject<IPlayerViewModel>();
-
         public IEnumerable<IPieceViewModel> PieceStates => m_pieceStates;
 
         public IPlayerViewModel FirstPlayerState => m_playerStateMap.TryGetValue(true, out var player)
             ? player
-            : throw new InvalidOperationException("1P が初期化されていません");
+            : throw new InvalidOperationException("先手プレイヤーが初期化されていません");
 
         public IPlayerViewModel SecondPlayerState => m_playerStateMap.TryGetValue(false, out var player)
             ? player
-            : throw new InvalidOperationException("2P が初期化されていません");
+            : throw new InvalidOperationException("先手プレイヤーが初期化されていません");
 
         public IObservable<IGame> OnStart => m_onStart;
 
@@ -98,28 +90,14 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
             }
 
             m_gameModel.OnCreateMatchingAsObservable()
-                .Subscribe(matching =>
-                {
-                    var playerState = m_playerStateFactory.Create(matching.FirstPlayer.Id, matching.FirstPlayer.Name, true);
-                    m_playerStateMap.Add(
-                        true,
-                        playerState
-                        );
-                    m_onInitializeFirstPlayer.OnNext(playerState);
-                    m_onInitializeFirstPlayer.OnCompleted();
-                });
+                .Subscribe(matching => m_playerStateMap.Add(
+                    true,
+                    m_playerStateFactory.Create(matching.FirstPlayer.Id, matching.FirstPlayer.Name, true)));
 
             m_gameModel.OnJoinAsObservable()
-                .Subscribe(matching =>
-                {
-                    var playerState = m_playerStateFactory.Create(matching.SecondPlayer.Id, matching.SecondPlayer.Name, false);
-                    m_playerStateMap.Add(
-                        false,
-                        playerState
-                        );
-                    m_onInitializeSecondPlayer.OnNext(playerState);
-                    m_onInitializeSecondPlayer.OnCompleted();
-                });
+                .Subscribe(matching => m_playerStateMap.Add(
+                    false,
+                    m_playerStateFactory.Create(matching.SecondPlayer.Id, matching.SecondPlayer.Name, false)));
 
             m_gameModel.OnStartGameAsObservable()
                 .Subscribe(game =>
@@ -145,15 +123,5 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
         public async Task CreateMatchingAsync(string playerId, string playerName) => await m_gameModel.CreateMatchingAsync(playerId, playerName);
 
         public async Task EntryMatchingAsync(string matchingId, string playerId, string playerName) => await m_gameModel.EntryMatchingAsync(matchingId, playerId, playerName);
-
-        public IObservable<IPlayerViewModel> OnInitializeFirstPlayer() => m_onInitializeFirstPlayer;
-
-        public IObservable<IPlayerViewModel> OnInitializeSecondPlayer() => m_onInitializeSecondPlayer;
-
-        void IDisposable.Dispose()
-        {
-            m_onInitializeFirstPlayer.OnCompleted();
-            m_onInitializeSecondPlayer.OnCompleted();
-        }
     }
 }

@@ -7,7 +7,7 @@ using Pommel.Server.UseCase.InGame;
 using _Game = Pommel.Api.Protocol.InGame.Game;
 using _Piece = Pommel.Api.Protocol.InGame.Piece;
 
-namespace Pommel.Server.Infrastructure.Controller.Hub
+namespace Pommel.Server.Controller.Hub
 {
     public sealed class InGameHub : StreamingHubBase<IInGameHub, IInGameReceiver>, IInGameHub
     {

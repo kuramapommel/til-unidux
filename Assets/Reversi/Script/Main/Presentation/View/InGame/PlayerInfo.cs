@@ -37,31 +37,24 @@ namespace Pommel.Reversi.Presentation.View.InGame
                     (name: default(Text), color: default(Text)),
                     (playerInfo, text) =>
                     {
-                        switch (text.name)
-                        {
-                            case "Name": return (text, playerInfo.color);
-                            case "Color": return (playerInfo.name, text);
-                        }
+                        if (text.name == "Name") return (text, playerInfo.color);
+                        if (text.name == "Color") return (playerInfo.name, text);
 
                         return playerInfo;
                     }
                 );
 
-            var onInitializePlayer = m_isFirst
-                ? gameState.OnInitializeFirstPlayer()
-                : gameState.OnInitializeSecondPlayer();
+            var playerState = m_isFirst
+                ? gameState.FirstPlayerState
+                : gameState.SecondPlayerState;
 
-            onInitializePlayer
-                .Subscribe(playerState =>
-                {
-                    playerState.Name
-                        .TakeUntilDestroy(this)
-                        .Subscribe(name => m_nameText.text = name);
+            playerState.Name
+                .TakeUntilDestroy(this)
+                .Subscribe(name => m_nameText.text = name);
 
-                    playerState.IsTurnPlayer
-                        .TakeUntilDestroy(this)
-                        .Subscribe(m_colorText.gameObject.SetActive);
-                });
+            playerState.IsTurnPlayer
+                .TakeUntilDestroy(this)
+                .Subscribe(m_colorText.gameObject.SetActive);
 
             m_colorText.gameObject.SetActive(m_isFirst);
         }

@@ -11,6 +11,12 @@
     <PackageReference Include="MagicOnion.Hosting" Version="3.0.13" />
     <PackageReference Include="MessagePack.UnityShims" Version="2.1.152" />
     <Compile Include="../Assets/Reversi/Script/Main/Infrastructure/Networking/Api/**/*.cs" Exclude="Api/**/*.cs" />
+    <PackageReference Include="System.Reactive" Version="4.4.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Scripts\Controller\" />
+    <Folder Include="Scripts\Component\" />
+    <Folder Include="Scripts\Component\Reactive\" />
+  </ItemGroup>
 </Project>

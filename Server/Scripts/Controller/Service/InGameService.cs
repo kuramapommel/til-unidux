@@ -5,7 +5,7 @@ using Pommel.Api.Protocol.InGame;
 using Pommel.Api.Services;
 using Pommel.Server.UseCase.InGame;
 
-namespace Pommel.Server.Infrastructure.Controller.Service
+namespace Pommel.Server.Controller.Service
 {
     public sealed class InGameService : ServiceBase<IInGameService>, IInGameService
     {
