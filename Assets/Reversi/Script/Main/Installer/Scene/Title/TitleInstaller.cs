@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using Pommel.Reversi.Domain.InGame;
+using Pommel.Reversi.Infrastructure.Networking.Client;
 using Pommel.Reversi.Presentation.Model.InGame;
 using Pommel.Reversi.Presentation.View.Title;
 using Pommel.Reversi.Presentation.ViewModel.InGame;
+using Pommel.Reversi.Presentation.ViewModel.Title;
 using UnityEngine;
 using Zenject;
-using Pommel.Reversi.Infrastructure.Networking.Client;
 using _Color = Pommel.Reversi.Domain.InGame.Color;
 
 namespace Pommel.Reversi.Installer.Scene.Title
@@ -14,6 +15,9 @@ namespace Pommel.Reversi.Installer.Scene.Title
     {
         [SerializeField]
         private TitleTapArea m_titleTapArea = default;
+
+        [SerializeField]
+        private GameStartModal m_gameStartModal = default;
 
         public override void InstallBindings()
         {
@@ -33,9 +37,11 @@ namespace Pommel.Reversi.Installer.Scene.Title
 
             // viewmodels
             Container.BindInterfacesTo<GameViewModel>().AsCached();
+            Container.BindInterfacesTo<TitleViewModel>().AsCached();
 
             // views
             Container.BindInterfacesTo<TitleTapArea>().FromInstance(m_titleTapArea).AsCached();
+            Container.BindInterfacesTo<GameStartModal>().FromInstance(m_gameStartModal).AsCached();
         }
 
         private sealed class PieceStateFactory : IPieceStateFactory
