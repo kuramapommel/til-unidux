@@ -6,11 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="../Assets/Reversi/Script/Main/Infrastructure/Networking/Api/**/*.cs" LinkBase="LinkFromUnity" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="LanguageExt.Core" Version="3.4.14" />
     <PackageReference Include="MagicOnion" Version="3.0.13" />
     <PackageReference Include="MagicOnion.Hosting" Version="3.0.13" />
     <PackageReference Include="MessagePack.UnityShims" Version="2.1.152" />
-    <Compile Include="../Assets/Reversi/Script/Main/Infrastructure/Networking/Api/**/*.cs" Exclude="Api/**/*.cs" />
     <PackageReference Include="System.Reactive" Version="4.4.1" />
   </ItemGroup>
 
@@ -18,5 +21,9 @@
     <Folder Include="src\Controller\" />
     <Folder Include="src\Component\" />
     <Folder Include="src\Component\Reactive\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="LinkFromUnity/" />
   </ItemGroup>
 </Project>
