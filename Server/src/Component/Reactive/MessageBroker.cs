@@ -42,8 +42,6 @@ namespace Pommel.Server.Component.Reactive
             }
         }
 
-        private static readonly Lazy<IMessageBroker<T>> m_impl = new Lazy<IMessageBroker<T>>(() => new Impl());
-
-        public static IMessageBroker<T> Default => m_impl.Value;
+        public static IMessageBroker<T> CreateInstance() => new Impl();
     }
 }

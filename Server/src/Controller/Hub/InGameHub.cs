@@ -1,9 +1,13 @@
+using System;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using MagicOnion;
 using MagicOnion.Server.Hubs;
 using Pommel.Api.Hubs;
+using Pommel.Server.Component.Reactive;
 using Pommel.Server.UseCase.InGame;
+using Pommel.Server.UseCase.InGame.Message;
 using _Game = Pommel.Api.Protocol.InGame.Game;
 using _Piece = Pommel.Api.Protocol.InGame.Piece;
 
@@ -15,6 +19,8 @@ namespace Pommel.Server.Controller.Hub
 
         private readonly ILayPieceUseCase m_layPieceUseCase;
 
+        private readonly IMessageReciever<IResultMessage> m_resultMessageReciver;
+
         private IGroup m_room;
 
         private string m_playerId = string.Empty;
@@ -23,11 +29,27 @@ namespace Pommel.Server.Controller.Hub
 
         public InGameHub(
             IStartGameUseCase startGameUseCase,
-            ILayPieceUseCase layPieceUseCase
+            ILayPieceUseCase layPieceUseCase,
+            IMessageBroker<IResultMessage> resultMessageBroker,
+            IGameResultService gameResultService
             )
         {
             m_startGameUseCase = startGameUseCase;
             m_layPieceUseCase = layPieceUseCase;
+            m_resultMessageReciver = resultMessageBroker;
+
+            // dispose
+            m_resultMessageReciver.OnRecieve()
+                .Subscribe(message => gameResultService.FindById(message.ResultId)
+                    .Match(
+                        Right: resultDto => Broadcast(m_room).OnResult(
+                            resultDto.Count.dark,
+                            resultDto.Count.light,
+                            (int)resultDto.Winner
+                            ),
+                        // todo エラーの内容を見て正しくハンドリング
+                        Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
+                    ));
         }
 
         public async Task JoinAsync(string matchingId, string playerId, string playerName)

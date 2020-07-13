@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Scripts\Controller\" />
-    <Folder Include="Scripts\Component\" />
-    <Folder Include="Scripts\Component\Reactive\" />
+    <Folder Include="src\Controller\" />
+    <Folder Include="src\Component\" />
+    <Folder Include="src\Component\Reactive\" />
   </ItemGroup>
 </Project>

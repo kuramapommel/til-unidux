@@ -3,6 +3,7 @@ using LanguageExt;
 using Pommel.Server.Domain;
 using Pommel.Server.Domain.InGame;
 using static LanguageExt.Prelude;
+using _State = Pommel.Server.Domain.InGame.State;
 
 namespace Pommel.Server.UseCase.InGame
 {
@@ -15,11 +16,19 @@ namespace Pommel.Server.UseCase.InGame
     {
         private readonly IGameRepository m_gameRepository;
 
+        private readonly IResultCalculator m_resultCalculator;
+
+        private readonly ISwitchTurnDispatcher m_switchTurnDispatcher;
+
         public LayPieceUseCase(
-            IGameRepository gameRepository
+            IGameRepository gameRepository,
+            IResultCalculator resultCalculator,
+            ISwitchTurnDispatcher switchTurnDispatcher
             )
         {
             m_gameRepository = gameRepository;
+            m_resultCalculator = resultCalculator;
+            m_switchTurnDispatcher = switchTurnDispatcher;
         }
 
         public EitherAsync<IError, IGame> Execute(string gameId, int x, int y) =>
@@ -31,7 +40,15 @@ namespace Pommel.Server.UseCase.InGame
                 from laid in Try(() => game.LayPiece(point))
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)
+                from __ in m_switchTurnDispatcher.Dispatch(laid).ToAsync()
                 from saved in m_gameRepository.Save(laid).ToAsync()
+                    .Map(savedGame =>
+                    {
+                        if (savedGame.State != _State.GameSet) return savedGame;
+
+                        var _ = m_resultCalculator.Calculate(savedGame).ToAsync();
+                        return savedGame;
+                    })
                 select saved;
     }
 }

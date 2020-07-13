@@ -23,4 +23,13 @@ namespace Pommel.Server.Domain.InGame
 
         Task<Either<IError, IEnumerable<IMatching>>> Fetch(Func<IMatching, bool> predicate);
     }
+
+    public interface IResultRepository
+    {
+        Task<Either<IError, IGameResult>> FindById(string id);
+
+        Task<Either<IError, IGameResult>> Save(IGameResult matching);
+
+        Task<Either<IError, IEnumerable<IGameResult>>> Fetch(Func<IGameResult, bool> predicate);
+    }
 }

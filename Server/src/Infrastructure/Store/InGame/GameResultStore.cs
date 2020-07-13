@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Pommel.Server.UseCase.InGame.Dto;
+using Pommel.Server.Domain.InGame;
 
 namespace Pommel.Server.Infrastructure.Store.InGame
 {
-    public interface IGameResultStore : IDictionary<string, ResultDto>
+    public interface IGameResultStore : IDictionary<string, IGameResult>
     {
 
     }
@@ -15,7 +15,7 @@ namespace Pommel.Server.Infrastructure.Store.InGame
 
         public static IGameResultStore Instance => m_instance.Value;
 
-        private sealed class Impl : Dictionary<string, ResultDto>, IGameResultStore
+        private sealed class Impl : Dictionary<string, IGameResult>, IGameResultStore
         {
         }
     }
