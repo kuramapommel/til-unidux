@@ -4,7 +4,7 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /src
-COPY ["Server.csproj", "Server/"]
+COPY ["Server/Server.csproj", "Server/"]
 RUN dotnet restore "Server.csproj"
 COPY . .
 WORKDIR "/src/"
