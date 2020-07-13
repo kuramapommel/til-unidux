@@ -4,10 +4,14 @@ using MagicOnion.Hosting;
 using MagicOnion.Server;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pommel.Server.Component.Reactive;
 using Pommel.Server.Domain.InGame;
+using Pommel.Server.Infrastructure.DomainService.InGame;
 using Pommel.Server.Infrastructure.Repository.InGame;
+using Pommel.Server.Infrastructure.Service.InGame;
 using Pommel.Server.Infrastructure.Store.InGame;
 using Pommel.Server.UseCase.InGame;
+using Pommel.Server.UseCase.InGame.Message;
 
 namespace Pommel.Server
 {
@@ -31,6 +35,8 @@ namespace Pommel.Server
                 {
                     // todo 分割しないとやばいことになるので分割する
                     // dependency injection
+                    services.AddSingleton(MessageBroker<IResultMessage>.CreateInstance());
+
                     services.AddSingleton(GameStore.Instance);
                     services.AddSingleton(GameResultStore.Instance);
                     services.AddSingleton(MatchingStore.Instance);
@@ -38,9 +44,14 @@ namespace Pommel.Server
                     services.AddSingleton<IPlayerFactory, PlayerFactory>();
                     services.AddSingleton<IMatchingFactory, MatchingFactory>();
                     services.AddSingleton<IGameFactory, GameFactory>();
+                    services.AddSingleton<IGameResultFactory, GameResultFactory>();
 
                     services.AddSingleton<IMatchingRepository, MatchingRepository>();
                     services.AddSingleton<IGameRepository, GameRepository>();
+                    services.AddSingleton<IResultRepository, GameResultRepository>();
+
+                    services.AddSingleton<IResultCalculator, ResultCalculator>();
+                    services.AddSingleton<IGameResultService, GameResultService>();
 
                     services.AddSingleton<IStartGameUseCase, StartGameUseCase>();
                     services.AddSingleton<ILayPieceUseCase, LayPieceUseCase>();
@@ -63,6 +74,11 @@ namespace Pommel.Server
         private sealed class GameFactory : IGameFactory
         {
             public IGame Create(string id, string resultId, string matchingId) => new Game(id, resultId, matchingId);
+        }
+
+        private sealed class GameResultFactory : IGameResultFactory
+        {
+            public IGameResult Create(string id, int darkCount, int lightCount, Winner winner) => new GameResult(id, darkCount, lightCount, winner);
         }
     }
 }

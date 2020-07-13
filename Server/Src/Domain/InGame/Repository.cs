@@ -28,7 +28,7 @@ namespace Pommel.Server.Domain.InGame
     {
         Task<Either<IError, IGameResult>> FindById(string id);
 
-        Task<Either<IError, IGameResult>> Save(IGameResult matching);
+        Task<Either<IError, IGameResult>> Save(IGameResult gameResult);
 
         Task<Either<IError, IEnumerable<IGameResult>>> Fetch(Func<IGameResult, bool> predicate);
     }

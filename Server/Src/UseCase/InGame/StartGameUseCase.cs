@@ -16,7 +16,14 @@ namespace Pommel.Server.UseCase.InGame
 
         private readonly IMatchingRepository m_matchingRepository;
 
-        public StartGameUseCase(IGameRepository gameRepository) => m_gameRepository = gameRepository;
+        public StartGameUseCase(
+            IGameRepository gameRepository,
+            IMatchingRepository matchingRepository
+            )
+        {
+            m_gameRepository = gameRepository;
+            m_matchingRepository = matchingRepository;
+        }
 
         public EitherAsync<IError, IGame> Execute(string gameId) =>
                 from game in m_gameRepository.FindById(gameId).ToAsync()
