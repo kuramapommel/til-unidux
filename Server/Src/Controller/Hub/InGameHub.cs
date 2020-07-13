@@ -67,7 +67,7 @@ namespace Pommel.Server.Controller.Hub
             await m_startGameUseCase.Execute(gameId)
                 .Match(
                     Right: game => Broadcast(m_room).OnStartGame(
-                        m_playerId,
+                        game.NextTurnPlayerId,
                         new _Game
                         {
                             Id = game.Id,
@@ -88,7 +88,7 @@ namespace Pommel.Server.Controller.Hub
             await m_layPieceUseCase.Execute(gameId, x, y)
                 .Match(
                     Right: game => Broadcast(m_room).OnLay(
-                        m_playerId,
+                        game.NextTurnPlayerId,
                         new _Game
                         {
                             Id = game.Id,

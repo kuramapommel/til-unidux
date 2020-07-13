@@ -33,7 +33,6 @@ namespace Pommel.Server
                     // dependency injection
                     services.AddSingleton(GameStore.Instance);
                     services.AddSingleton(GameResultStore.Instance);
-                    services.AddSingleton(LaidResultStore.Instance);
                     services.AddSingleton(MatchingStore.Instance);
 
                     services.AddSingleton<IPlayerFactory, PlayerFactory>();

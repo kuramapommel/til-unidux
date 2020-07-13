@@ -15,6 +15,8 @@ namespace Pommel.Server.Domain.InGame
 
         string MatchingId { get; }
 
+        string NextTurnPlayerId { get; }
+
         IEnumerable<string> HistoryIds { get; }
 
         State State { get; }
@@ -23,9 +25,9 @@ namespace Pommel.Server.Domain.InGame
 
         IEnumerable<Piece> Pieces { get; }
 
-        IGame LayPiece(Point point);
+        IGame LayPiece(Point point, IMatching matching);
 
-        IGame Start();
+        IGame Start(string firstPlayerId);
     }
 
     public interface IGameFactory
@@ -40,6 +42,8 @@ namespace Pommel.Server.Domain.InGame
         public string ResultId { get; }
 
         public string MatchingId { get; }
+
+        public string NextTurnPlayerId { get; } = string.Empty;
 
         public IEnumerable<string> HistoryIds { get; } = Enumerable.Empty<string>();
 
@@ -58,17 +62,19 @@ namespace Pommel.Server.Domain.InGame
             MatchingId = matchingId;
         }
 
-        public IGame LayPiece(Point point)
+        public IGame LayPiece(Point point, IMatching matching)
         {
             // todo 妥当な例外に置き換える
-            if (State != State.Playing) throw new Exception();
+            if (State != State.Playing) throw new ArgumentException("このゲームはプレイ中ではありません");
+
+            if (MatchingId != matching.Id) throw new ArgumentException("このゲームに紐付かないマッチングが指定されました");
 
             // 配置済みの箇所を指定された場合は例外
             if (Pieces.First(piece => piece.Point.X == point.X && piece.Point.Y == point.Y).Color != Color.None) throw new ArgumentException();
 
-            var (playerColor, opponentColor, opponent) = Turn == Turn.First
-                ? (Color.Dark, Color.Light, Turn.Second)
-                : (Color.Light, Color.Dark, Turn.First);
+            var (playerColor, opponentColor, nextTurn, playerId, opponentId) = Turn == Turn.First
+                ? (Color.Dark, Color.Light, Turn.Second, matching.FirstPlayer.Id, matching.SecondPlayer.Id)
+                : (Color.Light, Color.Dark, Turn.First, matching.SecondPlayer.Id, matching.FirstPlayer.Id);
 
             var flipTargets = this.CreateFlipTargets(Turn, point, Pieces);
 
@@ -97,18 +103,18 @@ namespace Pommel.Server.Domain.InGame
             var nonePoints = flippedPieces.Where(flippedPiece => flippedPiece.Color == Color.None).ToArray();
 
             // 相手側が駒を置くことができるかチェック、できる場合はターンきりかえて return
-            if (nonePoints.Any(nonePoint => this.IsValid(opponent, nonePoint.Point, flippedPieces)))
-                return new Game(Id, ResultId, MatchingId, HistoryIds.Append(laidLogId), State, opponent, flippedPieces);
+            if (nonePoints.Any(nonePoint => this.IsValid(nextTurn, nonePoint.Point, flippedPieces)))
+                return new Game(Id, ResultId, MatchingId, opponentId, HistoryIds.Append(laidLogId), State, nextTurn, flippedPieces);
 
             // 相手側が駒を置けない場合はプレイヤー側が続けて駒を置くことができるかチェック、できる場合はターンを保持したまま return
             if (nonePoints.Any(nonePoint => this.IsValid(Turn, nonePoint.Point, flippedPieces)))
-                return new Game(Id, ResultId, MatchingId, HistoryIds.Append(laidLogId), State, Turn, flippedPieces);
+                return new Game(Id, ResultId, MatchingId, playerId, HistoryIds.Append(laidLogId), State, Turn, flippedPieces);
 
             // 両者置けない場合はゲームセットとして return
-            return new Game(Id, ResultId, MatchingId, HistoryIds.Append(laidLogId), State.GameSet, opponent, flippedPieces);
+            return new Game(Id, ResultId, MatchingId, opponentId, HistoryIds.Append(laidLogId), State.GameSet, nextTurn, flippedPieces);
         }
 
-        public IGame Start() => new Game(Id, ResultId, MatchingId, HistoryIds, State.Playing, Turn,
+        public IGame Start(string firstPlayerId) => new Game(Id, ResultId, MatchingId, firstPlayerId, HistoryIds, State.Playing, Turn,
             Pieces.Select(piece =>
             {
                 if (Point.InitialDarkPoints.Contains(piece.Point)) return piece.SetColor(Color.Dark);
@@ -117,11 +123,12 @@ namespace Pommel.Server.Domain.InGame
             })
             .ToArray());
 
-        private Game(string id, string resultId, string matchingId, IEnumerable<string> historyIds, State state, Turn turn, IEnumerable<Piece> pieces)
+        private Game(string id, string resultId, string matchingId, string nextTurnPlayerId, IEnumerable<string> historyIds, State state, Turn turn, IEnumerable<Piece> pieces)
         {
             Id = id;
             ResultId = resultId;
             MatchingId = matchingId;
+            NextTurnPlayerId = nextTurnPlayerId;
             State = state;
             Turn = turn;
             Pieces = pieces;
@@ -131,16 +138,16 @@ namespace Pommel.Server.Domain.InGame
 
     public static class GameExtension
     {
-        public static bool IsValid(this IGame source, Turn player, Point point, IEnumerable<Piece> pieces)
+        public static bool IsValid(this IGame source, Turn turn, Point point, IEnumerable<Piece> pieces)
         {
             if (pieces.First(piece => piece.Point.X == point.X && piece.Point.Y == point.Y).Color != Color.None) return false;
 
-            return source.CreateFlipTargets(player, point, pieces).Any();
+            return source.CreateFlipTargets(turn, point, pieces).Any();
         }
 
-        public static IEnumerable<Piece> CreateFlipTargets(this IGame source, Turn player, Point layPoint, IEnumerable<Piece> basePieces)
+        public static IEnumerable<Piece> CreateFlipTargets(this IGame source, Turn turn, Point layPoint, IEnumerable<Piece> basePieces)
         {
-            var (playerColor, opponentColor) = player == Turn.First
+            var (playerColor, opponentColor) = turn == Turn.First
                 ? (Color.Dark, Color.Light)
                 : (Color.Light, Color.Dark);
 

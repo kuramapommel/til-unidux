@@ -18,20 +18,4 @@ namespace Pommel.Server.UseCase.InGame.Dto
             Winner = winner;
         }
     }
-
-    public sealed class LaidDto
-    {
-        public IEnumerable<Piece> Pieces { get; }
-
-        public IPlayer NextTurnPlayer { get; }
-
-        public LaidDto(
-            IEnumerable<Piece> pieces,
-            IPlayer nextTurnPlayer
-            )
-        {
-            Pieces = pieces;
-            NextTurnPlayer = nextTurnPlayer;
-        }
-    }
 }
