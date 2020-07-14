@@ -65,7 +65,7 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
 
         public InGameClient()
         {
-            m_channel = new _Channel("localhost:12345", _ChannelCredentials.Insecure);
+            m_channel = new _Channel("til-magiconion-server.herokuapp.com", _ChannelCredentials.Insecure);
             m_inGameService = MagicOnionClient.Create<IInGameService>(m_channel);
             m_inGameHub = StreamingHubClient.Connect<IInGameHub, IInGameReceiver>(m_channel, this);
         }

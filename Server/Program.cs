@@ -30,7 +30,7 @@ namespace Pommel.Server
             await MagicOnionHost.CreateDefaultBuilder()
                 .UseMagicOnion(
                     new MagicOnionOptions(isReturnExceptionStackTraceInErrorDetail: true),
-                    new ServerPort("localhost", 12345, ServerCredentials.Insecure))
+                    new ServerPort("0.0.0.0", 12345, ServerCredentials.Insecure))
                 .ConfigureServices((hostContext, services) =>
                 {
                     // todo 分割しないとやばいことになるので分割する
