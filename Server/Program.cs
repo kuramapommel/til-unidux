@@ -1,7 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Grpc.Core;
+using MagicOnion;
 using MagicOnion.Hosting;
 using MagicOnion.Server;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pommel.Server.Component.Reactive;
@@ -12,6 +15,7 @@ using Pommel.Server.Infrastructure.Service.InGame;
 using Pommel.Server.Infrastructure.Store.InGame;
 using Pommel.Server.UseCase.InGame;
 using Pommel.Server.UseCase.InGame.Message;
+using MagicOnion.HttpGateway.Swagger;
 
 namespace Pommel.Server
 {
@@ -27,7 +31,7 @@ namespace Pommel.Server
             // isReturnExceptionStackTraceInErrorDetail に true を設定して
             // エラー発生時のメッセージがコンソールに出力されるようにする
             // MagicOnion サーバーが localhost:12345 で Listen する
-            await MagicOnionHost.CreateDefaultBuilder()
+            var magicOnionHost = MagicOnionHost.CreateDefaultBuilder()
                 .UseMagicOnion(
                     new MagicOnionOptions(isReturnExceptionStackTraceInErrorDetail: true),
                     new ServerPort("0.0.0.0", 12345, ServerCredentials.Insecure))
@@ -58,7 +62,23 @@ namespace Pommel.Server
                     services.AddSingleton<ICreateMatchingUseCase, CreateMatchingUseCase>();
                     services.AddSingleton<ICreateGameUseCase, CreateGameUseCase>();
                 })
-                .RunConsoleAsync();
+                .UseConsoleLifetime()
+                .Build();
+
+            // NuGet: Microsoft.AspNetCore.Server.Kestrel
+            var webHost = new WebHostBuilder()
+                    .ConfigureServices(collection =>
+                    {
+                    // Add MagicOnionServiceDefinition for reference from Startup.
+                    collection.AddSingleton<MagicOnionServiceDefinition>(magicOnionHost.Services.GetService<MagicOnionHostedServiceDefinition>().ServiceDefinition);
+                    })
+                    .UseKestrel()
+                    .UseStartup<Startup>()
+                    .UseUrls("http://localhost:5432")
+                    .Build();
+
+            // Run and wait both.
+            await Task.WhenAll(webHost.RunAsync(), magicOnionHost.RunAsync());
         }
 
         private sealed class PlayerFactory : IPlayerFactory
@@ -79,6 +99,27 @@ namespace Pommel.Server
         private sealed class GameResultFactory : IGameResultFactory
         {
             public IGameResult Create(string id, int darkCount, int lightCount, Winner winner) => new GameResult(id, darkCount, lightCount, winner);
+        }
+    }
+
+    // WebAPI Startup configuration.
+    public class Startup
+    {
+        // Inject MagicOnionServiceDefinition from DIl
+        public void Configure(IApplicationBuilder app, MagicOnionServiceDefinition magicOnion)
+        {
+            // Optional:Add Summary to Swagger
+            // var xmlName = "Sandbox.NetCoreServer.xml";
+            // var xmlPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), xmlName);
+
+            // HttpGateway requires two middlewares.
+            // One is SwaggerView(MagicOnionSwaggerMiddleware)
+            // One is Http1-JSON to gRPC-MagicOnion gateway(MagicOnionHttpGateway)
+            app.UseMagicOnionSwagger(magicOnion.MethodHandlers, new SwaggerOptions("MagicOnion.Server", "Swagger Integration Test", "/")
+            {
+                // XmlDocumentPath = xmlPath
+            });
+            app.UseMagicOnionHttpGateway(magicOnion.MethodHandlers, new Channel("localhost:12345", ChannelCredentials.Insecure));
         }
     }
 }

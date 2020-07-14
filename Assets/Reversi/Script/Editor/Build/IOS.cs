@@ -20,11 +20,11 @@ namespace Pommel.Editor.Build
             var projectPath = PBXProject.GetPBXProjectPath(path);
             var project = new PBXProject();
             project.ReadFromString(File.ReadAllText(projectPath));
-    #if UNITY_2019_3_OR_NEWER
+#if UNITY_2019_3_OR_NEWER
             var targetGuid = project.GetUnityFrameworkTargetGuid();
-    #else
+#else
             var targetGuid = project.TargetGuidByName(PBXProject.GetUnityTargetName());
-    #endif
+#endif
 
             // libz.tbd for grpc ios build
             project.AddFrameworkToProject(targetGuid, "libz.tbd", false);
@@ -36,5 +36,5 @@ namespace Pommel.Editor.Build
             UnityEngine.Debug.Log("finished post process");
         }
     }
-#endif
 }
+#endif
