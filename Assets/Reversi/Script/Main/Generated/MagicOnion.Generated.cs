@@ -274,6 +274,11 @@ namespace Pommel.Api.Hubs {
                     var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string, string>>(data, serializerOptions);
                     receiver.OnJoin(result.Item1, result.Item2, result.Item3); break;
                 }
+                case 2034815902: // OnCreateGame
+                {
+                    var result = MessagePackSerializer.Deserialize<string>(data, serializerOptions);
+                    receiver.OnCreateGame(result); break;
+                }
                 case 995394406: // OnStartGame
                 {
                     var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, global::Pommel.Api.Protocol.InGame.Game>>(data, serializerOptions);
@@ -304,6 +309,24 @@ namespace Pommel.Api.Hubs {
                     ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
                     break;
                 }
+                case -533486778: // CreateMatchingAsync
+                {
+                    var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
+                    ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
+                    break;
+                }
+                case -1623402328: // EntryMatchingAsync
+                {
+                    var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
+                    ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
+                    break;
+                }
+                case 1173640161: // CreateGameAsync
+                {
+                    var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
+                    ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
+                    break;
+                }
                 case -1612571457: // StartGameAsync
                 {
                     var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
@@ -324,6 +347,21 @@ namespace Pommel.Api.Hubs {
         public global::System.Threading.Tasks.Task JoinAsync(string matchingId, string playerId, string playerName)
         {
             return WriteMessageWithResponseAsync<DynamicArgumentTuple<string, string, string>, Nil>(-733403293, new DynamicArgumentTuple<string, string, string>(matchingId, playerId, playerName));
+        }
+
+        public global::System.Threading.Tasks.Task CreateMatchingAsync(string playerId, string playerName)
+        {
+            return WriteMessageWithResponseAsync<DynamicArgumentTuple<string, string>, Nil>(-533486778, new DynamicArgumentTuple<string, string>(playerId, playerName));
+        }
+
+        public global::System.Threading.Tasks.Task EntryMatchingAsync(string matchingId, string playerId, string playerName)
+        {
+            return WriteMessageWithResponseAsync<DynamicArgumentTuple<string, string, string>, Nil>(-1623402328, new DynamicArgumentTuple<string, string, string>(matchingId, playerId, playerName));
+        }
+
+        public global::System.Threading.Tasks.Task CreateGameAsync(string matchingId)
+        {
+            return WriteMessageWithResponseAsync<string, Nil>(1173640161, matchingId);
         }
 
         public global::System.Threading.Tasks.Task StartGameAsync(string gameId)
@@ -364,6 +402,21 @@ namespace Pommel.Api.Hubs {
             public global::System.Threading.Tasks.Task JoinAsync(string matchingId, string playerId, string playerName)
             {
                 return __parent.WriteMessageAsync<DynamicArgumentTuple<string, string, string>>(-733403293, new DynamicArgumentTuple<string, string, string>(matchingId, playerId, playerName));
+            }
+
+            public global::System.Threading.Tasks.Task CreateMatchingAsync(string playerId, string playerName)
+            {
+                return __parent.WriteMessageAsync<DynamicArgumentTuple<string, string>>(-533486778, new DynamicArgumentTuple<string, string>(playerId, playerName));
+            }
+
+            public global::System.Threading.Tasks.Task EntryMatchingAsync(string matchingId, string playerId, string playerName)
+            {
+                return __parent.WriteMessageAsync<DynamicArgumentTuple<string, string, string>>(-1623402328, new DynamicArgumentTuple<string, string, string>(matchingId, playerId, playerName));
+            }
+
+            public global::System.Threading.Tasks.Task CreateGameAsync(string matchingId)
+            {
+                return __parent.WriteMessageAsync<string>(1173640161, matchingId);
             }
 
             public global::System.Threading.Tasks.Task StartGameAsync(string gameId)
