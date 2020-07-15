@@ -19,6 +19,12 @@ namespace Pommel.Server.Controller.Hub
 
         private readonly ILayPieceUseCase m_layPieceUseCase;
 
+        private readonly ICreateMatchingUseCase m_createMatchingUseCase;
+
+        private readonly IEntryMatchingUseCase m_entryMatchingUseCase;
+
+        private readonly ICreateGameUseCase m_createGameUseCase;
+
         private readonly IMessageReciever<IResultMessage> m_resultMessageReciver;
 
         private IGroup m_room;
@@ -62,6 +68,46 @@ namespace Pommel.Server.Controller.Hub
 
             BroadcastExceptSelf(m_room).OnJoin(matchingId, m_playerId, m_playerName);
         }
+
+        public async Task CreateMatchingAsync(string playerId, string playerName) =>
+            await m_createMatchingUseCase.Execute(playerId, playerName)
+                    .Match(
+                        Right: async matching =>
+                        {
+                            m_playerId = playerId;
+                            m_playerName = playerName;
+                            m_room = await Group.AddAsync(matching.Id);
+
+                            Broadcast(m_room).OnJoin(matching.Id, m_playerId, m_playerName);
+                        },
+                        // todo エラーの内容を見て正しくハンドリング
+                        Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
+                    )
+                    .Unwrap();
+
+        public async Task EntryMatchingAsync(string matchingId, string playerId, string playerName) =>
+            await m_entryMatchingUseCase.Execute(matchingId, playerId, playerName)
+                .Match(
+                    Right: async matching =>
+                    {
+                            m_playerId = playerId;
+                            m_playerName = playerName;
+                            m_room = await Group.AddAsync(matching.Id);
+
+                            Broadcast(m_room).OnJoin(matching.Id, m_playerId, m_playerName);
+                    },
+                    // todo エラーの内容を見て正しくハンドリング
+                    Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
+                )
+                .Unwrap();
+
+        public async Task CreateGameAsync(string matchingId) =>
+            await m_createGameUseCase.Execute(matchingId)
+                .Match(
+                    Right: game => Broadcast(m_room).OnCreateGame(game.Id),
+                    // todo エラーの内容を見て正しくハンドリング
+                    Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
+                );
 
         public async Task StartGameAsync(string gameId) =>
             await m_startGameUseCase.Execute(gameId)
