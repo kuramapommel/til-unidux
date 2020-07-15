@@ -2,8 +2,8 @@ version: '3.5'
 
 services:
     til-magiconion-server:
-        image: kuramapommel/til-magiconion-server
         build: .
+        image: 'kuramapommel/til-magiconion-server'
         ports:
-          - "12345:12345"
-          - "5432:5432"
+          - '12345:12345'
+          - '5432:5432'
