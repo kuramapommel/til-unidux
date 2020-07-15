@@ -74,7 +74,7 @@ namespace Pommel.Server
                     })
                     .UseKestrel()
                     .UseStartup<Startup>()
-                    .UseUrls("http://localhost:5432")
+                    .UseUrls("http://0.0.0.0:5432")
                     .Build();
 
             // Run and wait both.
