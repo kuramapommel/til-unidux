@@ -23,7 +23,7 @@ namespace Pommel.Api.Hubs
     {
         void OnJoin(string matchingId, string playerId, string playerName);
 
-        void OnCreateGame(string gameId);
+        void OnCreateGame(string gameId, string matchingId);
 
         void OnStartGame(string nextPlayerId, Game game);
 

@@ -7,7 +7,6 @@ using Pommel.Api.Hubs;
 using Pommel.Api.Services;
 using Pommel.Reversi.Domain.InGame;
 using UniRx;
-using UnityEngine;
 using _Channel = Grpc.Core.Channel;
 using _ChannelCredentials = Grpc.Core.ChannelCredentials;
 using _Color = Pommel.Reversi.Domain.InGame.Color;
@@ -99,29 +98,20 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
             return game;
         }
 
-        public async Task JoinAsync(string matchingId, string playerId, string playerName) => await m_inGameHub.JoinAsync(matchingId, playerId, playerName);
+        public async Task JoinAsync(string matchingId, string playerId, string playerName) =>
+            await m_inGameHub.JoinAsync(matchingId, playerId, playerName);
 
-        public async Task StartAsync(string gameId) => await m_inGameHub.StartGameAsync(gameId);
+        public async Task StartAsync(string gameId) =>
+            await m_inGameHub.StartGameAsync(gameId);
 
-        public async Task LayAsync(string gameId, int x, int y) => await m_inGameHub.LayAsync(gameId, x, y);
+        public async Task LayAsync(string gameId, int x, int y) =>
+            await m_inGameHub.LayAsync(gameId, x, y);
 
-        public async Task CreateMatchingAsync(string playerId, string playerName)
-        {
-            var matchingId = await m_inGameService.CreateMatchingAsync(playerId, playerName);
-            Debug.Log($"matchingId is {matchingId}");
+        public async Task CreateMatchingAsync(string playerId, string playerName) =>
+            await m_inGameHub.CreateMatchingAsync(playerId, playerName);
 
-            m_onCreateMatching.OnNext((matchingId, playerId, playerName));
-            m_onCreateMatching.OnCompleted();
-        }
-
-        public async Task CreateGameAsync(string matchingId)
-        {
-            var gameId = await m_inGameService.CreateGameAsync(matchingId);
-            Debug.Log($"gameId is {gameId}");
-
-            m_onCreateGame.OnNext((gameId, matchingId));
-            m_onCreateGame.OnCompleted();
-        }
+        public async Task CreateGameAsync(string matchingId) =>
+            await m_inGameHub.CreateGameAsync(matchingId);
 
         public IObservable<(string matchingId, string playerId, string playerName)> OnCreateMatchingAsObservable() => m_onCreateMatching;
 
@@ -157,6 +147,12 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
             m_onResult.OnCompleted();
         }
 
+        void IInGameReceiver.OnCreateGame(string gameId, string matchingId)
+        {
+            m_onCreateGame.OnNext((gameId, matchingId));
+            m_onCreateGame.OnCompleted();
+        }
+
         async void IDisposable.Dispose()
         {
             m_onCreateMatching.OnCompleted();
@@ -165,8 +161,9 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
             m_onLay.OnCompleted();
             m_onStartGame.OnCompleted();
             m_onResult.OnCompleted();
-            await m_channel.ShutdownAsync();
+
             await m_inGameHub.DisposeAsync();
+            await m_channel.ShutdownAsync();
         }
     }
 }

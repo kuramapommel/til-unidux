@@ -104,7 +104,7 @@ namespace Pommel.Server.Controller.Hub
         public async Task CreateGameAsync(string matchingId) =>
             await m_createGameUseCase.Execute(matchingId)
                 .Match(
-                    Right: game => Broadcast(m_room).OnCreateGame(game.Id),
+                    Right: game => Broadcast(m_room).OnCreateGame(game.Id, matchingId),
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );

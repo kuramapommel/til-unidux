@@ -276,8 +276,8 @@ namespace Pommel.Api.Hubs {
                 }
                 case 2034815902: // OnCreateGame
                 {
-                    var result = MessagePackSerializer.Deserialize<string>(data, serializerOptions);
-                    receiver.OnCreateGame(result); break;
+                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string>>(data, serializerOptions);
+                    receiver.OnCreateGame(result.Item1, result.Item2); break;
                 }
                 case 995394406: // OnStartGame
                 {
