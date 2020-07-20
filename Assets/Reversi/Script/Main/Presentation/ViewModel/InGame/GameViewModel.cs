@@ -108,7 +108,8 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                         );
                     m_onInitializeFirstPlayer.OnNext(playerState);
                     m_onInitializeFirstPlayer.OnCompleted();
-                });
+                },
+                UnityEngine.Debug.Log);
 
             m_gameModel.OnJoinAsObservable()
                 .Where(matching => matching.SecondPlayer != Player.None)
@@ -122,7 +123,8 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                         );
                     m_onInitializeSecondPlayer.OnNext(playerState);
                     m_onInitializeSecondPlayer.OnCompleted();
-                });
+                },
+                UnityEngine.Debug.Log);
 
             m_gameModel.OnStartGameAsObservable()
                 .Subscribe(game =>
@@ -136,13 +138,16 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
 
                     refresh(game);
                     m_onStart.Value = game;
-                });
+                },
+                UnityEngine.Debug.Log);
 
             m_gameModel.OnResultAsObservable()
-                .Subscribe(gameResult => m_winner.Value = gameResult.Winner);
+                .Subscribe(gameResult => m_winner.Value = gameResult.Winner,
+                UnityEngine.Debug.Log);
 
             m_gameModel.OnLaidAsObservable()
-                .Subscribe(refresh);
+                .Subscribe(refresh,
+                UnityEngine.Debug.Log);
         }
 
         public async Task CreateMatchingAsync(string playerId, string playerName) => await m_gameModel.CreateMatchingAsync(playerId, playerName);

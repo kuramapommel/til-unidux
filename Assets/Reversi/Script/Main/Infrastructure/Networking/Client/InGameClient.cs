@@ -29,8 +29,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
 
         Task CreateGameAsync(string matchingId);
 
-        IObservable<(string matchingId, string playerId, string playerName)> OnCreateMatchingAsObservable();
-
         IObservable<(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name)> OnJoinAsObservable();
 
         IObservable<(string gameId, string matchingId)> OnCreateGameAsObservable();
@@ -49,8 +47,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
         private readonly IInGameService m_inGameService;
 
         private readonly IInGameHub m_inGameHub;
-
-        private readonly ISubject<(string matchingId, string playerId, string playerName)> m_onCreateMatching = new Subject<(string matchingId, string playerId, string playerName)>();
 
         private readonly ISubject<(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name)> m_onJoin = new Subject<(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name)>();
 
@@ -113,8 +109,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
         async Task IInGameClient.CreateGameAsync(string matchingId) =>
             await m_inGameHub.CreateGameAsync(matchingId);
 
-        IObservable<(string matchingId, string playerId, string playerName)> IInGameClient.OnCreateMatchingAsObservable() => m_onCreateMatching;
-
         IObservable<(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name)> IInGameClient.OnJoinAsObservable() => m_onJoin;
 
         IObservable<(string gameId, string matchingId)> IInGameClient.OnCreateGameAsObservable() => m_onCreateGame;
@@ -127,7 +121,8 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
 
         void IInGameReceiver.OnJoin(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name)
         {
-            m_onJoin.OnNext((matchingId, player1Id, player1Id, player2Id, player2Name));
+            m_onJoin.OnNext((matchingId, player1Id, player1Name, player2Id, player2Name));
+            UnityEngine.Debug.Log($"matchingId is {matchingId}, player1Id {player1Id}, player1Name {player1Name}, player2Id {player2Id}, player2Name {player2Name}");
         }
 
         void IInGameReceiver.OnStartGame(string nextPlayerId, _Game game)
@@ -155,7 +150,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
 
         async void IDisposable.Dispose()
         {
-            m_onCreateMatching.OnCompleted();
             m_onCreateGame.OnCompleted();
             m_onJoin.OnCompleted();
             m_onLay.OnCompleted();

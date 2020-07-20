@@ -56,7 +56,8 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
             // todo dispose
             m_client.OnCreateGameAsObservable()
-                .Subscribe(arg => m_client.StartAsync(arg.gameId).AsUniTask().ToObservable());
+                .Subscribe(arg => m_client.StartAsync(arg.gameId).AsUniTask().ToObservable(),
+                UnityEngine.Debug.Log);
 
             // todo dispose
             m_client.OnStartGameAsObservable()
@@ -71,15 +72,17 @@ namespace Pommel.Reversi.Presentation.Model.InGame
                             ))
                         .ToArray()));
                     m_onStartGame.OnCompleted();
-                });
+                },
+                UnityEngine.Debug.Log);
 
             // todo dispose
             m_client.OnResultAsObservable()
-            .Subscribe(arg =>
-            {
-                m_onResult.OnNext(new GameResult(arg.darkCount, arg.lightCount, (Winner)arg.winner));
-                m_onResult.OnCompleted();
-            });
+                .Subscribe(arg =>
+                {
+                    m_onResult.OnNext(new GameResult(arg.darkCount, arg.lightCount, (Winner)arg.winner));
+                    m_onResult.OnCompleted();
+                },
+                UnityEngine.Debug.Log);
 
             // todo dispose
             m_client.OnLayAsObservable()
@@ -93,7 +96,8 @@ namespace Pommel.Reversi.Presentation.Model.InGame
                         (_Color)piece.Color
                         ))
                     .ToArray()));
-                });
+                },
+                UnityEngine.Debug.Log);
 
             // todo dispose
             m_client.OnJoinAsObservable()
@@ -111,7 +115,8 @@ namespace Pommel.Reversi.Presentation.Model.InGame
                             arg.player2Id,
                             arg.player2Name
                             )));
-                }
+                },
+                UnityEngine.Debug.Log
                 );
         }
 

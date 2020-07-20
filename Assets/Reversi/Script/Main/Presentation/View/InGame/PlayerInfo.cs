@@ -61,7 +61,8 @@ namespace Pommel.Reversi.Presentation.View.InGame
                     playerState.IsTurnPlayer
                         .TakeUntilDestroy(this)
                         .Subscribe(m_colorText.gameObject.SetActive);
-                });
+                },
+                UnityEngine.Debug.Log);
 
             m_colorText.gameObject.SetActive(m_isFirst);
         }
