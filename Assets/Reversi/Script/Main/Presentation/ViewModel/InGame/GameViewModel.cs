@@ -97,7 +97,8 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                 notNextPlayer.SetIsNextTurn(false);
             }
 
-            m_gameModel.OnCreateMatchingAsObservable()
+            m_gameModel.OnJoinAsObservable()
+                .Where(matching => matching.SecondPlayer == Player.None)
                 .Subscribe(matching =>
                 {
                     var playerState = m_playerStateFactory.Create(matching.FirstPlayer.Id, matching.FirstPlayer.Name, true);
@@ -110,8 +111,10 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                 });
 
             m_gameModel.OnJoinAsObservable()
+                .Where(matching => matching.SecondPlayer != Player.None)
                 .Subscribe(matching =>
                 {
+
                     var playerState = m_playerStateFactory.Create(matching.SecondPlayer.Id, matching.SecondPlayer.Name, false);
                     m_playerStateMap.Add(
                         false,

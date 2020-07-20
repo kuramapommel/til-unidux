@@ -81,13 +81,14 @@ namespace Pommel.Generated.Resolvers
 
         static MagicOnionResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(5)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(6)
             {
                 {typeof(global::MagicOnion.DynamicArgumentTuple<int, int, int>), 0 },
                 {typeof(global::MagicOnion.DynamicArgumentTuple<string, global::Pommel.Api.Protocol.InGame.Game>), 1 },
                 {typeof(global::MagicOnion.DynamicArgumentTuple<string, int, int>), 2 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string>), 3 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string>), 4 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string, string, string>), 3 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string>), 4 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string>), 5 },
             };
         }
 
@@ -104,8 +105,9 @@ namespace Pommel.Generated.Resolvers
                 case 0: return new global::MagicOnion.DynamicArgumentTupleFormatter<int, int, int>(default(int), default(int), default(int));
                 case 1: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, global::Pommel.Api.Protocol.InGame.Game>(default(string), default(global::Pommel.Api.Protocol.InGame.Game));
                 case 2: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, int, int>(default(string), default(int), default(int));
-                case 3: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string>(default(string), default(string), default(string));
-                case 4: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string>(default(string), default(string));
+                case 3: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string, string, string>(default(string), default(string), default(string), default(string), default(string));
+                case 4: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string>(default(string), default(string), default(string));
+                case 5: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string>(default(string), default(string));
                 default: return null;
             }
         }
@@ -271,8 +273,8 @@ namespace Pommel.Api.Hubs {
             {
                 case -1297457280: // OnJoin
                 {
-                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string, string>>(data, serializerOptions);
-                    receiver.OnJoin(result.Item1, result.Item2, result.Item3); break;
+                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string, string, string, string>>(data, serializerOptions);
+                    receiver.OnJoin(result.Item1, result.Item2, result.Item3, result.Item4, result.Item5); break;
                 }
                 case 2034815902: // OnCreateGame
                 {
@@ -303,12 +305,6 @@ namespace Pommel.Api.Hubs {
         {
             switch (methodId)
             {
-                case -733403293: // JoinAsync
-                {
-                    var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
-                    ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
-                    break;
-                }
                 case -533486778: // CreateMatchingAsync
                 {
                     var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
@@ -344,11 +340,6 @@ namespace Pommel.Api.Hubs {
             }
         }
    
-        public global::System.Threading.Tasks.Task JoinAsync(string matchingId, string playerId, string playerName)
-        {
-            return WriteMessageWithResponseAsync<DynamicArgumentTuple<string, string, string>, Nil>(-733403293, new DynamicArgumentTuple<string, string, string>(matchingId, playerId, playerName));
-        }
-
         public global::System.Threading.Tasks.Task CreateMatchingAsync(string playerId, string playerName)
         {
             return WriteMessageWithResponseAsync<DynamicArgumentTuple<string, string>, Nil>(-533486778, new DynamicArgumentTuple<string, string>(playerId, playerName));
@@ -397,11 +388,6 @@ namespace Pommel.Api.Hubs {
             public Task WaitForDisconnect()
             {
                 throw new NotSupportedException();
-            }
-
-            public global::System.Threading.Tasks.Task JoinAsync(string matchingId, string playerId, string playerName)
-            {
-                return __parent.WriteMessageAsync<DynamicArgumentTuple<string, string, string>>(-733403293, new DynamicArgumentTuple<string, string, string>(matchingId, playerId, playerName));
             }
 
             public global::System.Threading.Tasks.Task CreateMatchingAsync(string playerId, string playerName)

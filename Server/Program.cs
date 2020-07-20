@@ -59,6 +59,7 @@ namespace Pommel.Server
 
                     services.AddSingleton<IStartGameUseCase, StartGameUseCase>();
                     services.AddSingleton<ILayPieceUseCase, LayPieceUseCase>();
+                    services.AddSingleton<IEntryMatchingUseCase, EntryMatchingUseCase>();
                     services.AddSingleton<ICreateMatchingUseCase, CreateMatchingUseCase>();
                     services.AddSingleton<ICreateGameUseCase, CreateGameUseCase>();
                 })
@@ -70,7 +71,7 @@ namespace Pommel.Server
                     .ConfigureServices(collection =>
                     {
                     // Add MagicOnionServiceDefinition for reference from Startup.
-                    collection.AddSingleton<MagicOnionServiceDefinition>(magicOnionHost.Services.GetService<MagicOnionHostedServiceDefinition>().ServiceDefinition);
+                    collection.AddSingleton(magicOnionHost.Services.GetService<MagicOnionHostedServiceDefinition>().ServiceDefinition);
                     })
                     .UseKestrel()
                     .UseStartup<Startup>()

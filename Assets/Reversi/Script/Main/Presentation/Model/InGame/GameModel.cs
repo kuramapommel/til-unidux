@@ -17,8 +17,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         IObservable<IMatching> OnJoinAsObservable();
 
-        IObservable<IMatching> OnCreateMatchingAsObservable();
-
         IObservable<IGame> OnStartGameAsObservable();
 
         IObservable<GameResult> OnResultAsObservable();
@@ -35,8 +33,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
         private readonly IMatchingFactory m_matchingFactory;
 
         private readonly IGameFactory m_gameFactory;
-
-        public readonly ISubject<IMatching> m_onCreateMatching = new Subject<IMatching>();
 
         public readonly ISubject<IMatching> m_onJoin = new Subject<IMatching>();
 
@@ -61,20 +57,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             // todo dispose
             m_client.OnCreateGameAsObservable()
                 .Subscribe(arg => m_client.StartAsync(arg.gameId).AsUniTask().ToObservable());
-
-            // todo dispose
-            m_client.OnCreateMatchingAsObservable()
-                .Subscribe(arg =>
-                {
-                    _ = m_client.JoinAsync(arg.matchingId, arg.playerId, arg.playerName).AsUniTask();
-                    m_onCreateMatching.OnNext(m_matchingFactory.Create(
-                        arg.matchingId,
-                        m_playerFactory.Create(
-                            arg.playerId,
-                            arg.playerName
-                            )));
-                    m_onCreateMatching.OnCompleted();
-                });
 
             // todo dispose
             m_client.OnStartGameAsObservable()
@@ -112,10 +94,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
                         ))
                     .ToArray()));
                 });
-        }
 
-        public async Task CreateMatchingAsync(string playerId, string playerName)
-        {
             // todo dispose
             m_client.OnJoinAsObservable()
                 .Subscribe(arg =>
@@ -123,29 +102,26 @@ namespace Pommel.Reversi.Presentation.Model.InGame
                     m_onJoin.OnNext(m_matchingFactory.Create(
                         arg.matchingId,
                         m_playerFactory.Create(
-                            playerId,
-                            playerName
+                            arg.player1Id,
+                            arg.player1Name
                             ),
-                        m_playerFactory.Create(
-                            arg.playerId,
-                            arg.playerName
+                        string.IsNullOrEmpty(arg.player2Id)
+                        ? Player.None
+                        : m_playerFactory.Create(
+                            arg.player2Id,
+                            arg.player2Name
                             )));
-                    m_onJoin.OnCompleted();
                 }
                 );
+        }
 
+        public async Task CreateMatchingAsync(string playerId, string playerName) =>
             await m_client.CreateMatchingAsync(playerId, playerName).AsUniTask();
-        }
 
-        public async Task EntryMatchingAsync(string matchingId, string playerId, string playerName)
-        {
-            await m_client.JoinAsync(matchingId, playerId, playerName).AsUniTask();
-            await m_client.CreateGameAsync(matchingId).AsUniTask();
-        }
+        public async Task EntryMatchingAsync(string matchingId, string playerId, string playerName) =>
+            await m_client.EntryMatchingAsync(matchingId, playerId, playerName).AsUniTask();
 
         public IObservable<IMatching> OnJoinAsObservable() => m_onJoin;
-
-        public IObservable<IMatching> OnCreateMatchingAsObservable() => m_onCreateMatching;
 
         public IObservable<IGame> OnStartGameAsObservable() => m_onStartGame;
 
@@ -155,7 +131,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         void IDisposable.Dispose()
         {
-            m_onCreateMatching.OnCompleted();
             m_onStartGame.OnCompleted();
             m_onResult.OnCompleted();
             m_onLay.OnCompleted();

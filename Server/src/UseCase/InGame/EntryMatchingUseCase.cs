@@ -30,7 +30,7 @@ namespace Pommel.Server.UseCase.InGame
                 from secondPlayer in Try(() => m_playerFactory.Create(playerId, playerName))
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)
-                from entried in Try(() => matching.Entry(secondPlayer))
+                from entried in Try(() => matching.Entry(secondPlayer).Make())
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)
                 from savedMatching in m_matchingRepository.Save(entried).ToAsync()

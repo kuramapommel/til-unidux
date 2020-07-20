@@ -36,13 +36,19 @@ namespace Pommel.Server.Controller.Hub
         public InGameHub(
             IStartGameUseCase startGameUseCase,
             ILayPieceUseCase layPieceUseCase,
+            ICreateMatchingUseCase createMatchingUseCase,
+            IEntryMatchingUseCase entryMatchingUseCase,
+            ICreateGameUseCase createGameUseCase,
             IMessageBroker<IResultMessage> resultMessageBroker,
             IGameResultService gameResultService
             )
         {
             m_startGameUseCase = startGameUseCase;
             m_layPieceUseCase = layPieceUseCase;
+            m_createMatchingUseCase = createMatchingUseCase;
             m_resultMessageReciver = resultMessageBroker;
+            m_entryMatchingUseCase = entryMatchingUseCase;
+            m_createGameUseCase = createGameUseCase;
 
             // dispose
             m_resultMessageReciver.OnRecieve()
@@ -58,18 +64,7 @@ namespace Pommel.Server.Controller.Hub
                     ));
         }
 
-        public async Task JoinAsync(string matchingId, string playerId, string playerName)
-        {
-            Logger.Debug($"called JoinAsync: matching id is {matchingId}, player id is {playerId}, player name is {playerName}");
-            m_playerId = playerId;
-            m_playerName = playerName;
-            m_room = await Group.AddAsync(matchingId);
-            // todo join usecase を実装して呼ぶ
-
-            BroadcastExceptSelf(m_room).OnJoin(matchingId, m_playerId, m_playerName);
-        }
-
-        public async Task CreateMatchingAsync(string playerId, string playerName) =>
+        async Task IInGameHub.CreateMatchingAsync(string playerId, string playerName) =>
             await m_createMatchingUseCase.Execute(playerId, playerName)
                     .Match(
                         Right: async matching =>
@@ -78,14 +73,14 @@ namespace Pommel.Server.Controller.Hub
                             m_playerName = playerName;
                             m_room = await Group.AddAsync(matching.Id);
 
-                            Broadcast(m_room).OnJoin(matching.Id, m_playerId, m_playerName);
+                            Broadcast(m_room).OnJoin(matching.Id, m_playerId, m_playerName, string.Empty, string.Empty);
                         },
                         // todo エラーの内容を見て正しくハンドリング
                         Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                     )
                     .Unwrap();
 
-        public async Task EntryMatchingAsync(string matchingId, string playerId, string playerName) =>
+        async Task IInGameHub.EntryMatchingAsync(string matchingId, string playerId, string playerName) =>
             await m_entryMatchingUseCase.Execute(matchingId, playerId, playerName)
                 .Match(
                     Right: async matching =>
@@ -94,14 +89,14 @@ namespace Pommel.Server.Controller.Hub
                             m_playerName = playerName;
                             m_room = await Group.AddAsync(matching.Id);
 
-                            Broadcast(m_room).OnJoin(matching.Id, m_playerId, m_playerName);
+                            Broadcast(m_room).OnJoin(matching.Id, matching.FirstPlayer.Id, matching.FirstPlayer.Name, matching.SecondPlayer.Id, matching.SecondPlayer.Name);
                     },
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 )
                 .Unwrap();
 
-        public async Task CreateGameAsync(string matchingId) =>
+        async Task IInGameHub.CreateGameAsync(string matchingId) =>
             await m_createGameUseCase.Execute(matchingId)
                 .Match(
                     Right: game => Broadcast(m_room).OnCreateGame(game.Id, matchingId),
@@ -109,7 +104,7 @@ namespace Pommel.Server.Controller.Hub
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
 
-        public async Task StartGameAsync(string gameId) =>
+        async Task IInGameHub.StartGameAsync(string gameId) =>
             await m_startGameUseCase.Execute(gameId)
                 .Match(
                     Right: game => Broadcast(m_room).OnStartGame(
@@ -130,7 +125,7 @@ namespace Pommel.Server.Controller.Hub
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
 
-        public async Task LayAsync(string gameId, int x, int y) =>
+        async Task IInGameHub.LayAsync(string gameId, int x, int y) =>
             await m_layPieceUseCase.Execute(gameId, x, y)
                 .Match(
                     Right: game => Broadcast(m_room).OnLay(
