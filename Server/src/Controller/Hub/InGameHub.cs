@@ -3,9 +3,11 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using MagicOnion;
+using MagicOnion.Server;
 using MagicOnion.Server.Hubs;
 using Pommel.Api.Hubs;
 using Pommel.Server.Component.Reactive;
+using Pommel.Server.Controller.Filter;
 using Pommel.Server.UseCase.InGame;
 using Pommel.Server.UseCase.InGame.Message;
 using _Game = Pommel.Api.Protocol.InGame.Game;
@@ -13,6 +15,7 @@ using _Piece = Pommel.Api.Protocol.InGame.Piece;
 
 namespace Pommel.Server.Controller.Hub
 {
+    [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
     public sealed class InGameHub : StreamingHubBase<IInGameHub, IInGameReceiver>, IInGameHub
     {
         private readonly IStartGameUseCase m_startGameUseCase;

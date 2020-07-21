@@ -2,6 +2,7 @@
 using Grpc.Core;
 using MagicOnion;
 using MagicOnion.Hosting;
+using MagicOnion.HttpGateway.Swagger;
 using MagicOnion.Server;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,7 +16,6 @@ using Pommel.Server.Infrastructure.Service.InGame;
 using Pommel.Server.Infrastructure.Store.InGame;
 using Pommel.Server.UseCase.InGame;
 using Pommel.Server.UseCase.InGame.Message;
-using MagicOnion.HttpGateway.Swagger;
 
 namespace Pommel.Server
 {
@@ -33,7 +33,10 @@ namespace Pommel.Server
             // MagicOnion サーバーが localhost:12345 で Listen する
             var magicOnionHost = MagicOnionHost.CreateDefaultBuilder()
                 .UseMagicOnion(
-                    new MagicOnionOptions(isReturnExceptionStackTraceInErrorDetail: true),
+                    new MagicOnionOptions(isReturnExceptionStackTraceInErrorDetail: true)
+                    {
+                        MagicOnionLogger = new MagicOnionLogToGrpcLoggerWithNamedDataDump()
+                    },
                     new ServerPort("0.0.0.0", 12345, ServerCredentials.Insecure))
                 .ConfigureServices((hostContext, services) =>
                 {
