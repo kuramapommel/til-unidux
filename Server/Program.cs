@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pommel.Server.Component.Reactive;
+using Pommel.Server.Controller.Filter;
 using Pommel.Server.Domain.InGame;
 using Pommel.Server.Infrastructure.DomainService.InGame;
 using Pommel.Server.Infrastructure.Repository.InGame;
@@ -25,8 +26,9 @@ namespace Pommel.Server
         // await でサーバーを起動しないと、即 Main 関数が終了してしまうため
         public static async Task Main(string[] args)
         {
+            var logger = new Grpc.Core.Logging.ConsoleLogger();
             // gRPC のログをコンソールに出力するよう設定
-            GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
+            GrpcEnvironment.SetLogger(logger);
 
             // isReturnExceptionStackTraceInErrorDetail に true を設定して
             // エラー発生時のメッセージがコンソールに出力されるようにする
@@ -65,6 +67,13 @@ namespace Pommel.Server
                     services.AddSingleton<IEntryMatchingUseCase, EntryMatchingUseCase>();
                     services.AddSingleton<ICreateMatchingUseCase, CreateMatchingUseCase>();
                     services.AddSingleton<ICreateGameUseCase, CreateGameUseCase>();
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.Configure<MagicOnionHostingOptions>(options =>
+                    {
+                        options.Service.GlobalStreamingHubFilters.Add(new ExceptionHandlingFilterAttribute(GrpcEnvironment.Logger));
+                    });
                 })
                 .UseConsoleLifetime()
                 .Build();
