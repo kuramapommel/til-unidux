@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
 using Pommel.Reversi.Presentation.Model.InGame;
+using Pommel.Reversi.Presentation.ViewModel.System;
 using UniRx;
+using _Scene = Pommel.Reversi.Domain.Transition.Scene;
 
 namespace Pommel.Reversi.Presentation.ViewModel.InGame
 {
@@ -68,6 +71,7 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
         public GameViewModel(
             IGameModel gameModel,
             IPieceModel pieceModel,
+            ITransitionState transitionState,
             IPieceStateFactory pieceStateFactory,
             IPlayerStateFactory playerStateFactory
             )
@@ -97,6 +101,7 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                 notNextPlayer.SetIsNextTurn(false);
             }
 
+            // todo dispose
             m_gameModel.OnJoinAsObservable()
                 .Where(matching => matching.SecondPlayer != Player.None)
                 .Subscribe(matching =>
@@ -123,9 +128,16 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                 },
                 UnityEngine.Debug.Log);
 
+            // todo dispose
+            m_gameModel.OnCreateGameAsObservable()
+                .SelectMany(_ => transitionState.AddAsync(_Scene.InGame, container => container.Bind<IGameViewModel>().FromInstance(this).AsCached()).AsUniTask().ToObservable())
+                .Subscribe(_ => transitionState.RemoveAsync(_Scene.Title).AsUniTask().ToObservable());
+
+            // todo dispose
             m_gameModel.OnStartGameAsObservable()
                 .Subscribe(game =>
                 {
+                    UnityEngine.Debug.Log($"called m_gameModel.OnStartGameAsObservable()");
                     foreach (var state in Enumerable.Range(0, 8)
                         .SelectMany(x => Enumerable.Range(0, 8)
                             .Select(y => m_pieceStateFactory.Create(game.Id, new Point(x, y), Color.None, m_pieceModel))))
@@ -138,10 +150,12 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                 },
                 UnityEngine.Debug.Log);
 
+            // todo dispose
             m_gameModel.OnResultAsObservable()
                 .Subscribe(gameResult => m_winner.Value = gameResult.Winner,
                 UnityEngine.Debug.Log);
 
+            // todo dispose
             m_gameModel.OnLaidAsObservable()
                 .Subscribe(refresh,
                 UnityEngine.Debug.Log);

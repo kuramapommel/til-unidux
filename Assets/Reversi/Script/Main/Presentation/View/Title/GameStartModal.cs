@@ -7,7 +7,6 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
-using _Scene = Pommel.Reversi.Domain.Transition.Scene;
 
 namespace Pommel.Reversi.Presentation.View.Title
 {
@@ -68,9 +67,7 @@ namespace Pommel.Reversi.Presentation.View.Title
             m_entryRoomButton
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .SelectMany(_ => gameState.EntryMatchingAsync(m_roomIdText.text, m_playerIdText.text, m_playerNameText.text).AsUniTask().ToObservable())
-                .SelectMany(_ => transitionState.AddAsync(_Scene.InGame, container => container.Bind<IGameViewModel>().FromInstance(gameState).AsCached()).AsUniTask().ToObservable())
-                .Subscribe(_ => transitionState.RemoveAsync(_Scene.Title).AsUniTask().ToObservable());
+                .Subscribe(_ => gameState.EntryMatchingAsync(m_roomIdText.text, m_playerIdText.text, m_playerNameText.text).AsUniTask().ToObservable());
 
             titleViewModel.OnTapTitleAsObservable()
                 .TakeUntilDestroy(this)

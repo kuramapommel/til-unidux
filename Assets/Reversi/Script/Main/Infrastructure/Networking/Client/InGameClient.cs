@@ -129,11 +129,13 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
         {
             m_onStartGame.OnNext((nextPlayerId, game));
             m_onStartGame.OnCompleted();
+            UnityEngine.Debug.Log($"nextPlayerId is {nextPlayerId}, game id is {game}, piece is {game.Pieces.Aggregate(string.Empty, (aggregate, piece) => $"{aggregate} | x = {piece.X}, y = {piece.Y}, color = {piece.Color}")}");
         }
 
         void IInGameReceiver.OnLay(string nextPlayerId, _Game game)
         {
             m_onLay.OnNext((nextPlayerId, game));
+            UnityEngine.Debug.Log($"nextPlayerId is {nextPlayerId}, game id is {game}, piece is {game.Pieces.Aggregate(string.Empty, (aggregate, piece) => $"{aggregate} | x = {piece.X}, y = {piece.Y}, color = {piece.Color}")}");
         }
 
         void IInGameReceiver.OnResult(int darkCount, int lightCount, int winner)

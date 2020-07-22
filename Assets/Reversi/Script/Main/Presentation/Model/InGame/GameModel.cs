@@ -17,6 +17,8 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         IObservable<IMatching> OnJoinAsObservable();
 
+        IObservable<Unit> OnCreateGameAsObservable();
+
         IObservable<IGame> OnStartGameAsObservable();
 
         IObservable<GameResult> OnResultAsObservable();
@@ -34,7 +36,9 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         private readonly IGameFactory m_gameFactory;
 
-        public readonly ISubject<IMatching> m_onJoin = new Subject<IMatching>();
+        private readonly ISubject<IMatching> m_onJoin = new Subject<IMatching>();
+
+        private readonly ISubject<Unit> m_onCreateGame = new Subject<Unit>();
 
         private readonly ISubject<IGame> m_onStartGame = new Subject<IGame>();
 
@@ -58,6 +62,14 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             m_client.OnCreateGameAsObservable()
                 .Subscribe(arg => m_client.StartAsync(arg.gameId).AsUniTask().ToObservable(),
                 UnityEngine.Debug.Log);
+
+            // todo dispose
+            m_client.OnCreateGameAsObservable()
+                .Subscribe(_ =>
+                {
+                    m_onCreateGame.OnNext(Unit.Default);
+                    m_onCreateGame.OnCompleted();
+                });
 
             // todo dispose
             m_client.OnStartGameAsObservable()
@@ -124,9 +136,12 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             await m_client.CreateMatchingAsync(playerId, playerName).AsUniTask();
 
         public async Task EntryMatchingAsync(string matchingId, string playerId, string playerName) =>
-            await m_client.EntryMatchingAsync(matchingId, playerId, playerName).AsUniTask();
+            await m_client.EntryMatchingAsync(matchingId, playerId, playerName).AsUniTask()
+            .ContinueWith(() => m_client.CreateGameAsync(matchingId).AsUniTask());
 
         public IObservable<IMatching> OnJoinAsObservable() => m_onJoin;
+
+        public IObservable<Unit> OnCreateGameAsObservable() => m_onCreateGame;
 
         public IObservable<IGame> OnStartGameAsObservable() => m_onStartGame;
 

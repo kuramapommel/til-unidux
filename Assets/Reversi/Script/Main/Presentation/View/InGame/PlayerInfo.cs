@@ -59,6 +59,7 @@ namespace Pommel.Reversi.Presentation.View.InGame
                         .Subscribe(m_colorText.gameObject.SetActive);
 
                     m_nameText.text = name;
+                    UnityEngine.Debug.Log($"is first player {m_isFirst}, player name = {name}");
                 },
                 UnityEngine.Debug.Log);
 
