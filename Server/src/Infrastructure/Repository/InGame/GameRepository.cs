@@ -27,8 +27,11 @@ namespace Pommel.Server.Infrastructure.Repository.InGame
 
         public async Task<Either<IError, IGame>> Save(IGame game)
         {
-            if (m_store.ContainsKey(game.Id)) m_store.Remove(game.Id);
-            m_store.Add(game.Id, game);
+            lock(m_store)
+            {
+                if (m_store.ContainsKey(game.Id)) m_store.Remove(game.Id);
+                m_store.Add(game.Id, game);
+            }
 
             return await FindById(game.Id);
         }
