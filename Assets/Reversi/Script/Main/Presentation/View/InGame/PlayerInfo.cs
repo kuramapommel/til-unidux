@@ -54,13 +54,11 @@ namespace Pommel.Reversi.Presentation.View.InGame
             onInitializePlayer
                 .Subscribe(playerState =>
                 {
-                    playerState.Name
-                        .TakeUntilDestroy(this)
-                        .Subscribe(name => m_nameText.text = name);
-
                     playerState.IsTurnPlayer
                         .TakeUntilDestroy(this)
                         .Subscribe(m_colorText.gameObject.SetActive);
+
+                    m_nameText.text = name;
                 },
                 UnityEngine.Debug.Log);
 

@@ -98,30 +98,27 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
             }
 
             m_gameModel.OnJoinAsObservable()
-                .Where(matching => matching.SecondPlayer == Player.None)
-                .Subscribe(matching =>
-                {
-                    var playerState = m_playerStateFactory.Create(matching.FirstPlayer.Id, matching.FirstPlayer.Name, true);
-                    m_playerStateMap.Add(
-                        true,
-                        playerState
-                        );
-                    m_onInitializeFirstPlayer.OnNext(playerState);
-                    m_onInitializeFirstPlayer.OnCompleted();
-                },
-                UnityEngine.Debug.Log);
-
-            m_gameModel.OnJoinAsObservable()
                 .Where(matching => matching.SecondPlayer != Player.None)
                 .Subscribe(matching =>
                 {
+                    UnityEngine.Debug.Log($"called m_gameModel.OnJoinAsObservable()");
+                    UnityEngine.Debug.Log($"first player id = {matching.FirstPlayer.Id}, first player name = {matching.FirstPlayer.Name}");
+                    var firstPlayerState = m_playerStateFactory.Create(matching.FirstPlayer.Id, matching.FirstPlayer.Name, true);
+                    m_playerStateMap.Add(
+                        true,
+                        firstPlayerState
+                        );
 
-                    var playerState = m_playerStateFactory.Create(matching.SecondPlayer.Id, matching.SecondPlayer.Name, false);
+                    UnityEngine.Debug.Log($"socond player id = {matching.SecondPlayer.Id}, second player name = {matching.SecondPlayer.Name}");
+                    var secondPlayerState = m_playerStateFactory.Create(matching.SecondPlayer.Id, matching.SecondPlayer.Name, false);
                     m_playerStateMap.Add(
                         false,
-                        playerState
+                        secondPlayerState
                         );
-                    m_onInitializeSecondPlayer.OnNext(playerState);
+
+                    m_onInitializeFirstPlayer.OnNext(firstPlayerState);
+                    m_onInitializeSecondPlayer.OnNext(secondPlayerState);
+                    m_onInitializeFirstPlayer.OnCompleted();
                     m_onInitializeSecondPlayer.OnCompleted();
                 },
                 UnityEngine.Debug.Log);

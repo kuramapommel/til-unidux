@@ -32,8 +32,8 @@ namespace Pommel.Server.UseCase.InGame
 
         public EitherAsync<IError, IGame> Execute(string matchingId) =>
             from matching in m_matchingRepository.FindById(matchingId).ToAsync()
-            from gameId in RightAsync<IError, string>(Guid.NewGuid().ToString()) // todo ID Generator 的なものをかませる
-            from resultId in RightAsync<IError, string>(Guid.NewGuid().ToString()) // todo ID Generator 的なものをかませる
+            from gameId in RightAsync<IError, string>(Guid.NewGuid().ToString("N")) // todo ID Generator 的なものをかませる
+            from resultId in RightAsync<IError, string>(Guid.NewGuid().ToString("N")) // todo ID Generator 的なものをかませる
             from game in Try(() => m_gameFactory.Create(gameId, resultId, matching.Id))
                 .ToEitherAsync()
                 .MapLeft(e => new DomainError(e) as IError)

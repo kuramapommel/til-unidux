@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Grpc.Core.Logging;
+using MagicOnion;
 using MagicOnion.Server.Hubs;
 
 namespace Pommel.Server.Controller.Filter
@@ -20,7 +21,14 @@ namespace Pommel.Server.Controller.Filter
             {
                 await next(context);
             }
-            catch(Exception e)
+            catch (ReturnStatusException e)
+            {
+                m_logger.Debug($"{context.Path} catched exception.");
+                m_logger.Debug($"status code is {e.StatusCode}, detail is {e.Detail}.");
+                m_logger.Debug($"{e.StackTrace}");
+                m_logger.Debug($"{e}");
+            }
+            catch (Exception e)
             {
                 m_logger.Debug($"{context.Path} catched exception.");
                 m_logger.Debug($"{e}");

@@ -40,6 +40,8 @@ namespace Pommel.Server
                     new ServerPort("0.0.0.0", 12345, ServerCredentials.Insecure))
                 .ConfigureServices((hostContext, services) =>
                 {
+                    services.AddSingleton(GrpcEnvironment.Logger);
+
                     // todo 分割しないとやばいことになるので分割する
                     // dependency injection
                     services.AddSingleton(MessageBroker<IResultMessage>.CreateInstance());

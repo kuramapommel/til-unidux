@@ -18,7 +18,7 @@ namespace Pommel.Server.Infrastructure.Repository.InGame
 
         public Task<Either<IError, IMatching>> FindById(string id) => Task.FromResult(
             m_store.TryGetValue(id)
-                .ToEither(new DomainError(new ArgumentOutOfRangeException(), "存在しないマッチングが指定されました") as IError));
+                .ToEither(new DomainError(new ArgumentOutOfRangeException(), $"存在しないマッチングが指定されました. 指定されたマッチングID = {id}") as IError));
 
         public async Task<Either<IError, IMatching>> Save(IMatching matching)
         {
@@ -34,7 +34,7 @@ namespace Pommel.Server.Infrastructure.Repository.InGame
             return Task.FromResult(
                 matching.Any()
                 ? Right<IError, IEnumerable<IMatching>>(matching)
-                : Left<IError, IEnumerable<IMatching>>(new DomainError(new ArgumentOutOfRangeException(), "該当のゲームが存在しません")));
+                : Left<IError, IEnumerable<IMatching>>(new DomainError(new ArgumentOutOfRangeException(), "該当のマッチングが存在しません")));
         }
     }
 }

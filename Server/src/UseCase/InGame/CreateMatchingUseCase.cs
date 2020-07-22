@@ -31,7 +31,7 @@ namespace Pommel.Server.UseCase.InGame
         }
 
         public EitherAsync<IError, IMatching> Execute(string playerId, string playerName) =>
-                from matchingId in RightAsync<IError, string>(Guid.NewGuid().ToString()) // todo ID Generator 的なものをかませる
+                from matchingId in RightAsync<IError, string>(Guid.NewGuid().ToString("N")) // todo ID Generator 的なものをかませる
                 from firstPlayer in Try(() => m_playerFactory.Create(playerId, playerName))
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)
