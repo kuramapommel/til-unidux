@@ -15,7 +15,6 @@ using _Piece = Pommel.Api.Protocol.InGame.Piece;
 
 namespace Pommel.Server.Controller.Hub
 {
-    [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
     public sealed class InGameHub : StreamingHubBase<IInGameHub, IInGameReceiver>, IInGameHub
     {
         private readonly IStartGameUseCase m_startGameUseCase;
@@ -67,6 +66,7 @@ namespace Pommel.Server.Controller.Hub
                     ));
         }
 
+        [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
         async Task IInGameHub.CreateMatchingAsync(string playerId, string playerName) =>
             await m_createMatchingUseCase.Execute(playerId, playerName)
                     .Match(
@@ -83,6 +83,7 @@ namespace Pommel.Server.Controller.Hub
                     )
                     .Unwrap();
 
+        [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
         async Task IInGameHub.EntryMatchingAsync(string matchingId, string playerId, string playerName) =>
             await m_entryMatchingUseCase.Execute(matchingId, playerId, playerName)
                 .Match(
@@ -99,6 +100,7 @@ namespace Pommel.Server.Controller.Hub
                 )
                 .Unwrap();
 
+        [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
         async Task IInGameHub.CreateGameAsync(string matchingId) =>
             await m_createGameUseCase.Execute(matchingId)
                 .Match(
@@ -107,6 +109,7 @@ namespace Pommel.Server.Controller.Hub
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
 
+        [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
         async Task IInGameHub.StartGameAsync(string gameId) =>
             await m_startGameUseCase.Execute(gameId)
                 .Match(
@@ -128,6 +131,7 @@ namespace Pommel.Server.Controller.Hub
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
 
+        [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
         async Task IInGameHub.LayAsync(string gameId, int x, int y) =>
             await m_layPieceUseCase.Execute(gameId, x, y)
                 .Match(
