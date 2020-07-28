@@ -120,11 +120,6 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                         false,
                         secondPlayerState
                         );
-
-                    m_onInitializeFirstPlayer.OnNext(firstPlayerState);
-                    m_onInitializeSecondPlayer.OnNext(secondPlayerState);
-                    m_onInitializeFirstPlayer.OnCompleted();
-                    m_onInitializeSecondPlayer.OnCompleted();
                 },
                 UnityEngine.Debug.Log);
 
@@ -144,6 +139,11 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                     {
                         m_pieceStates.Add(state);
                     }
+
+                    m_onInitializeFirstPlayer.OnNext(FirstPlayerState);
+                    m_onInitializeSecondPlayer.OnNext(SecondPlayerState);
+                    m_onInitializeFirstPlayer.OnCompleted();
+                    m_onInitializeSecondPlayer.OnCompleted();
 
                     refresh(game);
                     m_onStart.Value = game;
