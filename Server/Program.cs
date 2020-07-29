@@ -62,7 +62,6 @@ namespace Pommel.Server
                     services.AddSingleton<IResultCalculator, ResultCalculator>();
                     services.AddSingleton<IGameResultService, GameResultService>();
 
-                    services.AddSingleton<IStartGameUseCase, StartGameUseCase>();
                     services.AddSingleton<ILayPieceUseCase, LayPieceUseCase>();
                     services.AddSingleton<IEntryMatchingUseCase, EntryMatchingUseCase>();
                     services.AddSingleton<ICreateMatchingUseCase, CreateMatchingUseCase>();

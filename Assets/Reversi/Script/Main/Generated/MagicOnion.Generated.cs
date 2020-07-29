@@ -81,14 +81,15 @@ namespace Pommel.Generated.Resolvers
 
         static MagicOnionResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(6)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(7)
             {
                 {typeof(global::MagicOnion.DynamicArgumentTuple<int, int, int>), 0 },
                 {typeof(global::MagicOnion.DynamicArgumentTuple<string, global::Pommel.Api.Protocol.InGame.Game>), 1 },
                 {typeof(global::MagicOnion.DynamicArgumentTuple<string, int, int>), 2 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string, string, string>), 3 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string>), 4 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string>), 5 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, global::Pommel.Api.Protocol.InGame.Game>), 3 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string, string, string>), 4 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string>), 5 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string>), 6 },
             };
         }
 
@@ -105,9 +106,10 @@ namespace Pommel.Generated.Resolvers
                 case 0: return new global::MagicOnion.DynamicArgumentTupleFormatter<int, int, int>(default(int), default(int), default(int));
                 case 1: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, global::Pommel.Api.Protocol.InGame.Game>(default(string), default(global::Pommel.Api.Protocol.InGame.Game));
                 case 2: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, int, int>(default(string), default(int), default(int));
-                case 3: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string, string, string>(default(string), default(string), default(string), default(string), default(string));
-                case 4: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string>(default(string), default(string), default(string));
-                case 5: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string>(default(string), default(string));
+                case 3: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, global::Pommel.Api.Protocol.InGame.Game>(default(string), default(string), default(global::Pommel.Api.Protocol.InGame.Game));
+                case 4: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string, string, string>(default(string), default(string), default(string), default(string), default(string));
+                case 5: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string>(default(string), default(string), default(string));
+                case 6: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string>(default(string), default(string));
                 default: return null;
             }
         }
@@ -276,15 +278,10 @@ namespace Pommel.Api.Hubs {
                     var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string, string, string, string>>(data, serializerOptions);
                     receiver.OnJoin(result.Item1, result.Item2, result.Item3, result.Item4, result.Item5); break;
                 }
-                case 2034815902: // OnCreateGame
-                {
-                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string>>(data, serializerOptions);
-                    receiver.OnCreateGame(result.Item1, result.Item2); break;
-                }
                 case 995394406: // OnStartGame
                 {
-                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, global::Pommel.Api.Protocol.InGame.Game>>(data, serializerOptions);
-                    receiver.OnStartGame(result.Item1, result.Item2); break;
+                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string, global::Pommel.Api.Protocol.InGame.Game>>(data, serializerOptions);
+                    receiver.OnStartGame(result.Item1, result.Item2, result.Item3); break;
                 }
                 case -237469886: // OnLay
                 {
@@ -323,12 +320,6 @@ namespace Pommel.Api.Hubs {
                     ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
                     break;
                 }
-                case -1612571457: // StartGameAsync
-                {
-                    var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
-                    ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
-                    break;
-                }
                 case 1849616495: // LayAsync
                 {
                     var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
@@ -353,11 +344,6 @@ namespace Pommel.Api.Hubs {
         public global::System.Threading.Tasks.Task CreateGameAsync(string matchingId)
         {
             return WriteMessageWithResponseAsync<string, Nil>(1173640161, matchingId);
-        }
-
-        public global::System.Threading.Tasks.Task StartGameAsync(string gameId)
-        {
-            return WriteMessageWithResponseAsync<string, Nil>(-1612571457, gameId);
         }
 
         public global::System.Threading.Tasks.Task LayAsync(string gameId, int x, int y)
@@ -403,11 +389,6 @@ namespace Pommel.Api.Hubs {
             public global::System.Threading.Tasks.Task CreateGameAsync(string matchingId)
             {
                 return __parent.WriteMessageAsync<string>(1173640161, matchingId);
-            }
-
-            public global::System.Threading.Tasks.Task StartGameAsync(string gameId)
-            {
-                return __parent.WriteMessageAsync<string>(-1612571457, gameId);
             }
 
             public global::System.Threading.Tasks.Task LayAsync(string gameId, int x, int y)

@@ -17,8 +17,6 @@ namespace Pommel.Server.Controller.Hub
 {
     public sealed class InGameHub : StreamingHubBase<IInGameHub, IInGameReceiver>, IInGameHub
     {
-        private readonly IStartGameUseCase m_startGameUseCase;
-
         private readonly ILayPieceUseCase m_layPieceUseCase;
 
         private readonly ICreateMatchingUseCase m_createMatchingUseCase;
@@ -36,7 +34,6 @@ namespace Pommel.Server.Controller.Hub
         private string m_playerName = string.Empty;
 
         public InGameHub(
-            IStartGameUseCase startGameUseCase,
             ILayPieceUseCase layPieceUseCase,
             ICreateMatchingUseCase createMatchingUseCase,
             IEntryMatchingUseCase entryMatchingUseCase,
@@ -45,7 +42,6 @@ namespace Pommel.Server.Controller.Hub
             IGameResultService gameResultService
             )
         {
-            m_startGameUseCase = startGameUseCase;
             m_layPieceUseCase = layPieceUseCase;
             m_createMatchingUseCase = createMatchingUseCase;
             m_resultMessageReciver = resultMessageBroker;
@@ -104,17 +100,9 @@ namespace Pommel.Server.Controller.Hub
         async Task IInGameHub.CreateGameAsync(string matchingId) =>
             await m_createGameUseCase.Execute(matchingId)
                 .Match(
-                    Right: game => Broadcast(m_room).OnCreateGame(game.Id, matchingId),
-                    // todo エラーの内容を見て正しくハンドリング
-                    Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
-                );
-
-        [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
-        async Task IInGameHub.StartGameAsync(string gameId) =>
-            await m_startGameUseCase.Execute(gameId)
-                .Match(
                     Right: game => Broadcast(m_room).OnStartGame(
                         game.NextTurnPlayerId,
+                        game.MatchingId,
                         new _Game
                         {
                             Id = game.Id,

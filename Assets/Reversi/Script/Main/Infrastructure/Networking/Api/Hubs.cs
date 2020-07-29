@@ -12,8 +12,6 @@ namespace Pommel.Api.Hubs
 
         Task CreateGameAsync(string matchingId);
 
-        Task StartGameAsync(string gameId);
-
         Task LayAsync(string gameId, int x, int y);
     }
 
@@ -21,9 +19,7 @@ namespace Pommel.Api.Hubs
     {
         void OnJoin(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name);
 
-        void OnCreateGame(string gameId, string matchingId);
-
-        void OnStartGame(string nextPlayerId, Game game);
+        void OnStartGame(string nextPlayerId, string matchingId, Game game);
 
         void OnLay(string nextPlayerId, Game game);
 

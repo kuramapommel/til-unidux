@@ -60,11 +60,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
             // todo dispose
             m_client.OnCreateGameAsObservable()
-                .Subscribe(arg => m_client.StartAsync(arg.gameId).AsUniTask().ToObservable(),
-                UnityEngine.Debug.Log);
-
-            // todo dispose
-            m_client.OnCreateGameAsObservable()
                 .Subscribe(_ =>
                 {
                     m_onCreateGame.OnNext(Unit.Default);

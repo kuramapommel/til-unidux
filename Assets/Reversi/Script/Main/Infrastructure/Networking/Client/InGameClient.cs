@@ -19,8 +19,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
     {
         Task<IGame> SaveAsync(IGame game);
 
-        Task StartAsync(string gameId);
-
         Task LayAsync(string gameId, int x, int y);
 
         Task CreateMatchingAsync(string playerId, string playerName);
@@ -94,9 +92,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
             return game;
         }
 
-        async Task IInGameClient.StartAsync(string gameId) =>
-            await m_inGameHub.StartGameAsync(gameId);
-
         async Task IInGameClient.LayAsync(string gameId, int x, int y) =>
             await m_inGameHub.LayAsync(gameId, x, y);
 
@@ -125,8 +120,10 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
             UnityEngine.Debug.Log($"matchingId is {matchingId}, player1Id {player1Id}, player1Name {player1Name}, player2Id {player2Id}, player2Name {player2Name}");
         }
 
-        void IInGameReceiver.OnStartGame(string nextPlayerId, _Game game)
+        void IInGameReceiver.OnStartGame(string nextPlayerId, string matchingId, _Game game)
         {
+            m_onCreateGame.OnNext((game.Id, matchingId));
+            m_onCreateGame.OnCompleted();
             m_onStartGame.OnNext((nextPlayerId, game));
             m_onStartGame.OnCompleted();
             UnityEngine.Debug.Log($"nextPlayerId is {nextPlayerId}, game id is {game}, piece is {game.Pieces.Aggregate(string.Empty, (aggregate, piece) => $"{aggregate} | x = {piece.X}, y = {piece.Y}, color = {piece.Color}")}");
@@ -142,12 +139,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
         {
             m_onResult.OnNext((darkCount, lightCount, winner));
             m_onResult.OnCompleted();
-        }
-
-        void IInGameReceiver.OnCreateGame(string gameId, string matchingId)
-        {
-            m_onCreateGame.OnNext((gameId, matchingId));
-            m_onCreateGame.OnCompleted();
         }
 
         async void IDisposable.Dispose()
