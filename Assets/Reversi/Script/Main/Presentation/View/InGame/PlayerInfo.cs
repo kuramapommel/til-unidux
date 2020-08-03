@@ -32,7 +32,6 @@ namespace Pommel.Reversi.Presentation.View.InGame
         [Inject]
         public void Construct(IGameViewModel gameState)
         {
-            UnityEngine.Debug.Log($"called PlayerInfo　Construct(IGameViewModel gameState)");
             (m_nameText, m_colorText) = GetComponentsInChildren<Text>()
                 .Aggregate(
                     (name: default(Text), color: default(Text)),
@@ -60,7 +59,6 @@ namespace Pommel.Reversi.Presentation.View.InGame
                         .Subscribe(m_colorText.gameObject.SetActive);
 
                     m_nameText.text = playerState.Name;
-                    UnityEngine.Debug.Log($"is first player {m_isFirst}, player name = {playerState.Name}");
                 },
                 UnityEngine.Debug.Log);
 

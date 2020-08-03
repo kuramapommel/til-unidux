@@ -106,33 +106,27 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                 .Where(matching => matching.SecondPlayer != Player.None)
                 .Subscribe(matching =>
                 {
-                    UnityEngine.Debug.Log($"called m_gameModel.OnJoinAsObservable()");
-                    UnityEngine.Debug.Log($"first player id = {matching.FirstPlayer.Id}, first player name = {matching.FirstPlayer.Name}");
                     var firstPlayerState = m_playerStateFactory.Create(matching.FirstPlayer.Id, matching.FirstPlayer.Name, true);
                     m_playerStateMap.Add(
                         true,
                         firstPlayerState
                         );
 
-                    UnityEngine.Debug.Log($"socond player id = {matching.SecondPlayer.Id}, second player name = {matching.SecondPlayer.Name}");
                     var secondPlayerState = m_playerStateFactory.Create(matching.SecondPlayer.Id, matching.SecondPlayer.Name, false);
                     m_playerStateMap.Add(
                         false,
                         secondPlayerState
                         );
+
+                    _ = transitionState.AddAsync(_Scene.InGame, container => container.Bind<IGameViewModel>().FromInstance(this).AsCached()).AsUniTask()
+                        .ContinueWith(() => transitionState.RemoveAsync(_Scene.Title).AsUniTask());
                 },
                 UnityEngine.Debug.Log);
-
-            // todo dispose
-            m_gameModel.OnCreateGameAsObservable()
-                .SelectMany(_ => transitionState.AddAsync(_Scene.InGame, container => container.Bind<IGameViewModel>().FromInstance(this).AsCached()).AsUniTask().ToObservable())
-                .Subscribe(_ => transitionState.RemoveAsync(_Scene.Title).AsUniTask().ToObservable());
 
             // todo dispose
             m_gameModel.OnStartGameAsObservable()
                 .Subscribe(game =>
                 {
-                    UnityEngine.Debug.Log($"called m_gameModel.OnStartGameAsObservable()");
                     foreach (var state in Enumerable.Range(0, 8)
                         .SelectMany(x => Enumerable.Range(0, 8)
                             .Select(y => m_pieceStateFactory.Create(game.Id, new Point(x, y), Color.None, m_pieceModel))))

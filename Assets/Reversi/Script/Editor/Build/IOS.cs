@@ -16,7 +16,6 @@ namespace Pommel.Editor.Build
         [PostProcessBuild(1)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
-            UnityEngine.Debug.Log("called post process");
             var projectPath = PBXProject.GetPBXProjectPath(path);
             var project = new PBXProject();
             project.ReadFromString(File.ReadAllText(projectPath));
@@ -33,7 +32,6 @@ namespace Pommel.Editor.Build
             project.SetBuildProperty(targetGuid, "ENABLE_BITCODE", "NO");
         
             File.WriteAllText(projectPath, project.WriteToString());
-            UnityEngine.Debug.Log("finished post process");
         }
     }
 }

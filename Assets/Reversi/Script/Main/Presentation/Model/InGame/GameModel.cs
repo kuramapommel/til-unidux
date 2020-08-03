@@ -17,8 +17,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         IObservable<IMatching> OnJoinAsObservable();
 
-        IObservable<Unit> OnCreateGameAsObservable();
-
         IObservable<IGame> OnStartGameAsObservable();
 
         IObservable<GameResult> OnResultAsObservable();
@@ -38,8 +36,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         private readonly ISubject<IMatching> m_onJoin = new Subject<IMatching>();
 
-        private readonly ISubject<Unit> m_onCreateGame = new Subject<Unit>();
-
         private readonly ISubject<IGame> m_onStartGame = new Subject<IGame>();
 
         private readonly ISubject<GameResult> m_onResult = new Subject<GameResult>();
@@ -57,14 +53,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             m_playerFactory = playerFactory;
             m_matchingFactory = matchingFactory;
             m_gameFactory = gameFactory;
-
-            // todo dispose
-            m_client.OnCreateGameAsObservable()
-                .Subscribe(_ =>
-                {
-                    m_onCreateGame.OnNext(Unit.Default);
-                    m_onCreateGame.OnCompleted();
-                });
 
             // todo dispose
             m_client.OnStartGameAsObservable()
@@ -135,8 +123,6 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             .ContinueWith(() => m_client.CreateGameAsync(matchingId).AsUniTask());
 
         public IObservable<IMatching> OnJoinAsObservable() => m_onJoin;
-
-        public IObservable<Unit> OnCreateGameAsObservable() => m_onCreateGame;
 
         public IObservable<IGame> OnStartGameAsObservable() => m_onStartGame;
 

@@ -29,8 +29,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
 
         IObservable<(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name)> OnJoinAsObservable();
 
-        IObservable<(string gameId, string matchingId)> OnCreateGameAsObservable();
-
         IObservable<(string nextPlayerId, _Game game)> OnStartGameAsObservable();
 
         IObservable<(string nextPlayerId, _Game game)> OnLayAsObservable();
@@ -47,8 +45,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
         private readonly IInGameHub m_inGameHub;
 
         private readonly ISubject<(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name)> m_onJoin = new Subject<(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name)>();
-
-        private readonly ISubject<(string gameId, string matchingId)> m_onCreateGame = new Subject<(string gameId, string matchingId)>();
 
         private readonly ISubject<(int darkCount, int whiteCount, int winner)> m_onResult = new Subject<(int darkCount, int whiteCount, int winner)>();
 
@@ -106,8 +102,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
 
         IObservable<(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name)> IInGameClient.OnJoinAsObservable() => m_onJoin;
 
-        IObservable<(string gameId, string matchingId)> IInGameClient.OnCreateGameAsObservable() => m_onCreateGame;
-
         IObservable<(string nextPlayerId, _Game game)> IInGameClient.OnStartGameAsObservable() => m_onStartGame;
 
         IObservable<(string nextPlayerId, _Game game)> IInGameClient.OnLayAsObservable() => m_onLay;
@@ -117,22 +111,17 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
         void IInGameReceiver.OnJoin(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name)
         {
             m_onJoin.OnNext((matchingId, player1Id, player1Name, player2Id, player2Name));
-            UnityEngine.Debug.Log($"matchingId is {matchingId}, player1Id {player1Id}, player1Name {player1Name}, player2Id {player2Id}, player2Name {player2Name}");
         }
 
         void IInGameReceiver.OnStartGame(string nextPlayerId, string matchingId, _Game game)
         {
-            m_onCreateGame.OnNext((game.Id, matchingId));
-            m_onCreateGame.OnCompleted();
             m_onStartGame.OnNext((nextPlayerId, game));
             m_onStartGame.OnCompleted();
-            UnityEngine.Debug.Log($"nextPlayerId is {nextPlayerId}, game id is {game}, piece is {game.Pieces.Aggregate(string.Empty, (aggregate, piece) => $"{aggregate} | x = {piece.X}, y = {piece.Y}, color = {piece.Color}")}");
         }
 
         void IInGameReceiver.OnLay(string nextPlayerId, _Game game)
         {
             m_onLay.OnNext((nextPlayerId, game));
-            UnityEngine.Debug.Log($"nextPlayerId is {nextPlayerId}, game id is {game}, piece is {game.Pieces.Aggregate(string.Empty, (aggregate, piece) => $"{aggregate} | x = {piece.X}, y = {piece.Y}, color = {piece.Color}")}");
         }
 
         void IInGameReceiver.OnResult(int darkCount, int lightCount, int winner)
@@ -143,7 +132,6 @@ namespace Pommel.Reversi.Infrastructure.Networking.Client
 
         async void IDisposable.Dispose()
         {
-            m_onCreateGame.OnCompleted();
             m_onJoin.OnCompleted();
             m_onLay.OnCompleted();
             m_onStartGame.OnCompleted();
