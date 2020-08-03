@@ -1,30 +1,25 @@
 using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
-using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.UseCase.InGame;
+using Pommel.Reversi.Infrastructure.Networking.Client;
 
 namespace Pommel.Reversi.Presentation.Model.InGame
 {
     public interface IPieceModel
     {
-        Task<IGame> LayPiece(string gameId, int x, int y);
+        Task LayPiece(string gameId, int x, int y);
     }
         
     public sealed class PieceModel : IPieceModel
     {
-        private readonly ILayPieceUseCase m_layPieceUseCase;
+        private readonly IInGameClient m_client;
 
-        public PieceModel(ILayPieceUseCase layPieceUseCase)
+        public PieceModel(
+            IInGameClient inGameClient
+            )
         {
-            m_layPieceUseCase = layPieceUseCase;
+            m_client = inGameClient;
         }
 
-        public async Task<IGame> LayPiece(string gameId, int x, int y) => await m_layPieceUseCase.Execute(gameId, x, y)
-            .Match(
-                Right: game => game,
-                // todo error handling
-                Left: error => throw error.Exception
-            )
-            .AsUniTask();
+        public async Task LayPiece(string gameId, int x, int y) =>
+            await m_client.LayAsync(gameId, x, y);
     }
 }

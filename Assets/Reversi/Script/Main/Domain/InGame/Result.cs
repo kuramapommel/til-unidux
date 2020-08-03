@@ -1,22 +1,16 @@
-
 namespace Pommel.Reversi.Domain.InGame
 {
-    public interface IGameResult
+    public readonly struct GameResult
     {
-        string Id { get; }
-
-        (int white, int black) Count { get; }
-
-        Winner Winner { get; }
-    }
-
-    public sealed class GameResult : IGameResult
-    {
-        public string Id { get; }
-
-        public (int white, int black) Count { get; }
+        public (int dark, int light) Count { get; }
 
         public Winner Winner { get; }
+
+        public GameResult(int dark, int light, Winner winner)
+        {
+            Count = (dark, light);
+            Winner = winner;
+        }
     }
 
     public enum Winner

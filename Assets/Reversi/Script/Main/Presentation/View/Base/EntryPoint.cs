@@ -1,4 +1,4 @@
-using Pommel.Reversi.Presentation.State.System;
+using Pommel.Reversi.Presentation.ViewModel.System;
 using UnityEngine;
 using Zenject;
 using _Scene = Pommel.Reversi.Domain.Transition.Scene;
@@ -15,7 +15,7 @@ namespace Pommel.Reversi.Presentation.View.Base
         [Inject]
         public void Construct(ITransitionState transitionState)
         {
-            _ = transitionState.AddAsync(_Scene.Title);
+            _ = transitionState.LoadAsync(_Scene.Title);
         }
     }
 }

@@ -1,5 +1,5 @@
 using System.Linq;
-using Pommel.Reversi.Presentation.State.InGame;
+using Pommel.Reversi.Presentation.ViewModel.InGame;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,15 +30,18 @@ namespace Pommel.Reversi.Presentation.View.InGame
         private Text m_colorText;
 
         [Inject]
-        public void Construct(IGameState gameState)
+        public void Construct(IGameViewModel gameState)
         {
             (m_nameText, m_colorText) = GetComponentsInChildren<Text>()
                 .Aggregate(
                     (name: default(Text), color: default(Text)),
                     (playerInfo, text) =>
                     {
-                        if (text.name == "Name") return (text, playerInfo.color);
-                        if (text.name == "Color") return (playerInfo.name, text);
+                        switch (text.name)
+                        {
+                            case "Name": return (text, playerInfo.color);
+                            case "Color": return (playerInfo.name, text);
+                        }
 
                         return playerInfo;
                     }
@@ -48,14 +51,11 @@ namespace Pommel.Reversi.Presentation.View.InGame
                 ? gameState.FirstPlayerState
                 : gameState.SecondPlayerState;
 
-            playerState.Name
-                .TakeUntilDestroy(this)
-                .Subscribe(name => m_nameText.text = name);
+                    playerState.IsTurnPlayer
+                        .TakeUntilDestroy(this)
+                        .Subscribe(m_colorText.gameObject.SetActive);
 
-            playerState.IsTurnPlayer
-                .TakeUntilDestroy(this)
-                .Subscribe(m_colorText.gameObject.SetActive);
-
+                    m_nameText.text = playerState.Name;
             m_colorText.gameObject.SetActive(m_isFirst);
         }
     }

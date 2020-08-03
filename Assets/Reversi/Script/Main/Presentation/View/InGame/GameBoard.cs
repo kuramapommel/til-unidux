@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using Pommel.Reversi.Presentation.State.InGame;
+using Pommel.Reversi.Presentation.ViewModel.InGame;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -18,7 +18,7 @@ namespace Pommel.Reversi.Presentation.View.InGame
         private IList<IPiece> Pieces { get; } = new List<IPiece>();
 
         [Inject]
-        public void Construct(IFactory<IPieceState, IPiece> pieceFactory, IGameState gameState)
+        public void Construct(IFactory<IPieceViewModel, IPiece> pieceFactory, IGameViewModel gameState)
         {
             gameState.OnStart
                 .TakeUntilDestroy(this)
@@ -27,8 +27,6 @@ namespace Pommel.Reversi.Presentation.View.InGame
                     foreach (var piece in gameState.PieceStates.Select(pieceFactory.Create)) Pieces.Add(piece);
                 },
                 UnityEngine.Debug.Log);
-
-            gameState.Start().AsUniTask().Forget();
         }
     }
 }

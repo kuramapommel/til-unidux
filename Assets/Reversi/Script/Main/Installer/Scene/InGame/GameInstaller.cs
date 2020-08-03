@@ -1,4 +1,4 @@
-using Pommel.Reversi.Presentation.State.InGame;
+using Pommel.Reversi.Presentation.ViewModel.InGame;
 using Pommel.Reversi.Presentation.View.InGame;
 using UnityEngine;
 using Zenject;
@@ -26,7 +26,7 @@ namespace Pommel.Reversi.Installer.Scene.Ingame
         public override void InstallBindings()
         {
             // factories
-            Container.BindIFactory<IPieceState, IPiece>().To<_Piece>()
+            Container.BindIFactory<IPieceViewModel, IPiece>().To<_Piece>()
                 .FromComponentInNewPrefab(m_piecePrefab)
                 .UnderTransform(m_gameBoard.GetComponent<RectTransform>())
                 .AsCached();

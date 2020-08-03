@@ -3,118 +3,138 @@ using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.UseCase.InGame;
-using Pommel.Reversi.UseCase.InGame.Dto;
+using Pommel.Reversi.Infrastructure.Networking.Client;
 using UniRx;
+using _Color = Pommel.Reversi.Domain.InGame.Color;
 
 namespace Pommel.Reversi.Presentation.Model.InGame
 {
-    public interface IGameModel
+    public interface IGameModel : IDisposable
     {
-        Task<IMatching> CreateMatchingAsync(string playerId, string playerName);
+        Task CreateMatchingAsync(string playerId, string playerName);
 
-        Task<IMatching> EntryMatchingAsync(string matchingId, string playerId, string playerName);
+        Task EntryMatchingAsync(string matchingId, string playerId, string playerName);
 
-        Task<IGame> CreateGameAsync(IMatching matching);
+        IObservable<IMatching> OnJoinAsObservable();
 
-        Task<IGame> StartGameAsync();
+        IObservable<IGame> OnStartGameAsObservable();
 
-        IObservable<ResultDto> OnResult { get; }
+        IObservable<GameResult> OnResultAsObservable();
 
-        IObservable<LaidDto> OnLaid { get; }
+        IObservable<IGame> OnLaidAsObservable();
     }
 
     public sealed class GameModel : IGameModel
     {
-        private readonly IGameResultService m_gameResultService;
+        private readonly IInGameClient m_client;
 
-        private readonly ILaidResultService m_laidResultService;
+        private readonly IPlayerFactory m_playerFactory;
 
-        private readonly ICreateMatchingUseCase m_createMatchingUseCase;
+        private readonly IMatchingFactory m_matchingFactory;
 
-        private readonly IEntryMatchingUseCase m_entryMatchingUseCase;
+        private readonly IGameFactory m_gameFactory;
 
-        private readonly ICreateGameUseCase m_createGameUseCase;
+        private readonly ISubject<IMatching> m_onJoin = new Subject<IMatching>();
 
-        private readonly IStartGameUseCase m_startGameUseCase;
+        private readonly ISubject<IGame> m_onStartGame = new Subject<IGame>();
 
-        private readonly ILaidPieceMessageReciever m_laidPieceMessageReciever;
+        private readonly IReactiveProperty<GameResult> m_onResult = new ReactiveProperty<GameResult>();
+
+        private readonly IReactiveProperty<IGame> m_onLay = new ReactiveProperty<IGame>();
 
         public GameModel(
-            IGameResultService gameResultService,
-            ILaidResultService laidResultService,
-            ICreateMatchingUseCase createMatchingUseCase,
-            IEntryMatchingUseCase entryMatchingUseCase,
-            ICreateGameUseCase createGameUseCase,
-            IStartGameUseCase startGameUseCase,
-            ILaidPieceMessageReciever laidPieceMessageReciever,
-            ILayPieceUseCase layPieceUseCase
+            IInGameClient inGameClient,
+            IPlayerFactory playerFactory,
+            IMatchingFactory matchingFactory,
+            IGameFactory gameFactory
             )
         {
-            m_gameResultService = gameResultService;
-            m_laidResultService = laidResultService;
-            m_createMatchingUseCase = createMatchingUseCase;
-            m_entryMatchingUseCase = entryMatchingUseCase;
-            m_createGameUseCase = createGameUseCase;
-            m_startGameUseCase = startGameUseCase;
-            m_laidPieceMessageReciever = laidPieceMessageReciever;
+            m_client = inGameClient;
+            m_playerFactory = playerFactory;
+            m_matchingFactory = matchingFactory;
+            m_gameFactory = gameFactory;
 
-            m_laidPieceMessageReciever
-                .OnLay
-                .Subscribe(eventInfo =>
-                    layPieceUseCase.Execute(eventInfo.GameId, eventInfo.X, eventInfo.Y)
-                    .Match(
-                        Right: game => game,
-                        // todo error handling
-                        Left: error => throw error.Exception
-                    )
-                    .AsUniTask()
-                    .ToObservable()
+            // todo dispose
+            m_client.OnStartGameAsObservable()
+                .Subscribe(arg =>
+                {
+                    m_onStartGame.OnNext(m_gameFactory.Create(
+                        arg.game.Id,
+                        arg.nextPlayerId,
+                        arg.game.Pieces.Select(piece => new Piece(
+                            new Point(piece.X, piece.Y),
+                            (_Color)piece.Color
+                            ))
+                        .ToArray()));
+                    m_onStartGame.OnCompleted();
+                },
+                UnityEngine.Debug.Log);
+
+            // todo dispose
+            m_client.OnResultAsObservable()
+                .Subscribe(arg => 
+                {
+                    m_onResult.Value = new GameResult(arg.darkCount, arg.lightCount, (Winner)arg.winner);
+                },
+                UnityEngine.Debug.Log);
+
+            // todo dispose
+            m_client.OnLayAsObservable()
+                .Subscribe(arg =>
+                {
+                    var game = m_gameFactory.Create(
+                    arg.game.Id,
+                    arg.nextPlayerId,
+                    arg.game.Pieces.Select(piece => new Piece(
+                        new Point(piece.X, piece.Y),
+                        (_Color)piece.Color
+                        ))
+                    .ToArray());
+                    m_onLay.Value = game;
+                },
+                UnityEngine.Debug.Log);
+
+            // todo dispose
+            m_client.OnJoinAsObservable()
+                .Subscribe(arg =>
+                {
+                    UnityEngine.Debug.Log($"matching id {arg.matchingId}");
+                    m_onJoin.OnNext(m_matchingFactory.Create(
+                        arg.matchingId,
+                        m_playerFactory.Create(
+                            arg.player1Id,
+                            arg.player1Name
+                            ),
+                        string.IsNullOrEmpty(arg.player2Id)
+                        ? Player.None
+                        : m_playerFactory.Create(
+                            arg.player2Id,
+                            arg.player2Name
+                            )));
+                },
+                UnityEngine.Debug.Log
                 );
         }
 
-        public async Task<IMatching> CreateMatchingAsync(string playerId, string playerName) =>
-            await m_createMatchingUseCase.Execute(playerId, playerName)
-            .Match(
-                Right: game => game,
-                // todo error handling
-                Left: error => throw error.Exception
-            )
-            .AsUniTask();
+        public async Task CreateMatchingAsync(string playerId, string playerName) =>
+            await m_client.CreateMatchingAsync(playerId, playerName).AsUniTask();
 
-        public async Task<IMatching> EntryMatchingAsync(string matchingId, string playerId, string playerName) =>
-            await m_entryMatchingUseCase.Execute(matchingId, playerId, playerName)
-            .Match(
-                Right: game => game,
-                // todo error handling
-                Left: error => throw error.Exception
-            )
-            .AsUniTask();
+        public async Task EntryMatchingAsync(string matchingId, string playerId, string playerName) =>
+            await m_client.EntryMatchingAsync(matchingId, playerId, playerName).AsUniTask()
+            .ContinueWith(() => m_client.CreateGameAsync(matchingId).AsUniTask());
 
-        public async Task<IGame> CreateGameAsync(IMatching matching) =>
-            await m_createGameUseCase.Execute(matching)
-            .Match(
-                Right: game => game,
-                // todo error handling
-                Left: error => throw error.Exception
-            )
-            .AsUniTask();
+        public IObservable<IMatching> OnJoinAsObservable() => m_onJoin;
 
-        public async Task<IGame> StartGameAsync() =>
-            await m_startGameUseCase.Execute()
-            .Match(
-                Right: game => game,
-                // todo error handling
-                Left: error => throw error.Exception
-            )
-            .AsUniTask();
+        public IObservable<IGame> OnStartGameAsObservable() => m_onStartGame;
 
-        public IObservable<ResultDto> OnResult =>
-            m_laidPieceMessageReciever.OnResult
-                .SelectMany(message => m_gameResultService.FindById(message.Game.ResultId).AsUniTask().ToObservable());
+        public IObservable<GameResult> OnResultAsObservable() => m_onResult;
 
-        public IObservable<LaidDto> OnLaid =>
-            m_laidPieceMessageReciever.OnLaid
-            .SelectMany(message => m_laidResultService.FindById(message.Game.HistoryIds.LastOrDefault()).AsUniTask().ToObservable());
+        public IObservable<IGame> OnLaidAsObservable() => m_onLay.Where(value => value != default).Publish().RefCount();
+
+        void IDisposable.Dispose()
+        {
+            m_onStartGame.OnCompleted();
+            m_onJoin.OnCompleted();
+        }
     }
 }

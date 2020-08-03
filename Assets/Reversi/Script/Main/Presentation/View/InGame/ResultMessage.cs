@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.Presentation.State.InGame;
-using Pommel.Reversi.Presentation.State.System;
+using Pommel.Reversi.Presentation.ViewModel.InGame;
+using Pommel.Reversi.Presentation.ViewModel.System;
 using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
@@ -25,7 +25,7 @@ namespace Pommel.Reversi.Presentation.View.InGame
         private Text m_text;
 
         [Inject]
-        public void Construct(IGameState state, ITransitionState transitionState)
+        public void Construct(IGameViewModel state, ITransitionState transitionState)
         {
             m_animator = GetComponent<Animator>();
             m_stateMachineTrigger = m_animator.GetBehaviour<ObservableStateMachineTrigger>();
@@ -41,7 +41,7 @@ namespace Pommel.Reversi.Presentation.View.InGame
             GetComponent<Button>()
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .SelectMany(_ => transitionState.AddAsync(_Scene.Title).AsUniTask().ToObservable())
+                .SelectMany(_ => transitionState.LoadAsync(_Scene.Title).AsUniTask().ToObservable())
                 .Subscribe(_ => transitionState.RemoveAsync(_Scene.InGame).AsUniTask().Forget());
 
             state.Winner

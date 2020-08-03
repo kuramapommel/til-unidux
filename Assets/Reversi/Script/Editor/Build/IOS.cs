@@ -16,15 +16,14 @@ namespace Pommel.Editor.Build
         [PostProcessBuild(1)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
-            UnityEngine.Debug.Log("called post process");
             var projectPath = PBXProject.GetPBXProjectPath(path);
             var project = new PBXProject();
             project.ReadFromString(File.ReadAllText(projectPath));
-    #if UNITY_2019_3_OR_NEWER
+#if UNITY_2019_3_OR_NEWER
             var targetGuid = project.GetUnityFrameworkTargetGuid();
-    #else
+#else
             var targetGuid = project.TargetGuidByName(PBXProject.GetUnityTargetName());
-    #endif
+#endif
 
             // libz.tbd for grpc ios build
             project.AddFrameworkToProject(targetGuid, "libz.tbd", false);
@@ -33,8 +32,7 @@ namespace Pommel.Editor.Build
             project.SetBuildProperty(targetGuid, "ENABLE_BITCODE", "NO");
         
             File.WriteAllText(projectPath, project.WriteToString());
-            UnityEngine.Debug.Log("finished post process");
         }
     }
-#endif
 }
+#endif
