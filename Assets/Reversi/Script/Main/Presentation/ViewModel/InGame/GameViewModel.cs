@@ -17,10 +17,6 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
 
         Task EntryMatchingAsync(string matchingId, string playerId, string playerName);
 
-        IObservable<IPlayerViewModel> OnInitializeFirstPlayer();
-
-        IObservable<IPlayerViewModel> OnInitializeSecondPlayer();
-
         IEnumerable<IPieceViewModel> PieceStates { get; }
 
         IPlayerViewModel FirstPlayerState { get; }
@@ -49,10 +45,6 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
         private readonly IReactiveProperty<IGame> m_onStart = new ReactiveProperty<IGame>();
 
         private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>();
-
-        private readonly ISubject<IPlayerViewModel> m_onInitializeFirstPlayer = new Subject<IPlayerViewModel>();
-
-        private readonly ISubject<IPlayerViewModel> m_onInitializeSecondPlayer = new Subject<IPlayerViewModel>();
 
         public IEnumerable<IPieceViewModel> PieceStates => m_pieceStates;
 
@@ -117,14 +109,15 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                         false,
                         secondPlayerState
                         );
-
-                    _ = transitionState.AddAsync(_Scene.InGame, container => container.Bind<IGameViewModel>().FromInstance(this).AsCached()).AsUniTask()
-                        .ContinueWith(() => transitionState.RemoveAsync(_Scene.Title).AsUniTask());
                 },
                 UnityEngine.Debug.Log);
 
             // todo dispose
             m_gameModel.OnStartGameAsObservable()
+                .SelectMany(game => transitionState.LoadAsync(_Scene.InGame, container => container.Bind<IGameViewModel>().FromInstance(this).AsCached()).AsUniTask()
+                        .ContinueWith(() => UniTask.FromResult(game)).ToObservable())
+                .SelectMany(game => transitionState.RemoveAsync(_Scene.Title).AsUniTask()
+                        .ContinueWith(() => UniTask.FromResult(game)).ToObservable())
                 .Subscribe(game =>
                 {
                     foreach (var state in Enumerable.Range(0, 8)
@@ -133,11 +126,6 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                     {
                         m_pieceStates.Add(state);
                     }
-
-                    m_onInitializeFirstPlayer.OnNext(FirstPlayerState);
-                    m_onInitializeSecondPlayer.OnNext(SecondPlayerState);
-                    m_onInitializeFirstPlayer.OnCompleted();
-                    m_onInitializeSecondPlayer.OnCompleted();
 
                     refresh(game);
                     m_onStart.Value = game;
@@ -159,14 +147,8 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
 
         public async Task EntryMatchingAsync(string matchingId, string playerId, string playerName) => await m_gameModel.EntryMatchingAsync(matchingId, playerId, playerName);
 
-        public IObservable<IPlayerViewModel> OnInitializeFirstPlayer() => m_onInitializeFirstPlayer;
-
-        public IObservable<IPlayerViewModel> OnInitializeSecondPlayer() => m_onInitializeSecondPlayer;
-
         void IDisposable.Dispose()
         {
-            m_onInitializeFirstPlayer.OnCompleted();
-            m_onInitializeSecondPlayer.OnCompleted();
         }
     }
 }

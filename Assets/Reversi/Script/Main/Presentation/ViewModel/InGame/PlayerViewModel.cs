@@ -20,13 +20,11 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
 
     public sealed class PlayerViewModel : IPlayerViewModel
     {
-        private readonly string m_name;
-
         private readonly IReactiveProperty<bool> m_isTurnPlayer;
 
         public string Id { get; }
 
-        public string Name => m_name;
+        public string Name { get; }
 
         public IReadOnlyReactiveProperty<bool> IsTurnPlayer => m_isTurnPlayer;
 
@@ -35,7 +33,7 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
         public PlayerViewModel(string id, string name, bool isTurnPlayer)
         {
             Id = id;
-            m_name = name;
+            Name = name;
             m_isTurnPlayer = new ReactiveProperty<bool>(isTurnPlayer);
         }
     }

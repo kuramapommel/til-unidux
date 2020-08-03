@@ -38,9 +38,9 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         private readonly ISubject<IGame> m_onStartGame = new Subject<IGame>();
 
-        private readonly ISubject<GameResult> m_onResult = new Subject<GameResult>();
+        private readonly IReactiveProperty<GameResult> m_onResult = new ReactiveProperty<GameResult>();
 
-        private readonly ISubject<IGame> m_onLay = new Subject<IGame>();
+        private readonly IReactiveProperty<IGame> m_onLay = new ReactiveProperty<IGame>();
 
         public GameModel(
             IInGameClient inGameClient,
@@ -72,10 +72,9 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
             // todo dispose
             m_client.OnResultAsObservable()
-                .Subscribe(arg =>
+                .Subscribe(arg => 
                 {
-                    m_onResult.OnNext(new GameResult(arg.darkCount, arg.lightCount, (Winner)arg.winner));
-                    m_onResult.OnCompleted();
+                    m_onResult.Value = new GameResult(arg.darkCount, arg.lightCount, (Winner)arg.winner);
                 },
                 UnityEngine.Debug.Log);
 
@@ -83,14 +82,15 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             m_client.OnLayAsObservable()
                 .Subscribe(arg =>
                 {
-                    m_onLay.OnNext(m_gameFactory.Create(
+                    var game = m_gameFactory.Create(
                     arg.game.Id,
                     arg.nextPlayerId,
                     arg.game.Pieces.Select(piece => new Piece(
                         new Point(piece.X, piece.Y),
                         (_Color)piece.Color
                         ))
-                    .ToArray()));
+                    .ToArray());
+                    m_onLay.Value = game;
                 },
                 UnityEngine.Debug.Log);
 
@@ -98,6 +98,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             m_client.OnJoinAsObservable()
                 .Subscribe(arg =>
                 {
+                    UnityEngine.Debug.Log($"matching id {arg.matchingId}");
                     m_onJoin.OnNext(m_matchingFactory.Create(
                         arg.matchingId,
                         m_playerFactory.Create(
@@ -128,13 +129,11 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         public IObservable<GameResult> OnResultAsObservable() => m_onResult;
 
-        public IObservable<IGame> OnLaidAsObservable() => m_onLay;
+        public IObservable<IGame> OnLaidAsObservable() => m_onLay.Where(value => value != default).Publish().RefCount();
 
         void IDisposable.Dispose()
         {
             m_onStartGame.OnCompleted();
-            m_onResult.OnCompleted();
-            m_onLay.OnCompleted();
             m_onJoin.OnCompleted();
         }
     }

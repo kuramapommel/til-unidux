@@ -15,7 +15,7 @@ namespace Pommel.Reversi.Presentation.View.Base
         [Inject]
         public void Construct(ITransitionState transitionState)
         {
-            _ = transitionState.AddAsync(_Scene.Title);
+            _ = transitionState.LoadAsync(_Scene.Title);
         }
     }
 }

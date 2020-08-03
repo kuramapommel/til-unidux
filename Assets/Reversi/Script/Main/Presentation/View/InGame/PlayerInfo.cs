@@ -47,21 +47,15 @@ namespace Pommel.Reversi.Presentation.View.InGame
                     }
                 );
 
-            var onInitializePlayer = m_isFirst
-                ? gameState.OnInitializeFirstPlayer()
-                : gameState.OnInitializeSecondPlayer();
+            var playerState = m_isFirst
+                ? gameState.FirstPlayerState
+                : gameState.SecondPlayerState;
 
-            onInitializePlayer
-                .Subscribe(playerState =>
-                {
                     playerState.IsTurnPlayer
                         .TakeUntilDestroy(this)
                         .Subscribe(m_colorText.gameObject.SetActive);
 
                     m_nameText.text = playerState.Name;
-                },
-                UnityEngine.Debug.Log);
-
             m_colorText.gameObject.SetActive(m_isFirst);
         }
     }

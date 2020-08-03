@@ -41,7 +41,7 @@ namespace Pommel.Reversi.Presentation.View.InGame
             GetComponent<Button>()
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .SelectMany(_ => transitionState.AddAsync(_Scene.Title).AsUniTask().ToObservable())
+                .SelectMany(_ => transitionState.LoadAsync(_Scene.Title).AsUniTask().ToObservable())
                 .Subscribe(_ => transitionState.RemoveAsync(_Scene.InGame).AsUniTask().Forget());
 
             state.Winner
