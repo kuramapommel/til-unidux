@@ -33,6 +33,7 @@ namespace Pommel.Server.Infrastructure.DomainService.InGame
 
         public async Task<Either<IError, IGameResult>> Calculate(IGame game)
         {
+            await Task.CompletedTask;
             if (game.State != _State.GameSet) return Left<IError, IGameResult>(new DomainError(new ArgumentException(), "終了していないゲームです"));
 
             // ゲーム終了時のリザルト処理を行っているが、
@@ -49,7 +50,6 @@ namespace Pommel.Server.Infrastructure.DomainService.InGame
             m_resultStore.Add(game.ResultId, result);
             m_resultMessagePublisher.Publish(new ResultMessage(game.ResultId));
 
-            await Task.CompletedTask;
             return Right<IError, IGameResult>(result);
         }
     }

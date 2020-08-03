@@ -5,13 +5,19 @@ using System.Threading.Tasks;
 using LanguageExt;
 using Pommel.Server.Domain;
 using Pommel.Server.Domain.InGame;
+using Pommel.Server.Infrastructure.Store.InGame;
 using static LanguageExt.Prelude;
 
 namespace Pommel.Server.Infrastructure.Repository.InGame
 {
     public sealed class GameResultRepository : IResultRepository
     {
-        private readonly IDictionary<string, IGameResult> m_store = new Dictionary<string, IGameResult>();
+        private readonly IGameResultStore m_store;
+
+        public GameResultRepository(IGameResultStore store)
+        {
+            m_store = store;
+        }
         
         public Task<Either<IError, IGameResult>> FindById(string id) => Task.FromResult(
             m_store.TryGetValue(id)

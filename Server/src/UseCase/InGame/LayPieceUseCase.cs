@@ -42,13 +42,10 @@ namespace Pommel.Server.UseCase.InGame
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)
                 from saved in m_gameRepository.Save(laid).ToAsync()
-                    .Map(savedGame =>
-                    {
-                        if (savedGame.State != _State.GameSet) return savedGame;
-
-                        var _ = m_resultCalculator.Calculate(savedGame).ToAsync();
-                        return savedGame;
-                    })
+                    .Bind(savedGame => savedGame.State != _State.GameSet
+                        ? RightAsync<IError, IGame>(savedGame)
+                        : m_resultCalculator.Calculate(savedGame).ToAsync()
+                            .Map(result => savedGame))
                 select saved;
     }
 }
