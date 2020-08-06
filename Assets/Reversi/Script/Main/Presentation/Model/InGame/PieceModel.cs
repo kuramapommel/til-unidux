@@ -1,6 +1,6 @@
+using System;
 using System.Threading.Tasks;
 using Pommel.Reversi.Infrastructure.Networking.Client;
-using System;
 
 namespace Pommel.Reversi.Presentation.Model.InGame
 {

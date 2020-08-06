@@ -95,57 +95,55 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                 notNextPlayer.SetIsNextTurn(false);
             }
 
-            m_disposables.Add(m_gameModel);
-            m_disposables.Add(m_pieceModel);
+            m_gameModel.AddTo(m_disposables);
+            m_pieceModel.AddTo(m_disposables);
 
-            m_disposables.Add(
-                m_gameModel.OnJoinAsObservable()
-                    .Where(matching => matching.SecondPlayer != Player.None)
-                    .Subscribe(matching =>
+            m_gameModel.OnJoinAsObservable()
+                .Where(matching => matching.SecondPlayer != Player.None)
+                .Subscribe(matching =>
+                {
+                    var firstPlayerState = m_playerStateFactory.Create(matching.FirstPlayer.Id, matching.FirstPlayer.Name, true);
+                    m_playerStateMap.Add(
+                        true,
+                        firstPlayerState
+                        );
+
+                    var secondPlayerState = m_playerStateFactory.Create(matching.SecondPlayer.Id, matching.SecondPlayer.Name, false);
+                    m_playerStateMap.Add(
+                        false,
+                        secondPlayerState
+                        );
+                },
+                UnityEngine.Debug.Log)
+                .AddTo(m_disposables);
+
+            m_gameModel.OnStartGameAsObservable()
+                .SelectMany(game => transitionState.LoadAsync(_Scene.InGame, container => container.Bind<IGameViewModel>().FromInstance(this).AsCached()).AsUniTask()
+                        .ContinueWith(() => UniTask.FromResult(game)).ToObservable())
+                .SelectMany(game => transitionState.RemoveAsync(_Scene.Title).AsUniTask()
+                        .ContinueWith(() => UniTask.FromResult(game)).ToObservable())
+                .Subscribe(game =>
+                {
+                    foreach (var state in Enumerable.Range(0, 8)
+                        .SelectMany(x => Enumerable.Range(0, 8)
+                            .Select(y => m_pieceStateFactory.Create(game.Id, new Point(x, y), Color.None, m_pieceModel))))
                     {
-                        var firstPlayerState = m_playerStateFactory.Create(matching.FirstPlayer.Id, matching.FirstPlayer.Name, true);
-                        m_playerStateMap.Add(
-                            true,
-                            firstPlayerState
-                            );
+                        m_pieceStates.Add(state);
+                    }
 
-                        var secondPlayerState = m_playerStateFactory.Create(matching.SecondPlayer.Id, matching.SecondPlayer.Name, false);
-                        m_playerStateMap.Add(
-                            false,
-                            secondPlayerState
-                            );
-                    },
-                    UnityEngine.Debug.Log));
+                    refresh(game);
+                    m_onStart.Value = game;
+                },
+                UnityEngine.Debug.Log)
+                .AddTo(m_disposables);
 
-            m_disposables.Add(
-                m_gameModel.OnStartGameAsObservable()
-                    .SelectMany(game => transitionState.LoadAsync(_Scene.InGame, container => container.Bind<IGameViewModel>().FromInstance(this).AsCached()).AsUniTask()
-                            .ContinueWith(() => UniTask.FromResult(game)).ToObservable())
-                    .SelectMany(game => transitionState.RemoveAsync(_Scene.Title).AsUniTask()
-                            .ContinueWith(() => UniTask.FromResult(game)).ToObservable())
-                    .Subscribe(game =>
-                    {
-                        foreach (var state in Enumerable.Range(0, 8)
-                            .SelectMany(x => Enumerable.Range(0, 8)
-                                .Select(y => m_pieceStateFactory.Create(game.Id, new Point(x, y), Color.None, m_pieceModel))))
-                        {
-                            m_pieceStates.Add(state);
-                        }
+            m_gameModel.OnResultAsObservable()
+                .Subscribe(gameResult => m_winner.Value = gameResult.Winner, UnityEngine.Debug.Log)
+                .AddTo(m_disposables);
 
-                        refresh(game);
-                        m_onStart.Value = game;
-                    },
-                    UnityEngine.Debug.Log));
-
-            m_disposables.Add(
-                m_gameModel.OnResultAsObservable()
-                    .Subscribe(gameResult => m_winner.Value = gameResult.Winner,
-                    UnityEngine.Debug.Log));
-
-            m_disposables.Add(
-                m_gameModel.OnLaidAsObservable()
-                    .Subscribe(refresh,
-                    UnityEngine.Debug.Log));
+            m_gameModel.OnLaidAsObservable()
+                .Subscribe(refresh, UnityEngine.Debug.Log)
+                .AddTo(m_disposables);
         }
 
         public async Task CreateMatchingAsync(string playerId, string playerName) => await m_gameModel.CreateMatchingAsync(playerId, playerName);

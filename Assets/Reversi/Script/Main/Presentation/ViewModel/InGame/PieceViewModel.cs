@@ -46,7 +46,7 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
             m_color.Value = color.Convert();
             m_pieceModel = pieceModel;
 
-            m_disposables.Add(pieceModel);
+            pieceModel.AddTo(m_disposables);
         }
 
         public void SetColor(_Color color) => m_color.Value = color;
