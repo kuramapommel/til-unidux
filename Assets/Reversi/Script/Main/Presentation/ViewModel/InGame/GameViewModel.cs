@@ -46,6 +46,8 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
 
         private readonly IReactiveProperty<Winner> m_winner = new ReactiveProperty<Winner>();
 
+        private readonly CompositeDisposable m_disposables = new CompositeDisposable();
+
         public IEnumerable<IPieceViewModel> PieceStates => m_pieceStates;
 
         public IPlayerViewModel FirstPlayerState => m_playerStateMap.TryGetValue(true, out var player)
@@ -93,54 +95,57 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
                 notNextPlayer.SetIsNextTurn(false);
             }
 
-            // todo dispose
-            m_gameModel.OnJoinAsObservable()
-                .Where(matching => matching.SecondPlayer != Player.None)
-                .Subscribe(matching =>
-                {
-                    var firstPlayerState = m_playerStateFactory.Create(matching.FirstPlayer.Id, matching.FirstPlayer.Name, true);
-                    m_playerStateMap.Add(
-                        true,
-                        firstPlayerState
-                        );
+            m_disposables.Add(m_gameModel);
+            m_disposables.Add(m_pieceModel);
 
-                    var secondPlayerState = m_playerStateFactory.Create(matching.SecondPlayer.Id, matching.SecondPlayer.Name, false);
-                    m_playerStateMap.Add(
-                        false,
-                        secondPlayerState
-                        );
-                },
-                UnityEngine.Debug.Log);
-
-            // todo dispose
-            m_gameModel.OnStartGameAsObservable()
-                .SelectMany(game => transitionState.LoadAsync(_Scene.InGame, container => container.Bind<IGameViewModel>().FromInstance(this).AsCached()).AsUniTask()
-                        .ContinueWith(() => UniTask.FromResult(game)).ToObservable())
-                .SelectMany(game => transitionState.RemoveAsync(_Scene.Title).AsUniTask()
-                        .ContinueWith(() => UniTask.FromResult(game)).ToObservable())
-                .Subscribe(game =>
-                {
-                    foreach (var state in Enumerable.Range(0, 8)
-                        .SelectMany(x => Enumerable.Range(0, 8)
-                            .Select(y => m_pieceStateFactory.Create(game.Id, new Point(x, y), Color.None, m_pieceModel))))
+            m_disposables.Add(
+                m_gameModel.OnJoinAsObservable()
+                    .Where(matching => matching.SecondPlayer != Player.None)
+                    .Subscribe(matching =>
                     {
-                        m_pieceStates.Add(state);
-                    }
+                        var firstPlayerState = m_playerStateFactory.Create(matching.FirstPlayer.Id, matching.FirstPlayer.Name, true);
+                        m_playerStateMap.Add(
+                            true,
+                            firstPlayerState
+                            );
 
-                    refresh(game);
-                    m_onStart.Value = game;
-                },
-                UnityEngine.Debug.Log);
+                        var secondPlayerState = m_playerStateFactory.Create(matching.SecondPlayer.Id, matching.SecondPlayer.Name, false);
+                        m_playerStateMap.Add(
+                            false,
+                            secondPlayerState
+                            );
+                    },
+                    UnityEngine.Debug.Log));
 
-            // todo dispose
-            m_gameModel.OnResultAsObservable()
-                .Subscribe(gameResult => m_winner.Value = gameResult.Winner,
-                UnityEngine.Debug.Log);
+            m_disposables.Add(
+                m_gameModel.OnStartGameAsObservable()
+                    .SelectMany(game => transitionState.LoadAsync(_Scene.InGame, container => container.Bind<IGameViewModel>().FromInstance(this).AsCached()).AsUniTask()
+                            .ContinueWith(() => UniTask.FromResult(game)).ToObservable())
+                    .SelectMany(game => transitionState.RemoveAsync(_Scene.Title).AsUniTask()
+                            .ContinueWith(() => UniTask.FromResult(game)).ToObservable())
+                    .Subscribe(game =>
+                    {
+                        foreach (var state in Enumerable.Range(0, 8)
+                            .SelectMany(x => Enumerable.Range(0, 8)
+                                .Select(y => m_pieceStateFactory.Create(game.Id, new Point(x, y), Color.None, m_pieceModel))))
+                        {
+                            m_pieceStates.Add(state);
+                        }
 
-            // todo dispose
-            m_gameModel.OnLaidAsObservable()
-                .Subscribe(refresh,
-                UnityEngine.Debug.Log);
+                        refresh(game);
+                        m_onStart.Value = game;
+                    },
+                    UnityEngine.Debug.Log));
+
+            m_disposables.Add(
+                m_gameModel.OnResultAsObservable()
+                    .Subscribe(gameResult => m_winner.Value = gameResult.Winner,
+                    UnityEngine.Debug.Log));
+
+            m_disposables.Add(
+                m_gameModel.OnLaidAsObservable()
+                    .Subscribe(refresh,
+                    UnityEngine.Debug.Log));
         }
 
         public async Task CreateMatchingAsync(string playerId, string playerName) => await m_gameModel.CreateMatchingAsync(playerId, playerName);
@@ -149,6 +154,7 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
 
         void IDisposable.Dispose()
         {
+            m_disposables.Dispose();
         }
     }
 }

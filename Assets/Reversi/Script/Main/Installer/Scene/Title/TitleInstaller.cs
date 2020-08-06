@@ -32,11 +32,11 @@ namespace Pommel.Reversi.Installer.Scene.Title
             Container.BindInterfacesTo<MatchingFactory>().AsCached();
 
             // models
-            Container.BindInterfacesTo<GameModel>().AsCached();
-            Container.BindInterfacesTo<PieceModel>().AsSingle();
+            Container.Bind<IGameModel>().To<GameModel>().AsCached();
+            Container.Bind<IPieceModel>().To<PieceModel>().AsSingle();
 
             // viewmodels
-            Container.BindInterfacesTo<GameViewModel>().AsCached();
+            Container.Bind<IGameViewModel>().To<GameViewModel>().AsCached();
             Container.BindInterfacesTo<TitleViewModel>().AsCached();
 
             // views

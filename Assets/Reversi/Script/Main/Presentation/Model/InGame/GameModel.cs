@@ -42,6 +42,8 @@ namespace Pommel.Reversi.Presentation.Model.InGame
 
         private readonly IReactiveProperty<IGame> m_onLay = new ReactiveProperty<IGame>();
 
+        private readonly CompositeDisposable m_disposables = new CompositeDisposable();
+
         public GameModel(
             IInGameClient inGameClient,
             IPlayerFactory playerFactory,
@@ -54,8 +56,10 @@ namespace Pommel.Reversi.Presentation.Model.InGame
             m_matchingFactory = matchingFactory;
             m_gameFactory = gameFactory;
 
-            // todo dispose
-            m_client.OnStartGameAsObservable()
+            m_disposables.Add(m_client);
+
+            m_disposables.Add(
+                m_client.OnStartGameAsObservable()
                 .Subscribe(arg =>
                 {
                     m_onStartGame.OnNext(m_gameFactory.Create(
@@ -68,18 +72,18 @@ namespace Pommel.Reversi.Presentation.Model.InGame
                         .ToArray()));
                     m_onStartGame.OnCompleted();
                 },
-                UnityEngine.Debug.Log);
+                UnityEngine.Debug.Log));
 
-            // todo dispose
-            m_client.OnResultAsObservable()
-                .Subscribe(arg => 
+            m_disposables.Add(
+                m_client.OnResultAsObservable()
+                .Subscribe(arg =>
                 {
                     m_onResult.Value = new GameResult(arg.darkCount, arg.lightCount, (Winner)arg.winner);
                 },
-                UnityEngine.Debug.Log);
+                UnityEngine.Debug.Log));
 
-            // todo dispose
-            m_client.OnLayAsObservable()
+            m_disposables.Add(
+                m_client.OnLayAsObservable()
                 .Subscribe(arg =>
                 {
                     var game = m_gameFactory.Create(
@@ -92,10 +96,10 @@ namespace Pommel.Reversi.Presentation.Model.InGame
                     .ToArray());
                     m_onLay.Value = game;
                 },
-                UnityEngine.Debug.Log);
+                UnityEngine.Debug.Log));
 
-            // todo dispose
-            m_client.OnJoinAsObservable()
+            m_disposables.Add(
+                m_client.OnJoinAsObservable()
                 .Subscribe(arg =>
                 {
                     UnityEngine.Debug.Log($"matching id {arg.matchingId}");
@@ -113,7 +117,7 @@ namespace Pommel.Reversi.Presentation.Model.InGame
                             )));
                 },
                 UnityEngine.Debug.Log
-                );
+                ));
         }
 
         public async Task CreateMatchingAsync(string playerId, string playerName) =>
@@ -135,6 +139,8 @@ namespace Pommel.Reversi.Presentation.Model.InGame
         {
             m_onStartGame.OnCompleted();
             m_onJoin.OnCompleted();
+
+            m_disposables.Dispose();
         }
     }
 }

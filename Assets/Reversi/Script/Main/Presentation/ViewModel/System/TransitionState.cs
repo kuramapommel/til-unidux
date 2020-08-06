@@ -10,7 +10,7 @@ using Zenject;
 
 namespace Pommel.Reversi.Presentation.ViewModel.System
 {
-    public interface ITransitionState
+    public interface ITransitionState : IDisposable
     {
         Task LoadAsync(IScene scene, Action<DiContainer> bind = default);
 
@@ -34,5 +34,10 @@ namespace Pommel.Reversi.Presentation.ViewModel.System
 
         public async Task RemoveAsync(IEnumerable<IScene> scenes) =>
             await scenes.ToUniTaskAsyncEnumerable().ForEachAwaitAsync(async scene => await m_transitionModel.UnloadSceneAsync(scene).AsUniTask());
+
+        void IDisposable.Dispose()
+        {
+            m_transitionModel.Dispose();
+        }
     }
 }

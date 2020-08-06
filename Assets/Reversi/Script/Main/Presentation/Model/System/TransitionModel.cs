@@ -7,7 +7,7 @@ using Zenject;
 
 namespace Pommel.Reversi.Presentation.Model.System
 {
-    public interface ITransitionModel
+    public interface ITransitionModel : IDisposable
     {
         Task LoadSceneAsync(IScene scene, Action<DiContainer> bind = default);
 
@@ -25,5 +25,9 @@ namespace Pommel.Reversi.Presentation.Model.System
 
         public async Task UnloadSceneAsync(IScene scene) =>
             await SceneManager.UnloadSceneAsync(scene.Id);
+
+        void IDisposable.Dispose()
+        {
+        }
     }
 }

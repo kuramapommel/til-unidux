@@ -51,11 +51,11 @@ namespace Pommel.Reversi.Presentation.View.InGame
                 ? gameState.FirstPlayerState
                 : gameState.SecondPlayerState;
 
-                    playerState.IsTurnPlayer
+            playerState.IsTurnPlayer
                         .TakeUntilDestroy(this)
                         .Subscribe(m_colorText.gameObject.SetActive);
 
-                    m_nameText.text = playerState.Name;
+            m_nameText.text = playerState.Name;
             m_colorText.gameObject.SetActive(m_isFirst);
         }
     }

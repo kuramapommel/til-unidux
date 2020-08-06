@@ -9,7 +9,7 @@ using _ColorEnum = Pommel.Reversi.Domain.InGame.Color;
 
 namespace Pommel.Reversi.Presentation.ViewModel.InGame
 {
-    public interface IPieceViewModel
+    public interface IPieceViewModel : IDisposable
     {
         Point Point { get; }
 
@@ -31,23 +31,32 @@ namespace Pommel.Reversi.Presentation.ViewModel.InGame
 
         private readonly string m_gameId;
 
-        private readonly IReactiveProperty<_Color> m_color;
+        private readonly IReactiveProperty<_Color> m_color = new ReactiveProperty<_Color>();
 
         public Point Point { get; }
 
         public IReadOnlyReactiveProperty<_Color> Color => m_color;
 
+        private readonly CompositeDisposable m_disposables = new CompositeDisposable();
+
         public PieceViewModel(string gameId, Point point, _ColorEnum color, IPieceModel pieceModel)
         {
             m_gameId = gameId;
             Point = point;
-            m_color = new ReactiveProperty<_Color>(color.Convert());
+            m_color.Value = color.Convert();
             m_pieceModel = pieceModel;
+
+            m_disposables.Add(pieceModel);
         }
 
         public void SetColor(_Color color) => m_color.Value = color;
 
         public async Task Lay() => await m_pieceModel.LayPiece(m_gameId, Point.X, Point.Y);
+
+        void IDisposable.Dispose()
+        {
+            m_disposables.Dispose();
+        }
     }
 
     public static class ColorEnumExt

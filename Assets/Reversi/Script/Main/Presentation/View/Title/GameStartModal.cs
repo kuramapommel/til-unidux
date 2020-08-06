@@ -1,7 +1,6 @@
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Presentation.ViewModel.InGame;
-using Pommel.Reversi.Presentation.ViewModel.System;
 using Pommel.Reversi.Presentation.ViewModel.Title;
 using UniRx;
 using UnityEngine;
@@ -12,7 +11,6 @@ namespace Pommel.Reversi.Presentation.View.Title
 {
     public interface IGameStartModal
     {
-
     }
 
     public sealed class GameStartModal : MonoBehaviour, IGameStartModal
@@ -28,7 +26,7 @@ namespace Pommel.Reversi.Presentation.View.Title
         private Button m_entryRoomButton = default;
 
         [Inject]
-        public void Construct(IGameViewModel gameState, ITitleViewModel titleViewModel, ITransitionState transitionState)
+        public void Construct(IGameViewModel gameState, ITitleViewModel titleViewModel)
         {
             (m_playerIdText, m_playerNameText, m_roomIdText) = GetComponentsInChildren<InputField>()
                 .Aggregate(
