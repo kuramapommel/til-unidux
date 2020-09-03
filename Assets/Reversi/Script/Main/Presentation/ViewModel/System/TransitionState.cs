@@ -12,7 +12,7 @@ namespace Pommel.Reversi.Presentation.ViewModel.System
 {
     public interface ITransitionState : IDisposable
     {
-        Task LoadAsync(IScene scene, ActionCommand<DiContainer> bind = default);
+        Task LoadAsync(IScene scene, Action<DiContainer> bind = default);
 
         Task RemoveAsync(params IScene[] scenes);
 
@@ -28,7 +28,7 @@ namespace Pommel.Reversi.Presentation.ViewModel.System
             m_transitionModel = transitionModel;
         }
 
-        public async Task LoadAsync(IScene scene, ActionCommand<DiContainer> bind = default) => await m_transitionModel.LoadSceneAsync(scene, bind).AsUniTask();
+        public async Task LoadAsync(IScene scene, Action<DiContainer> bind = default) => await m_transitionModel.LoadSceneAsync(scene, bind).AsUniTask();
 
         public async Task RemoveAsync(params IScene[] scenes) => await RemoveAsync(scenes.AsEnumerable());
 
