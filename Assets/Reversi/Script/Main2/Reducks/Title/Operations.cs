@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using static Pommel.Reversi.Reducks.Title.Actions;
+using static Pommel.Reversi.Reducks.InGame.Actions;
+using static Pommel.Reversi.Reducks.InGame.ValueObject;
 
 namespace Pommel.Reversi.Reducks.Title
 {
@@ -35,24 +37,32 @@ namespace Pommel.Reversi.Reducks.Title
 
             public Func<Task> EntryRoom { get; }
 
-            public Impl(IDispatcher dispatcher, IProps props)
+            public Impl(IDispatcher dispatcher, Pommel.IProps props)
             {
                 OpenGameStartModal = async () => dispatcher.Dispatch(OpenGameStartModalAction(true));
-                InputPlayerId = async (id) => dispatcher.Dispatch(InputPlayerIdAction(id));
-                InputPlayerName = async (name) => dispatcher.Dispatch(InputPlayerNameAction(name));
-                InputRoomId = async (roomId) => dispatcher.Dispatch(InputRoomIdAction(roomId));
+                InputPlayerId = async id => dispatcher.Dispatch(InputPlayerIdAction(id));
+                InputPlayerName = async name => dispatcher.Dispatch(InputPlayerNameAction(name));
+                InputRoomId = async roomId => dispatcher.Dispatch(InputRoomIdAction(roomId));
                 CreateRoom = async () =>
                 {
-                    var player = props.Player;
+                    var player = props.Title.Player;
 
                     // todo サーバにアクセスして room を作成する
-                    // todo 作成された room 情報を dispatch して store に保存する
+                    var room = new Room();
+                    dispatcher.Dispatch(CreateRoomAction(room));
                 };
                 EntryRoom = async () =>
                 {
-                    // todo props から room id を取得する
+                    var (playerInfo, roomId) = (props.Title.Player, props.Title.RoomId);
+
                     // todo サーバにアクセスして room に entry する
                     // todo 取得した room 情報を dispatch して store に保存する
+                    var room = new Room();
+                    dispatcher.Dispatch(CreateRoomAction(room));
+
+                    // todo サーバにアクセスして game を作成する
+                    var secondPlayer = new Room.Player(playerInfo.Id, playerInfo.Name, Stone.Color.Light, false);
+                    dispatcher.Dispatch(EntryGameAction(secondPlayer));
                 };
             }
         }

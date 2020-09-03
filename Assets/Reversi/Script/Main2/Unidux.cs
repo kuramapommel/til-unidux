@@ -32,6 +32,7 @@ namespace Pommel
         private static IReducer[] Reducers => new IReducer[]
         {
             new Reversi.Reducks.Title.Reducer(),
+            new Reversi.Reducks.InGame.Reducer(),
         };
 
         private static Middleware[] Middlewares => new Middleware[] { };

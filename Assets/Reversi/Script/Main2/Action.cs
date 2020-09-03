@@ -7,7 +7,7 @@ namespace Pommel
         E Type { get; }
     }
 
-    public sealed class ActionCommand<E, T> : IAction<E> where E : Enum
+    public readonly struct ActionCommand<E, T> : IAction<E> where E : Enum
     {
         public E Type { get; }
 
@@ -17,6 +17,16 @@ namespace Pommel
         {
             Type = type;
             Payload = payload;
+        }
+    }
+
+    public readonly struct ActionCommand<E> : IAction<E> where E : Enum
+    {
+        public E Type { get; }
+
+        public ActionCommand(E type)
+        {
+            Type = type;
         }
     }
 }
