@@ -24,5 +24,7 @@ namespace Pommel.Api.Hubs
         void OnLay(string nextPlayerId, Game game);
 
         void OnResult(int darkCount, int lightCount, int winner);
+
+        void OnRefresh(Game game);
     }
 }

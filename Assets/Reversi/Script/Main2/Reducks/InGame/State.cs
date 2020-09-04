@@ -6,6 +6,8 @@ namespace Pommel.Reversi.Reducks.InGame
 {
     public interface IProps
     {
+        string Id { get; }
+
         ValueObject.Room Room { get; }
 
         Elements.Board.IProps Board { get; }
@@ -13,6 +15,8 @@ namespace Pommel.Reversi.Reducks.InGame
 
     public abstract class InGameState : StateElement
     {
+        public abstract string Id { get; set; }
+
         public abstract ValueObject.Room Room { get; set;  }
 
         public abstract Elements.Board.State Board { get; }
@@ -45,6 +49,8 @@ namespace Pommel.Reversi.Reducks.InGame
                 );
 
             public override Elements.Board.State Board => Elements.Board.Element;
+
+            public override string Id { get; set; } = string.Empty;
 
             Elements.Board.IProps IProps.Board => Elements.Board.Props;
         }
