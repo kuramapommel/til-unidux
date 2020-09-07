@@ -1,5 +1,3 @@
-using Pommel.Reversi.Presentation.Model.System;
-using Pommel.Reversi.Presentation.ViewModel.System;
 using Zenject;
 
 namespace Pommel.Reversi.Installer.Project
@@ -8,11 +6,11 @@ namespace Pommel.Reversi.Installer.Project
     {
         public override void InstallBindings()
         {
-            // models
-            Container.BindInterfacesTo<TransitionModel>().AsSingle();
+            //// models
+            //Container.BindInterfacesTo<TransitionModel>().AsSingle();
 
-            // viewmodels
-            Container.BindInterfacesTo<TransitionState>().AsSingle();
+            //// viewmodels
+            //Container.BindInterfacesTo<TransitionState>().AsSingle();
         }
     }
 }

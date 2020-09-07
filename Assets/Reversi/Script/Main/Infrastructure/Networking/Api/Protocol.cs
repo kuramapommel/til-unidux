@@ -15,6 +15,9 @@ namespace Pommel.Api.Protocol
 
             [Key(2)]
             public Room Room { get; set; }
+
+            [Key(3)]
+            public int State { get; set; } 
         }
 
         [MessagePackObject]
