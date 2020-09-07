@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using static Pommel.Reversi.Domain.InGame.ValueObjects;
 using static Pommel.Reversi.Reducks.InGame.Actions;
+using static Pommel.Reversi.Reducks.Scene.Actions;
 using static Pommel.Reversi.Reducks.Title.Actions;
 using IInGameClient = Pommel.Reversi.Domain.InGame.IClient;
 
@@ -74,7 +75,7 @@ namespace Pommel.Reversi.Reducks.Title
                 StartGame = async game =>
                 {
                     dispatcher.Dispatch(RefreshGameAction(game));
-                    // todo InGame ページのロード dispatch
+                    dispatcher.Dispatch(ToInGameAction(default));
                 };
             }
         }

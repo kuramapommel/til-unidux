@@ -1,31 +1,44 @@
 using System;
 using Unidux;
+using Unidux.SceneTransition;
+using static Pommel.Reversi.Domain.Scene.ValueObjects;
 
 namespace Pommel
 {
-    using Reversi.Reducks.Title;
     using Reversi.Reducks.InGame;
+    using Reversi.Reducks.Title;
 
     public interface IProps
     {
         Reversi.Reducks.Title.IProps Title { get; }
+
         Reversi.Reducks.InGame.IProps InGame { get; }
     }
 
-    public interface IState
+    public abstract class StateRoot : StateBase
     {
-        TitleState Title { get; }
+        public abstract TitleState Title { get; }
 
-        InGameState InGame { get; }
+        public abstract InGameState InGame { get; }
+
+        public abstract SceneState<Scene> Scene { get; set; }
+
+        public abstract PageState<Page> Page { get; set; }
     }
 
     [Serializable]
-    public sealed class State : StateBase, IState, IProps
+    public sealed class State : StateRoot, IProps
     {
-        TitleState IState.Title { get; } = Reversi.Reducks.Title.State.Element;
-        InGameState IState.InGame { get; } = Reversi.Reducks.InGame.State.Element;
+        public override TitleState Title { get; } = Reversi.Reducks.Title.State.Element;
+
+        public override InGameState InGame { get; } = Reversi.Reducks.InGame.State.Element;
+
+        public override SceneState<Scene> Scene { get; set; } = new SceneState<Scene>();
+
+        public override PageState<Page> Page { get; set; } = new PageState<Page>();
 
         Reversi.Reducks.Title.IProps IProps.Title => Reversi.Reducks.Title.State.Props;
+
         Reversi.Reducks.InGame.IProps IProps.InGame => Reversi.Reducks.InGame.State.Props;
     }
 }

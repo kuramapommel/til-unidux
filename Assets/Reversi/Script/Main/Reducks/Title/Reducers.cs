@@ -1,5 +1,4 @@
 using Unidux;
-using StateRoot = Pommel.IState;
 
 namespace Pommel.Reversi.Reducks.Title
 {
