@@ -10,7 +10,7 @@ namespace Pommel.Reversi.Scenes
     {
     }
 
-    public sealed class Title : MonoBehaviour
+    public sealed class Title : MonoBehaviour, ITile
     {
         [Inject]
         public void Construct(
