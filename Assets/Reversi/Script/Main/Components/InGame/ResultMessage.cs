@@ -46,7 +46,7 @@ namespace Pommel.Reversi.Components.InGame
                 .TakeUntilDestroy(this)
                 .Subscribe(_ => operation.ReturnToTitle().ToObservable());
 
-            observableCreator.Create(this, state => state)
+            observableCreator.Create(this, state => state.InGame.IsStateChanged, state => state)
                 .Where(state => GetGameState(state) == ValueObjects.State.Finished)
                 .Select(GetStones)
                 .Subscribe(stones =>

@@ -1,7 +1,10 @@
+using System;
+
 namespace Pommel.Reversi.Domain.InGame
 {
     public static class ValueObjects
     {
+        [Serializable]
         public readonly struct Game
         {
             public string Id { get; }
@@ -26,6 +29,7 @@ namespace Pommel.Reversi.Domain.InGame
             }
         }
 
+        [Serializable]
         public readonly struct Room
         {
             public string RoomId { get; }
@@ -45,6 +49,7 @@ namespace Pommel.Reversi.Domain.InGame
                 SecondPlayer = secondPlayer;
             }
 
+            [Serializable]
             public readonly struct Player
             {
                 public string Id { get; }
@@ -65,6 +70,7 @@ namespace Pommel.Reversi.Domain.InGame
             }
         }
 
+        [Serializable]
         public readonly struct Stone
         {
             public Point Point { get; }
@@ -85,6 +91,7 @@ namespace Pommel.Reversi.Domain.InGame
             }
         }
 
+        [Serializable]
         public readonly struct Point
         {
             public int X { get; }

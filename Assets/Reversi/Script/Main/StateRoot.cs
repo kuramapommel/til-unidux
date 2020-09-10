@@ -15,6 +15,7 @@ namespace Pommel
         Reversi.Reducks.InGame.IProps InGame { get; }
     }
 
+    [Serializable]
     public abstract class StateRoot : StateBase
     {
         public abstract TitleState Title { get; }

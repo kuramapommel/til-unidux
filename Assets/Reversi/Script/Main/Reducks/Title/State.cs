@@ -13,6 +13,7 @@ namespace Pommel.Reversi.Reducks.Title
         string RoomId { get; }
     }
 
+    [Serializable]
     public abstract class TitleState : StateElement
     {
         public abstract bool IsDisplayGameStartModal { get; set; }
@@ -30,6 +31,7 @@ namespace Pommel.Reversi.Reducks.Title
 
         public static IProps Props => m_instance.Value;
 
+        [Serializable]
         private sealed class Impl : TitleState, IProps
         {
             public override bool IsDisplayGameStartModal { get; set; } = false;

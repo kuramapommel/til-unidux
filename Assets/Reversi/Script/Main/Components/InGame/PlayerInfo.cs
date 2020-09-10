@@ -49,7 +49,7 @@ namespace Pommel.Reversi.Components.InGame
                     }
                 );
 
-            observableCreator.Create(this, state => GetPlayer(state, m_isFirst))
+            observableCreator.Create(this, state => state.InGame.IsStateChanged, state => GetPlayer(state, m_isFirst))
                 .Subscribe(player =>
                 {
                     m_colorText.gameObject.SetActive(player.IsTurnPlayer);

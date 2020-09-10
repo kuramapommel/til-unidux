@@ -17,30 +17,27 @@ namespace Pommel.Reversi.Reducks.InGame
         Func<Task> ReturnToTitle { get; }
     }
 
-    public static class Opration
+    public sealed class Opration : IOperation
     {
-        private sealed class Impl : IOperation
+        public Func<ValueObjects.Point, Task> PutStone { get; }
+
+        public Func<ValueObjects.Game, Task> RefreshAndNextTurn { get; }
+
+        public Func<Task> ReturnToTitle { get; }
+
+        public Opration(IDispatcher dispatcher, Pommel.IProps props, IInGameClient client)
         {
-            public Func<ValueObjects.Point, Task> PutStone { get; }
+            PutStone = async point => await client.PutStoneAsync(point.X, point.Y).AsUniTask();
 
-            public Func<ValueObjects.Game, Task> RefreshAndNextTurn { get; }
-
-            public Func<Task> ReturnToTitle { get; }
-
-            public Impl(IDispatcher dispatcher, Pommel.IProps props, IInGameClient client)
+            RefreshAndNextTurn = async game =>
             {
-                PutStone = async point => await client.PutStoneAsync(point.X, point.Y).AsUniTask();
-
-                RefreshAndNextTurn = async game =>
-                {
-                    dispatcher.Dispatch(RefreshGameAction(game));
-                };
-                ReturnToTitle = async () =>
-                {
-                    await client.DisconnectAsync().AsUniTask();
-                    dispatcher.Dispatch(ToTitleAction(default));
-                };
-            }
+                dispatcher.Dispatch(RefreshGameAction(game));
+            };
+            ReturnToTitle = async () =>
+            {
+                await client.DisconnectAsync().AsUniTask();
+                dispatcher.Dispatch(ToTitleAction(default));
+            };
         }
     }
 }

@@ -16,6 +16,7 @@ namespace Pommel.Reversi.Reducks.InGame
         ValueObjects.State State { get; }
     }
 
+    [Serializable]
     public abstract class InGameState : StateElement
     {
         public abstract string Id { get; set; }
@@ -35,6 +36,7 @@ namespace Pommel.Reversi.Reducks.InGame
 
         public static IProps Props => m_instance.Value;
 
+        [Serializable]
         private sealed class Impl : InGameState, IProps
         {
             public override ValueObjects.Room Room { get; set; } = new ValueObjects.Room(

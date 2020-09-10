@@ -22,12 +22,11 @@ namespace Pommel.Reversi.Scenes
             IEntryPointOperation entryPointOperation
             )
         {
-            observableCreator.Create(this, state => state.Scene)
+            observableCreator.Create(this, state => state.Scene.IsStateChanged, state => state.Scene)
                 .Subscribe(scene => transitionOperation.LoadScene(scene));
 
-            observableCreator.Create(this, state => state)
-                .Where(state => state.Page.IsStateChanged
-                    && state.Page.IsReady
+            observableCreator.Create(this, state => state.Page.IsStateChanged, state => state)
+                .Where(state => state.Page.IsReady
                     && state.Scene.NeedsAdjust(config.GetPageScenes(), config.PageMap[state.Page.Current.Page]))
                 .Subscribe(scene => transitionOperation.AdjustPages());
 

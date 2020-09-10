@@ -19,38 +19,40 @@ namespace Pommel.Reversi.Components.InGame
     {
         private Image m_image;
 
-        private ValueObjects.Point Point { get; set; }
+        private ValueObjects.Point m_point;
 
         [Inject]
         public void Construct(
             IOperation operation,
-            IStateAsObservableCreator observableCreator
+            IStateAsObservableCreator observableCreator,
+            ValueObjects.Point point
             )
         {
             m_image = GetComponent<Image>();
+            m_point = point;
 
             GetComponent<Button>().OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => operation.PutStone(Point));
+                .Subscribe(_ => operation.PutStone(m_point));
 
-            observableCreator.Create(this, state => GetStone(state, Point))
+            observableCreator.Create(this, state => state.InGame.Board.IsStateChanged, state => GetStone(state, m_point))
                 .Subscribe(stone => m_image.color = stone.StoneColor.Convert());
         }
     }
 
     public static class ColorEnumExt
     {
-        private static readonly Lazy<UnityEngine.Color> none = new Lazy<UnityEngine.Color>(() => ColorUtility.TryParseHtmlString("#13E70E", out var none)
+        private static readonly Lazy<Color> none = new Lazy<Color>(() => ColorUtility.TryParseHtmlString("#13E70E", out var none)
                 ? none
                 : default);
 
-        public static UnityEngine.Color Convert(this ValueObjects.Stone.Color source)
+        public static Color Convert(this ValueObjects.Stone.Color source)
         {
             switch (source)
             {
                 case ValueObjects.Stone.Color.None: return none.Value;
-                case ValueObjects.Stone.Color.Dark: return UnityEngine.Color.black;
-                case ValueObjects.Stone.Color.Light: return UnityEngine.Color.white;
+                case ValueObjects.Stone.Color.Dark: return Color.black;
+                case ValueObjects.Stone.Color.Light: return Color.white;
                 default: throw new ArgumentOutOfRangeException();
             }
         }

@@ -96,6 +96,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -131,7 +132,7 @@ GameObject:
   - component: {fileID: 804576984}
   - component: {fileID: 804576985}
   m_Layer: 0
-  m_Name: EntryPoint
+  m_Name: SceneRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -160,7 +161,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 804576983}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 317752c0046ef45e691aa4ce19476c50, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e6063465eb5e419f9030f49415b4980, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &853589397

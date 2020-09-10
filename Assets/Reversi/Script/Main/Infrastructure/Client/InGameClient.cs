@@ -14,9 +14,9 @@ namespace Pommel.Reversi.Infrastructure.Client
 {
     public sealed class InGameClient : IInGameReceiver, IClient, IDisposable
     {
-        private _Channel m_channel;
+        private readonly _Channel m_channel;
 
-        private IInGameService m_inGameService;
+        private readonly IInGameService m_inGameService;
 
         private IInGameHub m_inGameHub;
 
@@ -31,6 +31,9 @@ namespace Pommel.Reversi.Infrastructure.Client
         {
             m_operation = operation;
             m_props = props;
+
+            m_channel = new _Channel("localhost:12345", _ChannelCredentials.Insecure);
+            m_inGameService = MagicOnionClient.Create<IInGameService>(m_channel);
         }
 
         void IInGameReceiver.OnRefresh(Api.Protocol.InGame.Game game)
@@ -91,13 +94,8 @@ namespace Pommel.Reversi.Infrastructure.Client
 
         async Task IClient.ConnectAsync()
         {
-            // todo domain error
-            if (m_channel != null || m_inGameService != null || m_inGameService != null) throw new InvalidOperationException("すでに接続されています");
-
             await UniTask.CompletedTask;
 
-            m_channel = new _Channel("localhost:12345", _ChannelCredentials.Insecure);
-            m_inGameService = MagicOnionClient.Create<IInGameService>(m_channel);
             m_inGameHub = StreamingHubClient.Connect<IInGameHub, IInGameReceiver>(m_channel, this);
         }
 

@@ -9,19 +9,16 @@ namespace Pommel.Reversi.Reducks.EntryPoint
         Func<Task> ToTitle { get; }
     }
 
-    public static class Opration
+    public sealed class Opration : IOperation
     {
-        private sealed class Impl : IOperation
-        {
-            public Func<Task> ToTitle { get; }
+        public Func<Task> ToTitle { get; }
 
-            public Impl(
-                IDispatcher dispatcher,
-                Pommel.IProps props
-            )
-            {
-                ToTitle = async () => dispatcher.Dispatch(ToTitleAction(default));
-            }
+        public Opration(
+            IDispatcher dispatcher,
+            IProps props
+        )
+        {
+            ToTitle = async () => dispatcher.Dispatch(ToTitleAction(default));
         }
     }
 }

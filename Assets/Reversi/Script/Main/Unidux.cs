@@ -12,14 +12,18 @@ namespace Pommel
 
     public interface IStateAsObservableCreator
     {
-        IObservable<T> Create<T>(Component takeUntilDisable, Func<State, T> selector);
+        IObservable<T> Create<T>(Component takeUntilDisable, Func<State, bool> predicate, Func<State, T> selector);
     }
 
     public static class Unidux
     {
         public static IDispatcher Dispatcher => m_instance.Value;
 
-        public static IObservable<T> CrateObservable<T>(Component takeUntilDisable, Func<State, T> selector) => m_instance.Value.Create(takeUntilDisable, selector);
+        public static IStateAsObservableCreator StateAsObservableCreator => m_instance.Value;
+
+        public static IProps Props => m_instance.Value.State;
+
+        public static StateRoot State => m_instance.Value.State;
 
         private static readonly Lazy<Impl> m_instance = new Lazy<Impl>(() => new Impl(
             InitialState,
@@ -45,8 +49,11 @@ namespace Pommel
 
             private readonly Store<State> m_store;
 
-            public IObservable<T> Create<T>(Component takeUntilDisable, Func<State, T> selector) => m_store.Subject
+            public State State => m_store.State;
+
+            public IObservable<T> Create<T>(Component takeUntilDisable, Func<State, bool> predicate, Func<State, T> selector) => m_store.Subject
                 .TakeUntilDisable(takeUntilDisable)
+                .Where(predicate)
                 .StartWith(m_store.State)
                 .Select(selector)
                 .Publish()

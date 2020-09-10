@@ -17,7 +17,7 @@ namespace Pommel.Reversi.Scenes
             IStateAsObservableCreator observableCreator,
             IGameStartModal gameStartModal)
         {
-            observableCreator.Create(this, GetDisplayGameModal)
+            observableCreator.Create(this, state => state.Title.IsStateChanged, GetDisplayGameModal)
                 .Subscribe(gameStartModal.SetActive);
         }
     }
