@@ -1,4 +1,3 @@
-using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Reducks.Title;
 using UniRx;
 using UnityEngine;
@@ -17,13 +16,19 @@ namespace Pommel.Reversi.Components.Title
         private Button m_tapArea;
 
         [Inject]
-        public void Construct(IOperation operation)
+        public void Construct(
+            IDispatcher dispatcher,
+            Operation.IFactory factory
+            )
         {
             m_tapArea = GetComponent<Button>();
+
+            var operation = factory.Create();
+
             m_tapArea
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => operation.OpenGameStartModal().ToObservable());
+                .Subscribe(_ => dispatcher.Dispatch(operation.OpenGameStartModal()));
         }
     }
 }

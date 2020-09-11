@@ -1,4 +1,5 @@
 using System;
+using Pommel.Middlewares;
 using Unidux;
 using UniRx;
 using UnityEngine;
@@ -25,23 +26,7 @@ namespace Pommel
 
         public static StateRoot State => m_instance.Value.State;
 
-        private static readonly Lazy<Impl> m_instance = new Lazy<Impl>(() => new Impl(
-            InitialState,
-            Reducers,
-            Middlewares
-            ));
-
-        private static State InitialState => new State();
-
-        private static IReducer[] Reducers => new IReducer[]
-        {
-            new Reversi.Reducks.Title.Reducer(),
-            new Reversi.Reducks.InGame.Reducer(),
-            new Reversi.Reducks.Scene.PageReducer(),
-            new Reversi.Reducks.Scene.SceneReducer(),
-        };
-
-        private static Middleware[] Middlewares => new Middleware[] { };
+        private static readonly Lazy<Impl> m_instance = new Lazy<Impl>(() => new Impl());
 
         private sealed class Impl : IDisposable, IDispatcher, IStateAsObservableCreator
         {
@@ -61,9 +46,25 @@ namespace Pommel
 
             object IDispatcher.Dispatch<TAction>(TAction action) => m_store.Dispatch(action);
 
-            public Impl(State state, IReducer[] reducers, Middleware[] middlewares)
+            public Impl()
             {
-                m_store = new Store<State>(state, reducers);
+                var initialState = new State();
+
+                var reducers = new IReducer[]
+                {
+                    new Reversi.Reducks.Title.Reducer(),
+                    new Reversi.Reducks.InGame.Reducer(),
+                    new Reversi.Reducks.Scene.PageReducer(),
+                    new Reversi.Reducks.Scene.SceneReducer(),
+                };
+
+                var middlewares = new Middleware[]
+                {
+                    new Thunk(this).Middleware,
+                };
+
+
+                m_store = new Store<State>(initialState, reducers);
                 m_store.ApplyMiddlewares(middlewares);
                 m_disposable = Observable.EveryUpdate().Subscribe(_ => m_store.Update());
             }

@@ -11,70 +11,79 @@ namespace Pommel.Reversi.Reducks.Title
 {
     public interface IOperation
     {
-        Func<Task> OpenGameStartModal { get; }
+        Func<Func<IDispatcher, Task>> OpenGameStartModal { get; }
 
-        Func<string, string, Task> CreateRoom { get; }
+        Func<string, string, Func<IDispatcher, Task>> CreateRoom { get; }
 
-        Func<string, string, string, Task> EntryRoom { get; }
+        Func<string, string, string, Func<IDispatcher, Task>> EntryRoom { get; }
 
-        Func<Game, Task> StartGame { get; }
+        Func<Game, Func<IDispatcher, Task>> StartGame { get; }
     }
 
-    public sealed class Opration : IOperation
+    public static class Operation
     {
-        public Func<Task> OpenGameStartModal { get; }
-
-        public Func<string, string, Task> CreateRoom { get; }
-
-        public Func<string, string, string, Task> EntryRoom { get; }
-
-        public Func<Game, Task> StartGame { get; }
-
-        public Opration(IDispatcher dispatcher, Pommel.IProps props, IInGameClient client)
+        public interface IFactory
         {
-            OpenGameStartModal = async () => dispatcher.Dispatch(OpenGameStartModalAction(true));
-            CreateRoom = async (playerId, playerName) =>
+            IOperation Create();
+        }
+
+        public sealed class Impl : IOperation
+        {
+            public Func<Func<IDispatcher, Task>> OpenGameStartModal { get; }
+
+            public Func<string, string, Func<IDispatcher, Task>> CreateRoom { get; }
+
+            public Func<string, string, string, Func<IDispatcher, Task>> EntryRoom { get; }
+
+            public Func<Game, Func<IDispatcher, Task>> StartGame { get; }
+
+            public Impl(Pommel.IProps props, IInGameClient client)
             {
-                await client.ConnectAsync().AsUniTask();
+                OpenGameStartModal = () => async dispatcher => dispatcher.Dispatch(OpenGameStartModalAction(true));
+                CreateRoom = (playerId, playerName) => async dispatcher =>
+                {
+                    await client.ConnectAsync().AsUniTask();
 
-                var roomId = await client.CreateRoomAsync().AsUniTask();
-                await client.EntryRoomAsync(roomId, playerId, playerName).AsUniTask();
+                    var roomId = await client.CreateRoomAsync().AsUniTask();
+                    await client.EntryRoomAsync(roomId, playerId, playerName).AsUniTask();
 
-                dispatcher.Dispatch(CreateRoomAction(
-                    new Room(
-                    roomId,
-                    new Room.Player(
-                        playerId,
-                        playerName,
-                        Stone.Color.Dark,
-                        true
-                    ),
-                    props.InGame.Room.SecondPlayer
-                    )));
-            };
-            EntryRoom = async (playerId, playerName, roomId) =>
-            {
-                await client.ConnectAsync().AsUniTask();
+                    dispatcher.Dispatch(CreateRoomAction(
+                        new Room(
+                        roomId,
+                        new Room.Player(
+                            playerId,
+                            playerName,
+                            Stone.Color.Dark,
+                            true
+                        ),
+                        props.InGame.Room.SecondPlayer
+                        )));
+                };
+                EntryRoom = (playerId, playerName, roomId) => async dispatcher =>
+                {
+                    await client.ConnectAsync().AsUniTask();
 
-                var room = await client.FindRoomById(roomId).AsUniTask();
-                await client.EntryRoomAsync(roomId, playerId, playerName).AsUniTask();
+                    var room = await client.FindRoomById(roomId).AsUniTask();
+                    await client.EntryRoomAsync(roomId, playerId, playerName).AsUniTask();
 
-                var player = new Room.Player(playerId, playerName, Stone.Color.Light, false);
-                dispatcher.Dispatch(CreateRoomAction(
-                    new Room(
-                        room.RoomId,
-                        room.FirstPlayer,
-                        player
-                    )));
-                dispatcher.Dispatch(EntryRoomAction(player));
+                    var player = new Room.Player(playerId, playerName, Stone.Color.Light, false);
+                    dispatcher.Dispatch(CreateRoomAction(
+                        new Room(
+                            room.RoomId,
+                            room.FirstPlayer,
+                            player
+                        )));
+                    dispatcher.Dispatch(EntryRoomAction(player));
 
-                await client.CreateGameAsync(roomId).AsUniTask();
-            };
-            StartGame = async game =>
-            {
-                dispatcher.Dispatch(RefreshGameAction(game));
-                dispatcher.Dispatch(ToInGameAction(default));
-            };
+                    await client.CreateGameAsync(roomId).AsUniTask();
+                };
+                StartGame = game => async dispatcher =>
+                {
+                    dispatcher.Dispatch(RefreshGameAction(game));
+                    dispatcher.Dispatch(ToInGameAction(default));
+                };
+            }
         }
     }
+
 }

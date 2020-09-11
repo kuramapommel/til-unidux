@@ -3,8 +3,8 @@ using UniRx;
 using UnityEngine;
 using Zenject;
 using static Pommel.Reversi.Domain.Scene.ValueObjects;
-using IEntryPointOperation = Pommel.Reversi.Reducks.EntryPoint.IOperation;
-using ITransitionOperation = Pommel.Reversi.Reducks.Transition.IOperation;
+using IEntryPointOperationFactory = Pommel.Reversi.Reducks.EntryPoint.Operation.IFactory;
+using ITransitionOperationFactory = Pommel.Reversi.Reducks.Transition.Operation.IFactory;
 
 namespace Pommel.Reversi.Scenes
 {
@@ -17,20 +17,24 @@ namespace Pommel.Reversi.Scenes
         [Inject]
         public void Construct(
             IStateAsObservableCreator observableCreator,
+            IDispatcher dispatcher,
             ISceneConfig<Scene, Page> config,
-            ITransitionOperation transitionOperation,
-            IEntryPointOperation entryPointOperation
+            IEntryPointOperationFactory entryPointOperationFactory,
+            ITransitionOperationFactory transitionOperationFactory
             )
         {
+            var entryPointOperation = entryPointOperationFactory.Create();
+            var transitionOperation = transitionOperationFactory.Create();
+
             observableCreator.Create(this, state => state.Scene.IsStateChanged, state => state.Scene)
-                .Subscribe(scene => transitionOperation.LoadScene(scene));
+                .Subscribe(scene => dispatcher.Dispatch(transitionOperation.LoadScene(scene)));
 
             observableCreator.Create(this, state => state.Page.IsStateChanged, state => state)
                 .Where(state => state.Page.IsReady
                     && state.Scene.NeedsAdjust(config.GetPageScenes(), config.PageMap[state.Page.Current.Page]))
-                .Subscribe(scene => transitionOperation.AdjustPages());
+                .Subscribe(scene => dispatcher.Dispatch(transitionOperation.AdjustPages()));
 
-            _ = entryPointOperation.ToTitle();
+            dispatcher.Dispatch(entryPointOperation.ToTitle());
         }
     }
 }

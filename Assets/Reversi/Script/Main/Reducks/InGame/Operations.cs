@@ -10,34 +10,42 @@ namespace Pommel.Reversi.Reducks.InGame
 {
     public interface IOperation
     {
-        Func<ValueObjects.Point, Task> PutStone { get; }
+        Func<ValueObjects.Point, Func<IDispatcher, Task>> PutStone { get; }
 
-        Func<ValueObjects.Game, Task> RefreshAndNextTurn { get; }
+        Func<ValueObjects.Game, Func<IDispatcher, Task>> RefreshAndNextTurn { get; }
 
-        Func<Task> ReturnToTitle { get; }
+        Func<Func<IDispatcher, Task>> ReturnToTitle { get; }
     }
 
-    public sealed class Opration : IOperation
+    public static class Operation
     {
-        public Func<ValueObjects.Point, Task> PutStone { get; }
-
-        public Func<ValueObjects.Game, Task> RefreshAndNextTurn { get; }
-
-        public Func<Task> ReturnToTitle { get; }
-
-        public Opration(IDispatcher dispatcher, Pommel.IProps props, IInGameClient client)
+        public interface IFactory
         {
-            PutStone = async point => await client.PutStoneAsync(point.X, point.Y).AsUniTask();
+            IOperation Create();
+        }
 
-            RefreshAndNextTurn = async game =>
+        public sealed class Impl : IOperation
+        {
+            public Func<ValueObjects.Point, Func<IDispatcher, Task>> PutStone { get; }
+
+            public Func<ValueObjects.Game, Func<IDispatcher, Task>> RefreshAndNextTurn { get; }
+
+            public Func<Func<IDispatcher, Task>> ReturnToTitle { get; }
+
+            public Impl(Pommel.IProps props, IInGameClient client)
             {
-                dispatcher.Dispatch(RefreshGameAction(game));
-            };
-            ReturnToTitle = async () =>
-            {
-                await client.DisconnectAsync().AsUniTask();
-                dispatcher.Dispatch(ToTitleAction(default));
-            };
+                PutStone = point => async dispatcher => await client.PutStoneAsync(point.X, point.Y).AsUniTask();
+
+                RefreshAndNextTurn = game => async dispatcher =>
+                {
+                    dispatcher.Dispatch(RefreshGameAction(game));
+                };
+                ReturnToTitle = () => async dispatcher =>
+                {
+                    await client.DisconnectAsync().AsUniTask();
+                    dispatcher.Dispatch(ToTitleAction(default));
+                };
+            }
         }
     }
 }

@@ -9,35 +9,42 @@ namespace Pommel.Reversi.Reducks.Transition
 {
     public interface IOperation
     {
-        Func<Task> AdjustPages { get; }
+        Func<Func<IDispatcher, Task>> AdjustPages { get; }
 
-        Func<SceneState<ValueObjects.Scene>, Task> LoadScene { get; }
+        Func<SceneState<ValueObjects.Scene>, Func<IDispatcher, Task>> LoadScene { get; }
     }
 
-    public sealed class Operation : IOperation
+    public static class Operation
     {
-        public Func<Task> AdjustPages { get; }
-
-        public Func<SceneState<ValueObjects.Scene>, Task> LoadScene { get; }
-
-        public Operation(
-            IDispatcher dispatcher
-        )
+        public interface IFactory
         {
-            AdjustPages = async () => dispatcher.Dispatch(PageDuck<ValueObjects.Page, ValueObjects.Scene>.ActionCreator.Adjust());
+            IOperation Create();
+        }
 
-            LoadScene = async sceneState =>
+        public sealed class Impl : IOperation
+        {
+            public Func<Func<IDispatcher, Task>> AdjustPages { get; }
+
+            public Func<SceneState<ValueObjects.Scene>, Func<IDispatcher, Task>> LoadScene { get; }
+
+            public Impl(
+            )
             {
-                await UniTask.WhenAll(
-                    sceneState.Removals(SceneUtil.GetActiveScenes<ValueObjects.Scene>())
-                    .Select(scene => SceneUtil.Remove(scene.ToString()).ToUniTask())
-                    );
+                AdjustPages = () => async dispatcher => dispatcher.Dispatch(PageDuck<ValueObjects.Page, ValueObjects.Scene>.ActionCreator.Adjust());
 
-                await UniTask.WhenAll(
-                    sceneState.Additionals(SceneUtil.GetActiveScenes<ValueObjects.Scene>())
-                    .Select(scene => SceneUtil.Add(scene.ToString()).ToUniTask())
-                    );
-            };
+                LoadScene = sceneState => async dispatcher =>
+                {
+                    await UniTask.WhenAll(
+                        sceneState.Removals(SceneUtil.GetActiveScenes<ValueObjects.Scene>())
+                        .Select(scene => SceneUtil.Remove(scene.ToString()).ToUniTask())
+                        );
+
+                    await UniTask.WhenAll(
+                        sceneState.Additionals(SceneUtil.GetActiveScenes<ValueObjects.Scene>())
+                        .Select(scene => SceneUtil.Add(scene.ToString()).ToUniTask())
+                        );
+                };
+            }
         }
     }
 }

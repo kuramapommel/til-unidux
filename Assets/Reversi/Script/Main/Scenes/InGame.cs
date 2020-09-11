@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Pommel.Reversi.Components.InGame;
-using Pommel.Reversi.Reducks.InGame;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -20,9 +19,8 @@ namespace Pommel.Reversi.Scenes
 
         [Inject]
         public void Construct(
-            IOperation operation,
             IStateAsObservableCreator observableCreator,
-            IFactory<IOperation, IStateAsObservableCreator, Point, IPiece> factory
+            IFactory<IStateAsObservableCreator, Point, IPiece> factory
             )
         {
             observableCreator.Create(this, state => state.InGame.IsStateChanged, state => state.InGame)
@@ -30,7 +28,7 @@ namespace Pommel.Reversi.Scenes
                     && !m_pieces.Any())
                 .Subscribe(inGame =>
                 {
-                    var stones = inGame.Board.Stones.Select(stone => factory.Create(operation, observableCreator, stone.Point));
+                    var stones = inGame.Board.Stones.Select(stone => factory.Create(observableCreator, stone.Point));
 
                     foreach (var stone in stones)
                     {

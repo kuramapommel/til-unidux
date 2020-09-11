@@ -1,5 +1,4 @@
 using System.Linq;
-using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Reducks.Title;
 using UniRx;
 using UnityEngine;
@@ -26,7 +25,10 @@ namespace Pommel.Reversi.Components.Title
         private Button m_entryRoomButton = default;
 
         [Inject]
-        public void Construct(IOperation operation)
+        public void Construct(
+            IDispatcher dispatcher,
+            Operation.IFactory factory
+            )
         {
             (m_playerIdText, m_playerNameText, m_roomIdText) = GetComponentsInChildren<InputField>()
                 .Aggregate(
@@ -57,15 +59,17 @@ namespace Pommel.Reversi.Components.Title
                     return buttons;
                 });
 
+            var operation = factory.Create();
+
             m_createRoomButton
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => operation.CreateRoom(m_playerIdText.text, m_playerNameText.text).ToObservable());
+                .Subscribe(_ => dispatcher.Dispatch(operation.CreateRoom(m_playerIdText.text, m_playerNameText.text)));
 
             m_entryRoomButton
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => operation.EntryRoom(m_playerIdText.text, m_playerNameText.text, m_roomIdText.text).ToObservable());
+                .Subscribe(_ => dispatcher.Dispatch(operation.EntryRoom(m_playerIdText.text, m_playerNameText.text, m_roomIdText.text)));
         }
 
         public void SetActive(bool isActive) => gameObject.SetActive(isActive);

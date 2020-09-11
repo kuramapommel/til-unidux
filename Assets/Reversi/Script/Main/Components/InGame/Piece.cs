@@ -23,17 +23,20 @@ namespace Pommel.Reversi.Components.InGame
 
         [Inject]
         public void Construct(
-            IOperation operation,
             IStateAsObservableCreator observableCreator,
-            ValueObjects.Point point
+            ValueObjects.Point point,
+            IDispatcher dispatcher,
+            Operation.IFactory factory
             )
         {
             m_image = GetComponent<Image>();
             m_point = point;
 
+            var operation = factory.Create();
+
             GetComponent<Button>().OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => operation.PutStone(m_point));
+                .Subscribe(_ => dispatcher.Dispatch(operation.PutStone(m_point)));
 
             observableCreator.Create(this, state => state.InGame.Board.IsStateChanged, state => GetStone(state, m_point))
                 .Subscribe(stone => m_image.color = stone.StoneColor.Convert());
