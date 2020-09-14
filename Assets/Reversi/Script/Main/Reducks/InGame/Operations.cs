@@ -8,38 +8,47 @@ using IInGameClient = Pommel.Reversi.Domain.InGame.IClient;
 
 namespace Pommel.Reversi.Reducks.InGame
 {
-    public interface IOperation
+    public static class Operations
     {
-        Func<ValueObjects.Point, Func<IDispatcher, Task>> PutStone { get; }
-
-        Func<ValueObjects.Game, Func<IDispatcher, Task>> RefreshAndNextTurn { get; }
-
-        Func<Func<IDispatcher, Task>> ReturnToTitle { get; }
-    }
-
-    public static class Operation
-    {
-        public interface IFactory
+        public interface IPutableStone
         {
-            IOperation Create();
+            Func<ValueObjects.Point, Func<IDispatcher, Task>> PutStone { get; }
         }
 
-        public sealed class Impl : IOperation
+        public interface IRefreshableAndNextTurn
+        {
+            Func<ValueObjects.Game, Func<IDispatcher, Task>> RefreshAndNextTurn { get; }
+        }
+
+        public interface IReturnableToTile
+        {
+            Func<Func<IDispatcher, Task>> ReturnToTitle { get; }
+        }
+    }
+
+    public static class OperationImpls
+    {
+        public sealed class PutStoneOperation : Operations.IPutableStone
         {
             public Func<ValueObjects.Point, Func<IDispatcher, Task>> PutStone { get; }
 
-            public Func<ValueObjects.Game, Func<IDispatcher, Task>> RefreshAndNextTurn { get; }
-
-            public Func<Func<IDispatcher, Task>> ReturnToTitle { get; }
-
-            public Impl(Pommel.IProps props, IInGameClient client)
+            public PutStoneOperation(IInGameClient client)
             {
                 PutStone = point => async dispatcher => await client.PutStoneAsync(point.X, point.Y).AsUniTask();
+            }
+        }
 
-                RefreshAndNextTurn = game => async dispatcher =>
-                {
-                    dispatcher.Dispatch(RefreshGameAction(game));
-                };
+        public sealed class RefreshAndNextTurnOperation : Operations.IRefreshableAndNextTurn
+        {
+            public Func<ValueObjects.Game, Func<IDispatcher, Task>> RefreshAndNextTurn { get; } = game => async dispatcher => dispatcher.Dispatch(RefreshGameAction(game));
+        }
+
+        public sealed class ReturnToTitleOperation : Operations.IReturnableToTile
+        {
+            public Func<Func<IDispatcher, Task>> ReturnToTitle { get; }
+
+            public ReturnToTitleOperation(IInGameClient client)
+            {
                 ReturnToTitle = () => async dispatcher =>
                 {
                     await client.DisconnectAsync().AsUniTask();

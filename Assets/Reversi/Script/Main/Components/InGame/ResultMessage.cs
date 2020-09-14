@@ -1,12 +1,12 @@
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.Reducks.InGame;
 using UniRx;
 using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using static Pommel.Reversi.Reducks.InGame.Operations;
 using static Pommel.Reversi.Reducks.InGame.Selectors;
 
 namespace Pommel.Reversi.Components.InGame
@@ -28,14 +28,12 @@ namespace Pommel.Reversi.Components.InGame
         public void Construct(
             IStateAsObservableCreator observableCreator,
             IDispatcher dispatcher,
-            Operation.IFactory factory
+            IReturnableToTile returnableToTile
             )
         {
             m_animator = GetComponent<Animator>();
             m_stateMachineTrigger = m_animator.GetBehaviour<ObservableStateMachineTrigger>();
             m_text = GetComponentInChildren<Text>();
-
-            var operation = factory.Create();
 
             m_stateMachineTrigger
                 .OnStateExitAsObservable()
@@ -47,7 +45,7 @@ namespace Pommel.Reversi.Components.InGame
             GetComponent<Button>()
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => dispatcher.Dispatch(operation.ReturnToTitle()));
+                .Subscribe(_ => dispatcher.Dispatch(returnableToTile.ReturnToTitle()));
 
             observableCreator.Create(this, state => state.InGame.IsStateChanged, state => state)
                 .Where(state => GetGameState(state) == ValueObjects.State.Finished)

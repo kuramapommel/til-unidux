@@ -4,27 +4,19 @@ using static Pommel.Reversi.Reducks.Scene.Actions;
 
 namespace Pommel.Reversi.Reducks.EntryPoint
 {
-    public interface IOperation
+    public static class Operations
     {
-        Func<Func<IDispatcher, Task>> ToTitle { get; }
+        public interface ILoadableTitle
+        {
+            Func<Func<IDispatcher, Task>> LoadTitle { get; }
+        }
     }
 
-    public static class Operation
+    public static class OperationImpls
     {
-        public interface IFactory
+        public sealed class LoadTitleOperation : Operations.ILoadableTitle
         {
-            IOperation Create();
-        }
-
-        public sealed class Impl : IOperation
-        {
-            public Func<Func<IDispatcher, Task>> ToTitle { get; }
-
-            public Impl(
-            )
-            {
-                ToTitle = () => async dispatcher => dispatcher.Dispatch(ToTitleAction(default));
-            }
+            public Func<Func<IDispatcher, Task>> LoadTitle { get; } = () => async dispatcher => dispatcher.Dispatch(ToTitleAction(default));
         }
     }
 }

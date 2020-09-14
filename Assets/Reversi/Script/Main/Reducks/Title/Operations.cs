@@ -9,37 +9,42 @@ using IInGameClient = Pommel.Reversi.Domain.InGame.IClient;
 
 namespace Pommel.Reversi.Reducks.Title
 {
-    public interface IOperation
+    public static class Operations
     {
-        Func<Func<IDispatcher, Task>> OpenGameStartModal { get; }
-
-        Func<string, string, Func<IDispatcher, Task>> CreateRoom { get; }
-
-        Func<string, string, string, Func<IDispatcher, Task>> EntryRoom { get; }
-
-        Func<Game, Func<IDispatcher, Task>> StartGame { get; }
-    }
-
-    public static class Operation
-    {
-        public interface IFactory
+        public interface IOpenableGameStartModal
         {
-            IOperation Create();
+            Func<Func<IDispatcher, Task>> OpenGameStartModal { get; }
         }
 
-        public sealed class Impl : IOperation
+        public interface ICreatableRoom
         {
-            public Func<Func<IDispatcher, Task>> OpenGameStartModal { get; }
+            Func<string, string, Func<IDispatcher, Task>> CreateRoom { get; }
+        }
 
+        public interface IEnteralbleRoom
+        {
+            Func<string, string, string, Func<IDispatcher, Task>> EnterRoom { get; }
+        }
+
+        public interface IStartableGame
+        {
+            Func<Game, Func<IDispatcher, Task>> StartGame { get; }
+        }
+    }
+
+    public static class OperationImpls
+    {
+        public sealed class OpenGameStartModalOperation: Operations.IOpenableGameStartModal
+        {
+            public Func<Func<IDispatcher, Task>> OpenGameStartModal { get; } = () => async dispatcher => dispatcher.Dispatch(OpenGameStartModalAction(true));
+        }
+
+        public sealed class CreateRoomOperation : Operations.ICreatableRoom
+        {
             public Func<string, string, Func<IDispatcher, Task>> CreateRoom { get; }
 
-            public Func<string, string, string, Func<IDispatcher, Task>> EntryRoom { get; }
-
-            public Func<Game, Func<IDispatcher, Task>> StartGame { get; }
-
-            public Impl(Pommel.IProps props, IInGameClient client)
+            public CreateRoomOperation(Pommel.IProps props, IInGameClient client)
             {
-                OpenGameStartModal = () => async dispatcher => dispatcher.Dispatch(OpenGameStartModalAction(true));
                 CreateRoom = (playerId, playerName) => async dispatcher =>
                 {
                     await client.ConnectAsync().AsUniTask();
@@ -59,7 +64,16 @@ namespace Pommel.Reversi.Reducks.Title
                         props.InGame.Room.SecondPlayer
                         )));
                 };
-                EntryRoom = (playerId, playerName, roomId) => async dispatcher =>
+            }
+        }
+
+        public sealed class EnterRoomOperation : Operations.IEnteralbleRoom
+        {
+            public Func<string, string, string, Func<IDispatcher, Task>> EnterRoom { get; }
+
+            public EnterRoomOperation(IInGameClient client)
+            {
+                EnterRoom = (playerId, playerName, roomId) => async dispatcher =>
                 {
                     await client.ConnectAsync().AsUniTask();
 
@@ -77,13 +91,16 @@ namespace Pommel.Reversi.Reducks.Title
 
                     await client.CreateGameAsync(roomId).AsUniTask();
                 };
-                StartGame = game => async dispatcher =>
-                {
-                    dispatcher.Dispatch(RefreshGameAction(game));
-                    dispatcher.Dispatch(ToInGameAction(default));
-                };
             }
         }
-    }
 
+        public sealed class StartGameOperation : Operations.IStartableGame
+        {
+            public Func<Game, Func<IDispatcher, Task>> StartGame { get; } = game => async dispatcher =>
+            {
+                dispatcher.Dispatch(RefreshGameAction(game));
+                dispatcher.Dispatch(ToInGameAction(default));
+            };
+        }
+    }
 }

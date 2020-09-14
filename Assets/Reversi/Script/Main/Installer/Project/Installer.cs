@@ -26,50 +26,16 @@ namespace Pommel.Reversi.Installer.Project
             Container.Bind<Domain.InGame.IClient>().To<Infrastructure.Client.InGameClient>().AsSingle();
 
             // operation factories
-            Container.BindInterfacesTo<EntryPointOperationFactory>().AsSingle();
-            Container.BindInterfacesTo<InGameOperationFactory>().AsSingle();
-            Container.BindInterfacesTo<TitleOperationFactory>().AsSingle();
-            Container.BindInterfacesTo<TransitionOperationFactory>().AsSingle();
-        }
-
-        private sealed class EntryPointOperationFactory : Reducks.EntryPoint.Operation.IFactory
-        {
-            public Reducks.EntryPoint.IOperation Create() => new Reducks.EntryPoint.Operation.Impl();
-        }
-
-        private sealed class InGameOperationFactory : Reducks.InGame.Operation.IFactory
-        {
-            private readonly IProps m_props;
-
-            private readonly Domain.InGame.IClient m_client;
-
-            public InGameOperationFactory(IProps props, Domain.InGame.IClient client)
-            {
-                m_props = props;
-                m_client = client;
-            }
-
-            public Reducks.InGame.IOperation Create() => new Reducks.InGame.Operation.Impl(m_props, m_client);
-        }
-
-        private sealed class TitleOperationFactory : Reducks.Title.Operation.IFactory
-        {
-            private readonly IProps m_props;
-
-            private readonly Domain.InGame.IClient m_client;
-
-            public TitleOperationFactory(IProps props, Domain.InGame.IClient client)
-            {
-                m_props = props;
-                m_client = client;
-            }
-
-            public Reducks.Title.IOperation Create() => new Reducks.Title.Operation.Impl(m_props, m_client);
-        }
-
-        private sealed class TransitionOperationFactory : Reducks.Transition.Operation.IFactory
-        {
-            public Reducks.Transition.IOperation Create() => new Reducks.Transition.Operation.Impl();
+            Container.BindInterfacesTo<Reducks.EntryPoint.OperationImpls.LoadTitleOperation>().AsSingle();
+            Container.BindInterfacesTo<Reducks.InGame.OperationImpls.PutStoneOperation>().AsSingle();
+            Container.BindInterfacesTo<Reducks.InGame.OperationImpls.RefreshAndNextTurnOperation>().AsSingle();
+            Container.BindInterfacesTo<Reducks.InGame.OperationImpls.ReturnToTitleOperation>().AsSingle();
+            Container.BindInterfacesTo<Reducks.Title.OperationImpls.CreateRoomOperation>().AsSingle();
+            Container.BindInterfacesTo<Reducks.Title.OperationImpls.EnterRoomOperation>().AsSingle();
+            Container.BindInterfacesTo<Reducks.Title.OperationImpls.OpenGameStartModalOperation>().AsSingle();
+            Container.BindInterfacesTo<Reducks.Title.OperationImpls.StartGameOperation>().AsSingle();
+            Container.BindInterfacesTo<Reducks.Transition.OperationImpls.AdjustPagesOperation>().AsSingle();
+            Container.BindInterfacesTo<Reducks.Transition.OperationImpls.LoadSceneOperation>().AsSingle();
         }
     }
 }

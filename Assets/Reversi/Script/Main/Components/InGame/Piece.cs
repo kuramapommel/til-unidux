@@ -1,10 +1,10 @@
 using System;
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.Reducks.InGame;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using static Pommel.Reversi.Reducks.InGame.Operations;
 using static Pommel.Reversi.Reducks.InGame.Selectors;
 
 namespace Pommel.Reversi.Components.InGame
@@ -26,17 +26,15 @@ namespace Pommel.Reversi.Components.InGame
             IStateAsObservableCreator observableCreator,
             ValueObjects.Point point,
             IDispatcher dispatcher,
-            Operation.IFactory factory
+            IPutableStone putableStone
             )
         {
             m_image = GetComponent<Image>();
             m_point = point;
 
-            var operation = factory.Create();
-
             GetComponent<Button>().OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => dispatcher.Dispatch(operation.PutStone(m_point)));
+                .Subscribe(_ => dispatcher.Dispatch(putableStone.PutStone(m_point)));
 
             observableCreator.Create(this, state => state.InGame.Board.IsStateChanged, state => GetStone(state, m_point))
                 .Subscribe(stone => m_image.color = stone.StoneColor.Convert());

@@ -1,8 +1,8 @@
-using Pommel.Reversi.Reducks.Title;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using static Pommel.Reversi.Reducks.Title.Operations;
 
 namespace Pommel.Reversi.Components.Title
 {
@@ -18,17 +18,15 @@ namespace Pommel.Reversi.Components.Title
         [Inject]
         public void Construct(
             IDispatcher dispatcher,
-            Operation.IFactory factory
+            IOpenableGameStartModal openableGameStartModal
             )
         {
             m_tapArea = GetComponent<Button>();
 
-            var operation = factory.Create();
-
             m_tapArea
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => dispatcher.Dispatch(operation.OpenGameStartModal()));
+                .Subscribe(_ => dispatcher.Dispatch(openableGameStartModal.OpenGameStartModal()));
         }
     }
 }

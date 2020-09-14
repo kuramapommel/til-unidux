@@ -1,9 +1,9 @@
 using System.Linq;
-using Pommel.Reversi.Reducks.Title;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using static Pommel.Reversi.Reducks.Title.Operations;
 
 namespace Pommel.Reversi.Components.Title
 {
@@ -27,7 +27,8 @@ namespace Pommel.Reversi.Components.Title
         [Inject]
         public void Construct(
             IDispatcher dispatcher,
-            Operation.IFactory factory
+            ICreatableRoom creatableRoom,
+            IEnteralbleRoom enteralbleRoom
             )
         {
             (m_playerIdText, m_playerNameText, m_roomIdText) = GetComponentsInChildren<InputField>()
@@ -59,17 +60,15 @@ namespace Pommel.Reversi.Components.Title
                     return buttons;
                 });
 
-            var operation = factory.Create();
-
             m_createRoomButton
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => dispatcher.Dispatch(operation.CreateRoom(m_playerIdText.text, m_playerNameText.text)));
+                .Subscribe(_ => dispatcher.Dispatch(creatableRoom.CreateRoom(m_playerIdText.text, m_playerNameText.text)));
 
             m_entryRoomButton
                 .OnClickAsObservable()
                 .TakeUntilDestroy(this)
-                .Subscribe(_ => dispatcher.Dispatch(operation.EntryRoom(m_playerIdText.text, m_playerNameText.text, m_roomIdText.text)));
+                .Subscribe(_ => dispatcher.Dispatch(enteralbleRoom.EnterRoom(m_playerIdText.text, m_playerNameText.text, m_roomIdText.text)));
         }
 
         public void SetActive(bool isActive) => gameObject.SetActive(isActive);

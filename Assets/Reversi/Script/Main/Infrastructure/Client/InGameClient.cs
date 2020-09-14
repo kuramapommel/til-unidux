@@ -6,7 +6,7 @@ using MagicOnion.Client;
 using Pommel.Api.Hubs;
 using Pommel.Api.Services;
 using Pommel.Reversi.Domain.InGame;
-using Pommel.Reversi.Reducks.InGame;
+using static Pommel.Reversi.Reducks.InGame.Operations;
 using _Channel = Grpc.Core.Channel;
 using _ChannelCredentials = Grpc.Core.ChannelCredentials;
 
@@ -20,17 +20,21 @@ namespace Pommel.Reversi.Infrastructure.Client
 
         private IInGameHub m_inGameHub;
 
-        private readonly IOperation m_operation;
+        private readonly IRefreshableAndNextTurn m_refreshableAndNextTurn;
+
+        private readonly IDispatcher m_dispatcher;
 
         private readonly IProps m_props;
 
         public InGameClient(
-            IOperation operation,
-            IProps props
+            IRefreshableAndNextTurn refreshableAndNextTurn,
+            IProps props,
+            IDispatcher dispatcher
             )
         {
-            m_operation = operation;
+            m_refreshableAndNextTurn = refreshableAndNextTurn;
             m_props = props;
+            m_dispatcher = dispatcher;
 
             m_channel = new _Channel("localhost:12345", _ChannelCredentials.Insecure);
             m_inGameService = MagicOnionClient.Create<IInGameService>(m_channel);
@@ -62,7 +66,7 @@ namespace Pommel.Reversi.Infrastructure.Client
                 throw new IndexOutOfRangeException("不正な値");
             }
 
-            _ = m_operation.RefreshAndNextTurn(
+            m_dispatcher.Dispatch(m_refreshableAndNextTurn.RefreshAndNextTurn(
                 new ValueObjects.Game(
                 game.Id,
                 new ValueObjects.Room(
@@ -89,7 +93,7 @@ namespace Pommel.Reversi.Infrastructure.Client
                 ))
                 .ToArray(),
                 convertState(game.State)
-                ));
+                )));
         }
 
         async Task IClient.ConnectAsync()
