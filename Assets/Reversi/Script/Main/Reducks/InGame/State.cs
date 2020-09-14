@@ -39,7 +39,7 @@ namespace Pommel.Reversi.Reducks.InGame
         [Serializable]
         private sealed class Impl : InGameState, IProps
         {
-            public override ValueObjects.Room Room { get; set; } = new ValueObjects.Room(
+            private ValueObjects.Room m_room = new ValueObjects.Room(
                 string.Empty,
                 new ValueObjects.Room.Player(
                     string.Empty,
@@ -55,11 +55,31 @@ namespace Pommel.Reversi.Reducks.InGame
                     )
                 );
 
+            private ValueObjects.State m_state = ValueObjects.State.NotYet;
+
+            public override ValueObjects.Room Room
+            {
+                get => m_room;
+                set
+                {
+                    this.SetStateChanged();
+                    m_room = value;
+                }
+            }
+
             public override Elements.Board.State Board => Elements.Board.Element;
 
             public override string Id { get; set; } = string.Empty;
 
-            public override ValueObjects.State State { get; set; } = ValueObjects.State.NotYet;
+            public override ValueObjects.State State
+            {
+                get => m_state;
+                set
+                {
+                    this.SetStateChanged();
+                    m_state = value;
+                }
+            }
 
             Elements.Board.IProps IProps.Board => Elements.Board.Props;
         }
@@ -87,10 +107,20 @@ namespace Pommel.Reversi.Reducks.InGame
 
             private sealed class Impl : State, IProps
             {
-                public override ValueObjects.Stone[] Stones { get; set; } = Enumerable.Range(0, 8)
+                private ValueObjects.Stone[] m_stones = Enumerable.Range(0, 8)
                     .SelectMany(x => Enumerable.Range(0, 8)
                     .Select(y => new ValueObjects.Stone(new ValueObjects.Point(x, y))))
                     .ToArray();
+
+                public override ValueObjects.Stone[] Stones
+                {
+                    get => m_stones;
+                    set
+                    {
+                        this.SetStateChanged();
+                        m_stones = value;
+                    }
+                }
             }
         }
     }

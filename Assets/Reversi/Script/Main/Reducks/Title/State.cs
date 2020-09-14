@@ -34,7 +34,17 @@ namespace Pommel.Reversi.Reducks.Title
         [Serializable]
         private sealed class Impl : TitleState, IProps
         {
-            public override bool IsDisplayGameStartModal { get; set; } = false;
+            private bool m_isDisplayGameStartModal = false;
+
+            public override bool IsDisplayGameStartModal
+            {
+                get => m_isDisplayGameStartModal;
+                set
+                {
+                    this.SetStateChanged();
+                    m_isDisplayGameStartModal = value;
+                }
+            }
 
             public override ValueObjects.Player Player { get; set; } = new ValueObjects.Player(string.Empty, string.Empty);
 

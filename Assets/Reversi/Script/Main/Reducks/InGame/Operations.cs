@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Pommel.Reversi.Domain.InGame;
 using static Pommel.Reversi.Reducks.InGame.Actions;
-using static Pommel.Reversi.Reducks.Scene.Actions;
+using static Pommel.Reversi.Reducks.Transition.Actions;
 using IInGameClient = Pommel.Reversi.Domain.InGame.IClient;
 
 namespace Pommel.Reversi.Reducks.InGame

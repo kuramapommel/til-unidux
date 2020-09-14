@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using static Pommel.Reversi.Reducks.Scene.Actions;
+using static Pommel.Reversi.Reducks.Transition.Actions;
 
 namespace Pommel.Reversi.Reducks.EntryPoint
 {

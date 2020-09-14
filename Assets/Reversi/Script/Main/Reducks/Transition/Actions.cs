@@ -1,8 +1,8 @@
 using System;
-using Unidux.SceneTransition;
 using Pommel.Reversi.Domain.Scene;
+using Unidux.SceneTransition;
 
-namespace Pommel.Reversi.Reducks.Scene
+namespace Pommel.Reversi.Reducks.Transition
 {
     public static class Actions
     {

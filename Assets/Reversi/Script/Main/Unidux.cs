@@ -54,13 +54,14 @@ namespace Pommel
                 {
                     new Reversi.Reducks.Title.Reducer(),
                     new Reversi.Reducks.InGame.Reducer(),
-                    new Reversi.Reducks.Scene.PageReducer(),
-                    new Reversi.Reducks.Scene.SceneReducer(),
+                    new Reversi.Reducks.Transition.PageReducer(),
+                    new Reversi.Reducks.Transition.SceneReducer(),
                 };
 
                 var middlewares = new Middleware[]
                 {
                     new Thunk(this).Middleware,
+                    new Pommel.Middlewares.Logger().Middleware
                 };
 
 
