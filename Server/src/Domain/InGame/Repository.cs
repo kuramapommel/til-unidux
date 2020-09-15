@@ -32,4 +32,13 @@ namespace Pommel.Server.Domain.InGame
 
         Task<Either<IError, IEnumerable<IGameResult>>> Fetch(Func<IGameResult, bool> predicate);
     }
+
+    public interface IRoomRepository
+    {
+        Task<Either<IError, IRoom>> FindById(string id);
+
+        Task<Either<IError, IRoom>> Save(IRoom room);
+
+        Task<Either<IError, IEnumerable<IRoom>>> Fetch(Func<IRoom, bool> predicate);
+    }
 }

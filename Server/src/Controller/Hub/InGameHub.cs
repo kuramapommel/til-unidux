@@ -140,5 +140,10 @@ namespace Pommel.Server.Controller.Hub
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
+
+        Task IInGameHub.LayAsync(int x, int y)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using MagicOnion;
 using MagicOnion.Server;
 using Pommel.Api.Protocol.InGame;
@@ -9,43 +8,62 @@ namespace Pommel.Server.Controller.Service
 {
     public sealed class InGameService : ServiceBase<IInGameService>, IInGameService
     {
-        private readonly ICreateMatchingUseCase m_createMatchingUseCase;
+        private readonly ICreateRoomUseCase m_createRoomUseCase;
 
-        private readonly ICreateGameUseCase m_createGameUseCase;
+        private readonly IEnterRoomUseCase m_enterRoomUseCase;
+
+        private readonly IFindRoomUseCase m_findRoomUseCase;
 
         public InGameService(
-            ICreateMatchingUseCase createMatchingUseCase,
-            ICreateGameUseCase createGameUseCase
+            ICreateRoomUseCase createRoomUseCase,
+            IEnterRoomUseCase enterRoomUseCase,
+            IFindRoomUseCase findRoomUseCase
             )
         {
-            m_createMatchingUseCase = createMatchingUseCase;
-            m_createGameUseCase = createGameUseCase;
+            m_createRoomUseCase = createRoomUseCase;
+            m_enterRoomUseCase = enterRoomUseCase;
+            m_findRoomUseCase = findRoomUseCase;
         }
 
-        public async UnaryResult<string> CreateMatchingAsync(string playerId, string playerName) =>
-            await m_createMatchingUseCase.Execute(playerId, playerName)
+        async UnaryResult<string> IInGameService.CreateRoomAsync() =>
+            await m_createRoomUseCase.Execute()
                 .Match(
-                    Right: matching => matching.Id,
+                    Right: room => room.Id,
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
 
-        public async UnaryResult<string> CreateGameAsync(string matchingId) =>
-            await m_createGameUseCase.Execute(matchingId)
+        async UnaryResult<string> IInGameService.EntryRoomAsync(string roomId, string playerId, string playerName) =>
+            await m_enterRoomUseCase.Execute(roomId, playerId, playerName)
                 .Match(
-                    Right: game => game.Id,
+                    Right: room => room.Id,
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
 
-        public async UnaryResult<Game> SaveGameAsync(Game game)
-        {
-            Logger.Debug($"game id is {game.Id}");
-            foreach (var piece in game.Pieces)
-                Logger.Debug($"piece x is {piece.X}, piece y is {piece.Y}");
-
-            await Task.CompletedTask;
-            return game;
-        }
+        async UnaryResult<Room> IInGameService.FindRoomById(string roomId) =>
+            await m_findRoomUseCase.Execute(roomId)
+                .Match(
+                    Right: room => new Room()
+                    {
+                        Id = room.Id,
+                        FirstPlayer = new Player()
+                        {
+                            Id = room.FirstPlayer.Id,
+                            Name = room.FirstPlayer.Name,
+                            IsLight = true, // todo FirstPlayer にプロパティもたせる
+                            IsTurnPlayer = true // todo FirstPlayer にプロパティもたせる
+                        },
+                        SecondPlayer = new Player()
+                        {
+                            Id = room.SecondPlayer.Id,
+                            Name = room.SecondPlayer.Name,
+                            IsLight = false, // todo FirstPlayer にプロパティもたせる
+                            IsTurnPlayer = false // todo FirstPlayer にプロパティもたせる
+                        }
+                    },
+                    // todo エラーの内容を見て正しくハンドリング
+                    Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
+                );
     }
 }
