@@ -129,6 +129,8 @@ namespace Pommel.Api.Services {
     {
         static readonly Method<byte[], byte[]> CreateRoomAsyncMethod;
         static readonly Func<RequestContext, ResponseContext> CreateRoomAsyncDelegate;
+        static readonly Method<byte[], byte[]> CreateGameAsyncMethod;
+        static readonly Func<RequestContext, ResponseContext> CreateGameAsyncDelegate;
         static readonly Method<byte[], byte[]> EntryRoomAsyncMethod;
         static readonly Func<RequestContext, ResponseContext> EntryRoomAsyncDelegate;
         static readonly Method<byte[], byte[]> FindRoomByIdMethod;
@@ -138,6 +140,8 @@ namespace Pommel.Api.Services {
         {
             CreateRoomAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "CreateRoomAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
             CreateRoomAsyncDelegate = _CreateRoomAsync;
+            CreateGameAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "CreateGameAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
+            CreateGameAsyncDelegate = _CreateGameAsync;
             EntryRoomAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "EntryRoomAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
             EntryRoomAsyncDelegate = _EntryRoomAsync;
             FindRoomByIdMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "FindRoomById", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
@@ -197,6 +201,15 @@ namespace Pommel.Api.Services {
         public global::MagicOnion.UnaryResult<string> CreateRoomAsync()
         {
             return InvokeAsync<Nil, string>("IInGameService/CreateRoomAsync", Nil.Default, CreateRoomAsyncDelegate);
+        }
+        static ResponseContext _CreateGameAsync(RequestContext __context)
+        {
+            return CreateResponseContext<string, string>(__context, CreateGameAsyncMethod);
+        }
+
+        public global::MagicOnion.UnaryResult<string> CreateGameAsync(string roomId)
+        {
+            return InvokeAsync<string, string>("IInGameService/CreateGameAsync", roomId, CreateGameAsyncDelegate);
         }
         static ResponseContext _EntryRoomAsync(RequestContext __context)
         {
@@ -268,6 +281,11 @@ namespace Pommel.Api.Hubs {
                     var result = MessagePackSerializer.Deserialize<global::Pommel.Api.Protocol.InGame.Game>(data, serializerOptions);
                     receiver.OnRefresh(result); break;
                 }
+                case 36572012: // OnStart
+                {
+                    var result = MessagePackSerializer.Deserialize<global::Pommel.Api.Protocol.InGame.Game>(data, serializerOptions);
+                    receiver.OnStart(result); break;
+                }
                 default:
                     break;
             }
@@ -277,7 +295,13 @@ namespace Pommel.Api.Hubs {
         {
             switch (methodId)
             {
-                case 1173640161: // CreateGameAsync
+                case -390097192: // EntryRoomAsync
+                {
+                    var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
+                    ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
+                    break;
+                }
+                case -1612571457: // StartGameAsync
                 {
                     var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
                     ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
@@ -294,9 +318,14 @@ namespace Pommel.Api.Hubs {
             }
         }
    
-        public global::System.Threading.Tasks.Task CreateGameAsync(string roomId)
+        public global::System.Threading.Tasks.Task EntryRoomAsync(string roomId, string playerId, string playerName)
         {
-            return WriteMessageWithResponseAsync<string, Nil>(1173640161, roomId);
+            return WriteMessageWithResponseAsync<DynamicArgumentTuple<string, string, string>, Nil>(-390097192, new DynamicArgumentTuple<string, string, string>(roomId, playerId, playerName));
+        }
+
+        public global::System.Threading.Tasks.Task StartGameAsync(string gameId)
+        {
+            return WriteMessageWithResponseAsync<string, Nil>(-1612571457, gameId);
         }
 
         public global::System.Threading.Tasks.Task LayAsync(int x, int y)
@@ -329,9 +358,14 @@ namespace Pommel.Api.Hubs {
                 throw new NotSupportedException();
             }
 
-            public global::System.Threading.Tasks.Task CreateGameAsync(string roomId)
+            public global::System.Threading.Tasks.Task EntryRoomAsync(string roomId, string playerId, string playerName)
             {
-                return __parent.WriteMessageAsync<string>(1173640161, roomId);
+                return __parent.WriteMessageAsync<DynamicArgumentTuple<string, string, string>>(-390097192, new DynamicArgumentTuple<string, string, string>(roomId, playerId, playerName));
+            }
+
+            public global::System.Threading.Tasks.Task StartGameAsync(string gameId)
+            {
+                return __parent.WriteMessageAsync<string>(-1612571457, gameId);
             }
 
             public global::System.Threading.Tasks.Task LayAsync(int x, int y)

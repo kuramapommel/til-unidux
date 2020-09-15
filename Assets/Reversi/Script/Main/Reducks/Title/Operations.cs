@@ -89,7 +89,8 @@ namespace Pommel.Reversi.Reducks.Title
                         )));
                     dispatcher.Dispatch(EntryRoomAction(player));
 
-                    await client.CreateGameAsync(roomId).AsUniTask();
+                    var gameId = await client.CreateGameAsync(roomId).AsUniTask();
+                    await client.StartGameAsync(gameId).AsUniTask();
                 };
             }
         }
