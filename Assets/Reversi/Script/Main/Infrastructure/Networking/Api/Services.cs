@@ -7,6 +7,8 @@ namespace Pommel.Api.Services
     {
         UnaryResult<string> CreateRoomAsync();
 
+        UnaryResult<string> CreateGameAsync(string roomId);
+
         UnaryResult<string> EntryRoomAsync(string roomId, string playerId, string playerName);
 
         UnaryResult<Room> FindRoomById(string roomId);

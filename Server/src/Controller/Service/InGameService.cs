@@ -10,20 +10,32 @@ namespace Pommel.Server.Controller.Service
     {
         private readonly ICreateRoomUseCase m_createRoomUseCase;
 
+        private readonly ICreateGameUseCase m_createGameUseCase;
+
         private readonly IEnterRoomUseCase m_enterRoomUseCase;
 
         private readonly IFindRoomUseCase m_findRoomUseCase;
 
         public InGameService(
             ICreateRoomUseCase createRoomUseCase,
+            ICreateGameUseCase createGameUseCase,
             IEnterRoomUseCase enterRoomUseCase,
             IFindRoomUseCase findRoomUseCase
             )
         {
             m_createRoomUseCase = createRoomUseCase;
+            m_createGameUseCase = createGameUseCase;
             m_enterRoomUseCase = enterRoomUseCase;
             m_findRoomUseCase = findRoomUseCase;
         }
+
+        async UnaryResult<string> IInGameService.CreateGameAsync(string roomId) =>
+            await m_createGameUseCase.Execute(roomId)
+                .Match(
+                    Right: game => game.Id,
+                    // todo エラーの内容を見て正しくハンドリング
+                    Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
+                );
 
         async UnaryResult<string> IInGameService.CreateRoomAsync() =>
             await m_createRoomUseCase.Execute()

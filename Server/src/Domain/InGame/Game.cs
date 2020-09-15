@@ -25,7 +25,7 @@ namespace Pommel.Server.Domain.InGame
 
         IEnumerable<Piece> Pieces { get; }
 
-        IGame LayPiece(Point point, IMatching matching);
+        IGame LayPiece(Point point, IRoom room);
 
         IGame Start(string firstPlayerId);
     }
@@ -62,19 +62,19 @@ namespace Pommel.Server.Domain.InGame
             MatchingId = matchingId;
         }
 
-        public IGame LayPiece(Point point, IMatching matching)
+        public IGame LayPiece(Point point, IRoom room)
         {
             // todo 妥当な例外に置き換える
             if (State != State.Playing) throw new ArgumentException("このゲームはプレイ中ではありません");
 
-            if (MatchingId != matching.Id) throw new ArgumentException("このゲームに紐付かないマッチングが指定されました");
+            if (MatchingId != room.Id) throw new ArgumentException("このゲームに紐付かないマッチングが指定されました");
 
             // 配置済みの箇所を指定された場合は例外
             if (Pieces.First(piece => piece.Point.X == point.X && piece.Point.Y == point.Y).Color != Color.None) throw new ArgumentException();
 
             var (playerColor, opponentColor, nextTurn, playerId, opponentId) = Turn == Turn.First
-                ? (Color.Dark, Color.Light, Turn.Second, matching.FirstPlayer.Id, matching.SecondPlayer.Id)
-                : (Color.Light, Color.Dark, Turn.First, matching.SecondPlayer.Id, matching.FirstPlayer.Id);
+                ? (Color.Dark, Color.Light, Turn.Second, room.FirstPlayer.Id, room.SecondPlayer.Id)
+                : (Color.Light, Color.Dark, Turn.First, room.SecondPlayer.Id, room.FirstPlayer.Id);
 
             var flipTargets = this.CreateFlipTargets(Turn, point, Pieces);
 

@@ -18,7 +18,7 @@ namespace Pommel.Server.Domain.InGame
 
     public interface IRoomFactory
     {
-        IRoom Create();
+        IRoom Create(string id);
     }
 
     public sealed class Room : IRoom
@@ -58,7 +58,7 @@ namespace Pommel.Server.Domain.InGame
                 }
             );
 
-            return new Matching(Id, first, second);
+            return new Room(Id, first, second);
         }
 
         private Room(string id, IPlayer first, IPlayer second)

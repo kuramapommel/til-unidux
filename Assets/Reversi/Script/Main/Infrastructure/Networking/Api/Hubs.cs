@@ -6,7 +6,9 @@ namespace Pommel.Api.Hubs
 {
     public interface IInGameHub : IStreamingHub<IInGameHub, IInGameReceiver>
     {
-        Task CreateGameAsync(string roomId);
+        Task EntryRoomAsync(string roomId, string playerId, string playerName);
+
+        Task StartGameAsync(string gameId);
 
         Task LayAsync(int x, int y);
     }
@@ -14,5 +16,7 @@ namespace Pommel.Api.Hubs
     public interface IInGameReceiver
     {
         void OnRefresh(Game game);
+
+        void OnStart(Game game);
     }
 }

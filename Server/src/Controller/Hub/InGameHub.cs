@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -6,12 +5,8 @@ using MagicOnion;
 using MagicOnion.Server;
 using MagicOnion.Server.Hubs;
 using Pommel.Api.Hubs;
-using Pommel.Server.Component.Reactive;
 using Pommel.Server.Controller.Filter;
 using Pommel.Server.UseCase.InGame;
-using Pommel.Server.UseCase.InGame.Message;
-using _Game = Pommel.Api.Protocol.InGame.Game;
-using _Piece = Pommel.Api.Protocol.InGame.Piece;
 
 namespace Pommel.Server.Controller.Hub
 {
@@ -19,13 +14,9 @@ namespace Pommel.Server.Controller.Hub
     {
         private readonly ILayPieceUseCase m_layPieceUseCase;
 
-        private readonly ICreateMatchingUseCase m_createMatchingUseCase;
+        private readonly IEnterRoomUseCase m_enterRoomUseCase;
 
-        private readonly IEntryMatchingUseCase m_entryMatchingUseCase;
-
-        private readonly ICreateGameUseCase m_createGameUseCase;
-
-        private readonly IMessageReciever<IResultMessage> m_resultMessageReciver;
+        private readonly IStartGameUseCase m_startGameUseCase;
 
         private IGroup m_room;
 
@@ -35,61 +26,24 @@ namespace Pommel.Server.Controller.Hub
 
         public InGameHub(
             ILayPieceUseCase layPieceUseCase,
-            ICreateMatchingUseCase createMatchingUseCase,
-            IEntryMatchingUseCase entryMatchingUseCase,
-            ICreateGameUseCase createGameUseCase,
-            IMessageBroker<IResultMessage> resultMessageBroker,
-            IGameResultService gameResultService
+            IEnterRoomUseCase enterRoomUseCase,
+            IStartGameUseCase startGameUseCase
             )
         {
             m_layPieceUseCase = layPieceUseCase;
-            m_createMatchingUseCase = createMatchingUseCase;
-            m_resultMessageReciver = resultMessageBroker;
-            m_entryMatchingUseCase = entryMatchingUseCase;
-            m_createGameUseCase = createGameUseCase;
-
-            // dispose
-            m_resultMessageReciver.OnRecieve()
-                .Subscribe(message => gameResultService.FindById(message.ResultId)
-                    .Match(
-                        Right: resultDto => Broadcast(m_room).OnResult(
-                            resultDto.Count.dark,
-                            resultDto.Count.light,
-                            (int)resultDto.Winner
-                            ),
-                        // todo エラーの内容を見て正しくハンドリング
-                        Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
-                    ));
+            m_enterRoomUseCase = enterRoomUseCase;
+            m_startGameUseCase = startGameUseCase;
         }
 
         [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
-        async Task IInGameHub.CreateMatchingAsync(string playerId, string playerName) =>
-            await m_createMatchingUseCase.Execute(playerId, playerName)
-                    .Match(
-                        Right: async matching =>
-                        {
-                            m_playerId = playerId;
-                            m_playerName = playerName;
-                            m_room = await Group.AddAsync(matching.Id);
-
-                            Broadcast(m_room).OnJoin(matching.Id, m_playerId, m_playerName, string.Empty, string.Empty);
-                        },
-                        // todo エラーの内容を見て正しくハンドリング
-                        Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
-                    )
-                    .Unwrap();
-
-        [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
-        async Task IInGameHub.EntryMatchingAsync(string matchingId, string playerId, string playerName) =>
-            await m_entryMatchingUseCase.Execute(matchingId, playerId, playerName)
+        async Task IInGameHub.EntryRoomAsync(string roomId, string playerId, string playerName) =>
+            await m_enterRoomUseCase.Execute(roomId, playerId, playerName)
                 .Match(
                     Right: async matching =>
                     {
-                            m_playerId = playerId;
-                            m_playerName = playerName;
-                            m_room = await Group.AddAsync(matching.Id);
-
-                            Broadcast(m_room).OnJoin(matching.Id, matching.FirstPlayer.Id, matching.FirstPlayer.Name, matching.SecondPlayer.Id, matching.SecondPlayer.Name);
+                        m_playerId = playerId;
+                        m_playerName = playerName;
+                        m_room = await Group.AddAsync(matching.Id);
                     },
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
@@ -97,53 +51,87 @@ namespace Pommel.Server.Controller.Hub
                 .Unwrap();
 
         [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
-        async Task IInGameHub.CreateGameAsync(string matchingId) =>
-            await m_createGameUseCase.Execute(matchingId)
+        async Task IInGameHub.LayAsync(int x, int y) =>
+            await m_layPieceUseCase.Execute(m_room.GroupName, x, y)
                 .Match(
-                    Right: game => Broadcast(m_room).OnStartGame(
-                        game.NextTurnPlayerId,
-                        game.MatchingId,
-                        new _Game
-                        {
-                            Id = game.Id,
-                            Pieces = game.Pieces
-                                .Select(piece => new _Piece
+                    Right: game => Broadcast(m_room)
+                        .OnRefresh(
+                            new Api.Protocol.InGame.Game()
+                            {
+                                Id = game.Id,
+                                Pieces = game.Pieces
+                                .Select(piece => new Api.Protocol.InGame.Piece()
                                 {
-                                    X = piece.Point.X,
-                                    Y = piece.Point.Y,
-                                    Color = (int)piece.Color
                                 })
-                                .ToArray()
-                        }),
+                                .ToArray(),
+                                Room = new Api.Protocol.InGame.Room()
+                                // todo domain service 作るべき
+                                //{
+                                //    Id = game.MatchingId,
+                                //    FirstPlayer = game.
+                                //}
+                                ,
+                                State = 2 // todo 
+                            }
+                        ),
+                    //.OnLay(
+                    //    game.NextTurnPlayerId,
+                    //    new _Game
+                    //    {
+                    //        Id = game.Id,
+                    //        Pieces = game.Pieces
+                    //            .Select(piece => new _Piece
+                    //            {
+                    //                X = piece.Point.X,
+                    //                Y = piece.Point.Y,
+                    //                Color = (int)piece.Color
+                    //            })
+                    //            .ToArray()
+                    //    }),
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
 
         [FromTypeFilter(typeof(ExceptionHandlingFilterAttribute))]
-        async Task IInGameHub.LayAsync(string gameId, int x, int y) =>
-            await m_layPieceUseCase.Execute(gameId, x, y)
+        async Task IInGameHub.StartGameAsync(string gameId) =>
+            await m_startGameUseCase.Execute(gameId)
                 .Match(
-                    Right: game => Broadcast(m_room).OnLay(
-                        game.NextTurnPlayerId,
-                        new _Game
-                        {
-                            Id = game.Id,
-                            Pieces = game.Pieces
-                                .Select(piece => new _Piece
+                    Right: game => Broadcast(m_room)
+                        .OnStart(
+                            new Api.Protocol.InGame.Game()
+                            {
+                                Id = game.Id,
+                                Pieces = game.Pieces
+                                .Select(piece => new Api.Protocol.InGame.Piece()
                                 {
-                                    X = piece.Point.X,
-                                    Y = piece.Point.Y,
-                                    Color = (int)piece.Color
                                 })
-                                .ToArray()
-                        }),
+                                .ToArray(),
+                                Room = new Api.Protocol.InGame.Room()
+                                // todo domain service 作るべき
+                                //{
+                                //    Id = game.MatchingId,
+                                //    FirstPlayer = game.
+                                //}
+                                ,
+                                State = 2 // todo 
+                            }
+                        ),
+                    //.OnLay(
+                    //    game.NextTurnPlayerId,
+                    //    new _Game
+                    //    {
+                    //        Id = game.Id,
+                    //        Pieces = game.Pieces
+                    //            .Select(piece => new _Piece
+                    //            {
+                    //                X = piece.Point.X,
+                    //                Y = piece.Point.Y,
+                    //                Color = (int)piece.Color
+                    //            })
+                    //            .ToArray()
+                    //    }),
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
-
-        Task IInGameHub.LayAsync(int x, int y)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
