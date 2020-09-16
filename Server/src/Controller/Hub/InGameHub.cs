@@ -6,6 +6,7 @@ using MagicOnion.Server;
 using MagicOnion.Server.Hubs;
 using Pommel.Api.Hubs;
 using Pommel.Server.Controller.Filter;
+using Pommel.Server.Domain.InGame;
 using Pommel.Server.UseCase.InGame;
 
 namespace Pommel.Server.Controller.Hub
@@ -62,32 +63,32 @@ namespace Pommel.Server.Controller.Hub
                                 Pieces = game.Pieces
                                 .Select(piece => new Api.Protocol.InGame.Piece()
                                 {
+                                    X = piece.Point.X,
+                                    Y = piece.Point.Y,
+                                    Color = piece.Color.ToInt()
                                 })
                                 .ToArray(),
                                 Room = new Api.Protocol.InGame.Room()
-                                // todo domain service 作るべき
-                                //{
-                                //    Id = game.MatchingId,
-                                //    FirstPlayer = game.
-                                //}
-                                ,
-                                State = 2 // todo 
+                                {
+                                    Id = game.Room.Id,
+                                    FirstPlayer = new Api.Protocol.InGame.Player()
+                                    {
+                                        Id = game.Room.FirstPlayer.Id,
+                                        Name = game.Room.FirstPlayer.Name,
+                                        IsTurnPlayer = game.NextTurnPlayerId == game.Room.FirstPlayer.Id,
+                                        IsLight = true
+                                    },
+                                    SecondPlayer = new Api.Protocol.InGame.Player()
+                                    {
+                                        Id = game.Room.SecondPlayer.Id,
+                                        Name = game.Room.SecondPlayer.Name,
+                                        IsTurnPlayer = game.NextTurnPlayerId == game.Room.SecondPlayer.Id,
+                                        IsLight = false
+                                    }
+                                },
+                                State = game.State.ToInt()
                             }
                         ),
-                    //.OnLay(
-                    //    game.NextTurnPlayerId,
-                    //    new _Game
-                    //    {
-                    //        Id = game.Id,
-                    //        Pieces = game.Pieces
-                    //            .Select(piece => new _Piece
-                    //            {
-                    //                X = piece.Point.X,
-                    //                Y = piece.Point.Y,
-                    //                Color = (int)piece.Color
-                    //            })
-                    //            .ToArray()
-                    //    }),
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
@@ -104,32 +105,32 @@ namespace Pommel.Server.Controller.Hub
                                 Pieces = game.Pieces
                                 .Select(piece => new Api.Protocol.InGame.Piece()
                                 {
+                                    X = piece.Point.X,
+                                    Y = piece.Point.Y,
+                                    Color = piece.Color.ToInt()
                                 })
                                 .ToArray(),
                                 Room = new Api.Protocol.InGame.Room()
-                                // todo domain service 作るべき
-                                //{
-                                //    Id = game.MatchingId,
-                                //    FirstPlayer = game.
-                                //}
-                                ,
-                                State = 2 // todo 
+                                {
+                                    Id = game.Room.Id,
+                                    FirstPlayer = new Api.Protocol.InGame.Player()
+                                    {
+                                        Id = game.Room.FirstPlayer.Id,
+                                        Name = game.Room.FirstPlayer.Name,
+                                        IsTurnPlayer = game.NextTurnPlayerId == game.Room.FirstPlayer.Id,
+                                        IsLight = true
+                                    },
+                                    SecondPlayer = new Api.Protocol.InGame.Player()
+                                    {
+                                        Id = game.Room.SecondPlayer.Id,
+                                        Name = game.Room.SecondPlayer.Name,
+                                        IsTurnPlayer = game.NextTurnPlayerId == game.Room.SecondPlayer.Id,
+                                        IsLight = false
+                                    }
+                                },
+                                State = game.State.ToInt()
                             }
                         ),
-                    //.OnLay(
-                    //    game.NextTurnPlayerId,
-                    //    new _Game
-                    //    {
-                    //        Id = game.Id,
-                    //        Pieces = game.Pieces
-                    //            .Select(piece => new _Piece
-                    //            {
-                    //                X = piece.Point.X,
-                    //                Y = piece.Point.Y,
-                    //                Color = (int)piece.Color
-                    //            })
-                    //            .ToArray()
-                    //    }),
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );

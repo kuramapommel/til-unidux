@@ -50,7 +50,7 @@ namespace Pommel.Reversi.Reducks.Title
                     await client.ConnectAsync().AsUniTask();
 
                     var roomId = await client.CreateRoomAsync().AsUniTask();
-                    await client.EntryRoomAsync(roomId, playerId, playerName).AsUniTask();
+                    await client.EnterRoomAsync(roomId, playerId, playerName).AsUniTask();
 
                     dispatcher.Dispatch(CreateRoomAction(
                         new Room(
@@ -76,11 +76,14 @@ namespace Pommel.Reversi.Reducks.Title
                 EnterRoom = (playerId, playerName, roomId) => async dispatcher =>
                 {
                     await client.ConnectAsync().AsUniTask();
-
+                    UnityEngine.Debug.Log($"connected");
                     var room = await client.FindRoomById(roomId).AsUniTask();
-                    await client.EntryRoomAsync(roomId, playerId, playerName).AsUniTask();
+                    UnityEngine.Debug.Log($"room = {room}");
+                    await client.EnterRoomAsync(roomId, playerId, playerName).AsUniTask();
+                    UnityEngine.Debug.Log($"completed entry");
 
                     var player = new Room.Player(playerId, playerName, Stone.Color.Light, false);
+                    UnityEngine.Debug.Log($"player = {player}");
                     dispatcher.Dispatch(CreateRoomAction(
                         new Room(
                             room.RoomId,
@@ -88,9 +91,12 @@ namespace Pommel.Reversi.Reducks.Title
                             player
                         )));
                     dispatcher.Dispatch(EntryRoomAction(player));
+                    UnityEngine.Debug.Log($"completed dispatch");
 
                     var gameId = await client.CreateGameAsync(roomId).AsUniTask();
+                    UnityEngine.Debug.Log($"game id = {gameId}");
                     await client.StartGameAsync(gameId).AsUniTask();
+                    UnityEngine.Debug.Log($"completed start game");
                 };
             }
         }

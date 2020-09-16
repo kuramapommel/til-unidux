@@ -100,7 +100,7 @@ namespace Pommel.Server
 
         private sealed class GameFactory : IGameFactory
         {
-            public IGame Create(string id, string resultId, string matchingId) => new Game(id, resultId, matchingId);
+            public IGame Create(string id, string resultId, IRoom room) => new Game(id, resultId, room);
         }
 
         private sealed class GameResultFactory : IGameResultFactory

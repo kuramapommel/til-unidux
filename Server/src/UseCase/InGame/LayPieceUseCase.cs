@@ -18,17 +18,13 @@ namespace Pommel.Server.UseCase.InGame
 
         private readonly IResultCalculator m_resultCalculator;
 
-        private readonly IRoomRepository m_roomRepository;
-
         public LayPieceUseCase(
             IGameRepository gameRepository,
-            IResultCalculator resultCalculator,
-            IRoomRepository roomRepository
+            IResultCalculator resultCalculator
             )
         {
             m_gameRepository = gameRepository;
             m_resultCalculator = resultCalculator;
-            m_roomRepository = roomRepository;
         }
 
         public EitherAsync<IError, IGame> Execute(string gameId, int x, int y) =>
@@ -37,8 +33,7 @@ namespace Pommel.Server.UseCase.InGame
                 from _ in game.IsValid(game.Turn, point, game.Pieces)
                     ? RightAsync<IError, bool>(true)
                     : LeftAsync<IError, bool>(new DomainError(new ArgumentOutOfRangeException(), "その場所には置くことができません")) // todo invalid 時の妥当なエラー処理
-                from matching in m_roomRepository.FindById(game.MatchingId).ToAsync()
-                from laid in Try(() => game.LayPiece(point, matching))
+                from laid in Try(() => game.LayPiece(point))
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)
                 from saved in m_gameRepository.Save(laid).ToAsync()

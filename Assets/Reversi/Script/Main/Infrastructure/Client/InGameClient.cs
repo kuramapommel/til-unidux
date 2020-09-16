@@ -64,7 +64,7 @@ namespace Pommel.Reversi.Infrastructure.Client
 
         async Task IClient.PutStoneAsync(int x, int y) => await m_inGameHub.LayAsync(x, y);
 
-        async Task IClient.EntryRoomAsync(string roomId, string playerId, string playerName) =>
+        async Task IClient.EnterRoomAsync(string roomId, string playerId, string playerName) =>
             await m_inGameHub.EntryRoomAsync(roomId, playerId, playerName);
 
         async Task IClient.StartGameAsync(string gameId) => await m_inGameHub.StartGameAsync(gameId);

@@ -49,11 +49,13 @@ namespace Pommel.Generated.Resolvers
 
         static MessagePackGeneratedResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(3)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(5)
             {
                 { typeof(global::Pommel.Api.Protocol.InGame.Piece[]), 0 },
                 { typeof(global::Pommel.Api.Protocol.InGame.Game), 1 },
                 { typeof(global::Pommel.Api.Protocol.InGame.Piece), 2 },
+                { typeof(global::Pommel.Api.Protocol.InGame.Player), 3 },
+                { typeof(global::Pommel.Api.Protocol.InGame.Room), 4 },
             };
         }
 
@@ -70,6 +72,8 @@ namespace Pommel.Generated.Resolvers
                 case 0: return new global::MessagePack.Formatters.ArrayFormatter<global::Pommel.Api.Protocol.InGame.Piece>();
                 case 1: return new Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame.GameFormatter();
                 case 2: return new Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame.PieceFormatter();
+                case 3: return new Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame.PlayerFormatter();
+                case 4: return new Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame.RoomFormatter();
                 default: return null;
             }
         }
@@ -123,9 +127,11 @@ namespace Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame
             }
 
             IFormatterResolver formatterResolver = options.Resolver;
-            writer.WriteArrayHeader(2);
+            writer.WriteArrayHeader(4);
             formatterResolver.GetFormatterWithVerify<string>().Serialize(ref writer, value.Id, options);
             formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Piece[]>().Serialize(ref writer, value.Pieces, options);
+            formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Room>().Serialize(ref writer, value.Room, options);
+            writer.Write(value.State);
         }
 
         public global::Pommel.Api.Protocol.InGame.Game Deserialize(ref MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
@@ -140,6 +146,8 @@ namespace Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame
             var length = reader.ReadArrayHeader();
             var __Id__ = default(string);
             var __Pieces__ = default(global::Pommel.Api.Protocol.InGame.Piece[]);
+            var __Room__ = default(global::Pommel.Api.Protocol.InGame.Room);
+            var __State__ = default(int);
 
             for (int i = 0; i < length; i++)
             {
@@ -153,6 +161,12 @@ namespace Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame
                     case 1:
                         __Pieces__ = formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Piece[]>().Deserialize(ref reader, options);
                         break;
+                    case 2:
+                        __Room__ = formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Room>().Deserialize(ref reader, options);
+                        break;
+                    case 3:
+                        __State__ = reader.ReadInt32();
+                        break;
                     default:
                         reader.Skip();
                         break;
@@ -162,6 +176,8 @@ namespace Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame
             var ____result = new global::Pommel.Api.Protocol.InGame.Game();
             ____result.Id = __Id__;
             ____result.Pieces = __Pieces__;
+            ____result.Room = __Room__;
+            ____result.State = __State__;
             reader.Depth--;
             return ____result;
         }
@@ -225,6 +241,138 @@ namespace Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame
             ____result.X = __X__;
             ____result.Y = __Y__;
             ____result.Color = __Color__;
+            reader.Depth--;
+            return ____result;
+        }
+    }
+
+    public sealed class PlayerFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::Pommel.Api.Protocol.InGame.Player>
+    {
+
+
+        public void Serialize(ref MessagePackWriter writer, global::Pommel.Api.Protocol.InGame.Player value, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            if (value == null)
+            {
+                writer.WriteNil();
+                return;
+            }
+
+            IFormatterResolver formatterResolver = options.Resolver;
+            writer.WriteArrayHeader(4);
+            formatterResolver.GetFormatterWithVerify<string>().Serialize(ref writer, value.Id, options);
+            formatterResolver.GetFormatterWithVerify<string>().Serialize(ref writer, value.Name, options);
+            writer.Write(value.IsTurnPlayer);
+            writer.Write(value.IsLight);
+        }
+
+        public global::Pommel.Api.Protocol.InGame.Player Deserialize(ref MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            if (reader.TryReadNil())
+            {
+                return null;
+            }
+
+            options.Security.DepthStep(ref reader);
+            IFormatterResolver formatterResolver = options.Resolver;
+            var length = reader.ReadArrayHeader();
+            var __Id__ = default(string);
+            var __Name__ = default(string);
+            var __IsTurnPlayer__ = default(bool);
+            var __IsLight__ = default(bool);
+
+            for (int i = 0; i < length; i++)
+            {
+                var key = i;
+
+                switch (key)
+                {
+                    case 0:
+                        __Id__ = formatterResolver.GetFormatterWithVerify<string>().Deserialize(ref reader, options);
+                        break;
+                    case 1:
+                        __Name__ = formatterResolver.GetFormatterWithVerify<string>().Deserialize(ref reader, options);
+                        break;
+                    case 2:
+                        __IsTurnPlayer__ = reader.ReadBoolean();
+                        break;
+                    case 3:
+                        __IsLight__ = reader.ReadBoolean();
+                        break;
+                    default:
+                        reader.Skip();
+                        break;
+                }
+            }
+
+            var ____result = new global::Pommel.Api.Protocol.InGame.Player();
+            ____result.Id = __Id__;
+            ____result.Name = __Name__;
+            ____result.IsTurnPlayer = __IsTurnPlayer__;
+            ____result.IsLight = __IsLight__;
+            reader.Depth--;
+            return ____result;
+        }
+    }
+
+    public sealed class RoomFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::Pommel.Api.Protocol.InGame.Room>
+    {
+
+
+        public void Serialize(ref MessagePackWriter writer, global::Pommel.Api.Protocol.InGame.Room value, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            if (value == null)
+            {
+                writer.WriteNil();
+                return;
+            }
+
+            IFormatterResolver formatterResolver = options.Resolver;
+            writer.WriteArrayHeader(3);
+            formatterResolver.GetFormatterWithVerify<string>().Serialize(ref writer, value.Id, options);
+            formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Player>().Serialize(ref writer, value.FirstPlayer, options);
+            formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Player>().Serialize(ref writer, value.SecondPlayer, options);
+        }
+
+        public global::Pommel.Api.Protocol.InGame.Room Deserialize(ref MessagePackReader reader, global::MessagePack.MessagePackSerializerOptions options)
+        {
+            if (reader.TryReadNil())
+            {
+                return null;
+            }
+
+            options.Security.DepthStep(ref reader);
+            IFormatterResolver formatterResolver = options.Resolver;
+            var length = reader.ReadArrayHeader();
+            var __Id__ = default(string);
+            var __FirstPlayer__ = default(global::Pommel.Api.Protocol.InGame.Player);
+            var __SecondPlayer__ = default(global::Pommel.Api.Protocol.InGame.Player);
+
+            for (int i = 0; i < length; i++)
+            {
+                var key = i;
+
+                switch (key)
+                {
+                    case 0:
+                        __Id__ = formatterResolver.GetFormatterWithVerify<string>().Deserialize(ref reader, options);
+                        break;
+                    case 1:
+                        __FirstPlayer__ = formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Player>().Deserialize(ref reader, options);
+                        break;
+                    case 2:
+                        __SecondPlayer__ = formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Player>().Deserialize(ref reader, options);
+                        break;
+                    default:
+                        reader.Skip();
+                        break;
+                }
+            }
+
+            var ____result = new global::Pommel.Api.Protocol.InGame.Room();
+            ____result.Id = __Id__;
+            ____result.FirstPlayer = __FirstPlayer__;
+            ____result.SecondPlayer = __SecondPlayer__;
             reader.Depth--;
             return ____result;
         }

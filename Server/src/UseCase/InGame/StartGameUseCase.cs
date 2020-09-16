@@ -28,7 +28,7 @@ namespace Pommel.Server.UseCase.InGame
 
         public EitherAsync<IError, IGame> Execute(string gameId) =>
                 from game in m_gameRepository.FindById(gameId).ToAsync()
-                from room in m_roomRepository.FindById(game.MatchingId).ToAsync()
+                from room in m_roomRepository.FindById(game.Room.Id).ToAsync()
                 from matchMakedRoom in Try(() => room.Make())
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)

@@ -10,7 +10,7 @@ namespace Pommel.Reversi.Domain.InGame
 
         Task PutStoneAsync(int x, int y);
 
-        Task EntryRoomAsync(string roomId, string playerId, string playerName);
+        Task EnterRoomAsync(string roomId, string playerId, string playerName);
 
         Task StartGameAsync(string gameId);
 
