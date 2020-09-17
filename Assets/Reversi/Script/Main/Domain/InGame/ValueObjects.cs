@@ -32,19 +32,15 @@ namespace Pommel.Reversi.Domain.InGame
         [Serializable]
         public readonly struct Room
         {
-            public string RoomId { get; }
-
             public Player FirstPlayer { get; }
 
             public Player SecondPlayer { get; }
 
             public Room(
-                string roomId,
                 Player firstPlayer,
                 Player secondPlayer
                 )
             {
-                RoomId = roomId;
                 FirstPlayer = firstPlayer;
                 SecondPlayer = secondPlayer;
             }

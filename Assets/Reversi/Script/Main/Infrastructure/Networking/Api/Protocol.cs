@@ -37,12 +37,9 @@ namespace Pommel.Api.Protocol
         public sealed class Room
         {
             [Key(0)]
-            public string Id { get; set; }
-
-            [Key(1)]
             public Player FirstPlayer { get; set; }
 
-            [Key(2)]
+            [Key(1)]
             public Player SecondPlayer { get; set; }
         }
 

@@ -48,14 +48,11 @@ namespace Pommel.Server
 
                     services.AddSingleton(GameStore.Instance);
                     services.AddSingleton(GameResultStore.Instance);
-                    services.AddSingleton(RoomStore.Instance);
 
                     services.AddSingleton<IPlayerFactory, PlayerFactory>();
-                    services.AddSingleton<IRoomFactory, RoomFactory>();
                     services.AddSingleton<IGameFactory, GameFactory>();
                     services.AddSingleton<IGameResultFactory, GameResultFactory>();
 
-                    services.AddSingleton<IRoomRepository, RoomRepository>();
                     services.AddSingleton<IGameRepository, GameRepository>();
                     services.AddSingleton<IResultRepository, GameResultRepository>();
 
@@ -63,10 +60,9 @@ namespace Pommel.Server
                     services.AddSingleton<IGameResultService, GameResultService>();
 
                     services.AddSingleton<ILayPieceUseCase, LayPieceUseCase>();
-                    services.AddSingleton<ICreateRoomUseCase, CreateRoomUseCase>();
                     services.AddSingleton<ICreateGameUseCase, CreateGameUseCase>();
                     services.AddSingleton<IEnterRoomUseCase, EnterRoomUseCase>();
-                    services.AddSingleton<IFindRoomUseCase, FindRoomUseCase>();
+                    services.AddSingleton<IFindGameUseCase, FindRoomUseCase>();
                     services.AddSingleton<IStartGameUseCase, StartGameUseCase>();
                 })
                 .UseConsoleLifetime()
@@ -93,14 +89,9 @@ namespace Pommel.Server
             public IPlayer Create(string id, string name) => new Player.Impl(id, name);
         }
 
-        private sealed class RoomFactory : IRoomFactory
-        {
-            public IRoom Create(string id) => new Room(id);
-        }
-
         private sealed class GameFactory : IGameFactory
         {
-            public IGame Create(string id, string resultId, IRoom room) => new Game(id, resultId, room);
+            public IGame Create(string id, string resultId) => new Game(id, resultId, new Room());
         }
 
         private sealed class GameResultFactory : IGameResultFactory

@@ -7,33 +7,33 @@ namespace Pommel.Server.UseCase.InGame
 {
     public interface IEnterRoomUseCase
     {
-        EitherAsync<IError, IRoom> Execute(string roomId, string playerId, string playerName);
+        EitherAsync<IError, IGame> Execute(string gameId, string playerId, string playerName);
     }
 
     public sealed class EnterRoomUseCase : IEnterRoomUseCase
     {
-        private readonly IRoomRepository m_roomRepository;
+        private readonly IGameRepository m_gameRepository;
 
         private readonly IPlayerFactory m_playerFactory;
 
         public EnterRoomUseCase(
-            IRoomRepository roomRepository,
+            IGameRepository gameRepository,
             IPlayerFactory playerFactory
             )
         {
-            m_roomRepository = roomRepository;
+            m_gameRepository = gameRepository;
             m_playerFactory = playerFactory;
         }
 
-        public EitherAsync<IError, IRoom> Execute(string roomId, string playerId, string playerName) =>
-                from room in m_roomRepository.FindById(roomId).ToAsync()
+        public EitherAsync<IError, IGame> Execute(string gameId, string playerId, string playerName) =>
+                from game in m_gameRepository.FindById(gameId).ToAsync()
                 from player in Try(() => m_playerFactory.Create(playerId, playerName))
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)
-                from entered in Try(() => room.Enter(player))
+                from entered in Try(() => game.Enter(player))
                     .ToEitherAsync()
                     .MapLeft(e => new DomainError(e) as IError)
-                from savedRoom in m_roomRepository.Save(entered).ToAsync()
-                select savedRoom;
+                from savedGame in m_gameRepository.Save(entered).ToAsync()
+                select savedGame;
     }
 }

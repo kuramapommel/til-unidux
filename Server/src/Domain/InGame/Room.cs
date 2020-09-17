@@ -3,44 +3,23 @@ using System.Linq;
 
 namespace Pommel.Server.Domain.InGame
 {
-    public interface IRoom
+    public sealed class Room
     {
-        string Id { get; }
+        public IPlayer FirstPlayer { get; } = Player.None;
 
-        IPlayer FirstPlayer { get; }
+        public IPlayer SecondPlayer { get; } = Player.None;
 
-        IPlayer SecondPlayer { get; }
-
-        IRoom Enter(IPlayer player);
-
-        IRoom Make();
-    }
-
-    public interface IRoomFactory
-    {
-        IRoom Create(string id);
-    }
-
-    public sealed class Room : IRoom
-    {
-        public string Id { get; }
-
-        public IPlayer FirstPlayer { get; }
-
-        public IPlayer SecondPlayer { get; }
-
-        public Room(string id)
+        public Room()
         {
-            Id = id;
             FirstPlayer = Player.None;
             SecondPlayer = Player.None;
         }
 
-        public IRoom Enter(IPlayer player) => FirstPlayer == Player.None
-            ? new Room(Id, player, SecondPlayer)
-            : new Room(Id, FirstPlayer, player);
+        public Room Enter(IPlayer player) => FirstPlayer == Player.None
+            ? new Room(player, SecondPlayer)
+            : new Room(FirstPlayer, player);
 
-        public IRoom Make()
+        public Room Make()
         {
             // 先攻後攻をシャッフル
             var (first, second) = new[]
@@ -51,19 +30,16 @@ namespace Pommel.Server.Domain.InGame
             .OrderBy(_ => Guid.NewGuid())
             .Aggregate(
                 (firstPlayer: Player.None, secondPlayer: Player.None),
-                (aggregate, player) =>
-                {
-                    if (aggregate.firstPlayer == Player.None) return (player, aggregate.secondPlayer);
-                    return (aggregate.firstPlayer, player);
-                }
+                (aggregate, player) => aggregate.firstPlayer == Player.None
+                    ? (player, aggregate.secondPlayer)
+                    : (aggregate.firstPlayer, player)
             );
 
-            return new Room(Id, first, second);
+            return new Room(first, second);
         }
 
-        private Room(string id, IPlayer first, IPlayer second)
+        private Room(IPlayer first, IPlayer second)
         {
-            Id = id;
             FirstPlayer = first;
             SecondPlayer = second;
         }

@@ -69,29 +69,13 @@ namespace Pommel.Reversi.Infrastructure.Client
 
         async Task IClient.StartGameAsync(string gameId) => await m_inGameHub.StartGameAsync(gameId);
 
-        async Task<string> IClient.CreateGameAsync(string roomId) => await m_inGameService.CreateGameAsync(roomId);
+        async Task<string> IClient.CreateGameAsync() => await m_inGameService.CreateGameAsync();
 
-        async Task<string> IClient.CreateRoomAsync() => await m_inGameService.CreateRoomAsync();
-
-        async Task<ValueObjects.Room> IClient.FindRoomById(string roomId) =>
-            await m_inGameService.FindRoomById(roomId)
+        async Task<ValueObjects.Game> IClient.FindGameById(string gameId) =>
+            await m_inGameService.FindGameById(gameId)
                 .ResponseAsync
                 .AsUniTask()
-                .ContinueWith(room => new ValueObjects.Room(
-                    room.Id,
-                    new ValueObjects.Room.Player(
-                        room.FirstPlayer.Id,
-                        room.FirstPlayer.Name,
-                        room.FirstPlayer.IsLight ? ValueObjects.Stone.Color.Light : ValueObjects.Stone.Color.Dark,
-                        room.FirstPlayer.IsTurnPlayer
-                        ),
-                    new ValueObjects.Room.Player(
-                        room.SecondPlayer.Id,
-                        room.SecondPlayer.Name,
-                        room.SecondPlayer.IsLight ? ValueObjects.Stone.Color.Light : ValueObjects.Stone.Color.Dark,
-                        room.SecondPlayer.IsTurnPlayer
-                        )
-                    ));
+                .ContinueWith(game => game.Convert());
 
         void IDisposable.Dispose()
         {
@@ -134,7 +118,6 @@ namespace Pommel.Reversi.Infrastructure.Client
             return new ValueObjects.Game(
                 game.Id,
                 new ValueObjects.Room(
-                    game.Room.Id,
                     new ValueObjects.Room.Player(
                         game.Room.FirstPlayer.Id,
                         game.Room.FirstPlayer.Name,

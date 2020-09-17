@@ -40,11 +40,11 @@ namespace Pommel.Server.Controller.Hub
         async Task IInGameHub.EntryRoomAsync(string roomId, string playerId, string playerName) =>
             await m_enterRoomUseCase.Execute(roomId, playerId, playerName)
                 .Match(
-                    Right: async matching =>
+                    Right: async game =>
                     {
                         m_playerId = playerId;
                         m_playerName = playerName;
-                        m_room = await Group.AddAsync(matching.Id);
+                        m_room = await Group.AddAsync(game.Id);
                     },
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
@@ -70,7 +70,6 @@ namespace Pommel.Server.Controller.Hub
                                 .ToArray(),
                                 Room = new Api.Protocol.InGame.Room()
                                 {
-                                    Id = game.Room.Id,
                                     FirstPlayer = new Api.Protocol.InGame.Player()
                                     {
                                         Id = game.Room.FirstPlayer.Id,
@@ -112,7 +111,6 @@ namespace Pommel.Server.Controller.Hub
                                 .ToArray(),
                                 Room = new Api.Protocol.InGame.Room()
                                 {
-                                    Id = game.Room.Id,
                                     FirstPlayer = new Api.Protocol.InGame.Player()
                                     {
                                         Id = game.Room.FirstPlayer.Id,

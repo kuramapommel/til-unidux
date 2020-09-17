@@ -19,7 +19,6 @@ namespace Pommel.Reversi.Reducks.InGame
                 case EntryRoomAction when action is ActionCommand<Actions.ActionType, ValueObjects.Room.Player> command:
                     {
                         state.InGame.Room = new ValueObjects.Room(
-                            state.InGame.Room.RoomId,
                             state.InGame.Room.FirstPlayer,
                             command.Payload
                             );

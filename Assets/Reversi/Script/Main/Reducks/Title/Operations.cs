@@ -49,12 +49,11 @@ namespace Pommel.Reversi.Reducks.Title
                 {
                     await client.ConnectAsync().AsUniTask();
 
-                    var roomId = await client.CreateRoomAsync().AsUniTask();
-                    await client.EnterRoomAsync(roomId, playerId, playerName).AsUniTask();
+                    var gameId = await client.CreateGameAsync().AsUniTask();
+                    await client.EnterRoomAsync(gameId, playerId, playerName).AsUniTask();
 
                     dispatcher.Dispatch(CreateRoomAction(
                         new Room(
-                        roomId,
                         new Room.Player(
                             playerId,
                             playerName,
@@ -76,27 +75,17 @@ namespace Pommel.Reversi.Reducks.Title
                 EnterRoom = (playerId, playerName, roomId) => async dispatcher =>
                 {
                     await client.ConnectAsync().AsUniTask();
-                    UnityEngine.Debug.Log($"connected");
-                    var room = await client.FindRoomById(roomId).AsUniTask();
-                    UnityEngine.Debug.Log($"room = {room}");
                     await client.EnterRoomAsync(roomId, playerId, playerName).AsUniTask();
-                    UnityEngine.Debug.Log($"completed entry");
+                    var game = await client.FindGameById(roomId).AsUniTask();
 
-                    var player = new Room.Player(playerId, playerName, Stone.Color.Light, false);
-                    UnityEngine.Debug.Log($"player = {player}");
                     dispatcher.Dispatch(CreateRoomAction(
                         new Room(
-                            room.RoomId,
-                            room.FirstPlayer,
-                            player
+                            game.Room.FirstPlayer,
+                            game.Room.SecondPlayer
                         )));
-                    dispatcher.Dispatch(EntryRoomAction(player));
-                    UnityEngine.Debug.Log($"completed dispatch");
+                    dispatcher.Dispatch(EntryRoomAction(game.Room.SecondPlayer));
 
-                    var gameId = await client.CreateGameAsync(roomId).AsUniTask();
-                    UnityEngine.Debug.Log($"game id = {gameId}");
-                    await client.StartGameAsync(gameId).AsUniTask();
-                    UnityEngine.Debug.Log($"completed start game");
+                    await client.StartGameAsync(game.Id).AsUniTask();
                 };
             }
         }

@@ -127,25 +127,21 @@ namespace Pommel.Api.Services {
     [Ignore]
     public class InGameServiceClient : MagicOnionClientBase<global::Pommel.Api.Services.IInGameService>, global::Pommel.Api.Services.IInGameService
     {
-        static readonly Method<byte[], byte[]> CreateRoomAsyncMethod;
-        static readonly Func<RequestContext, ResponseContext> CreateRoomAsyncDelegate;
         static readonly Method<byte[], byte[]> CreateGameAsyncMethod;
         static readonly Func<RequestContext, ResponseContext> CreateGameAsyncDelegate;
         static readonly Method<byte[], byte[]> EntryRoomAsyncMethod;
         static readonly Func<RequestContext, ResponseContext> EntryRoomAsyncDelegate;
-        static readonly Method<byte[], byte[]> FindRoomByIdMethod;
-        static readonly Func<RequestContext, ResponseContext> FindRoomByIdDelegate;
+        static readonly Method<byte[], byte[]> FindGameByIdMethod;
+        static readonly Func<RequestContext, ResponseContext> FindGameByIdDelegate;
 
         static InGameServiceClient()
         {
-            CreateRoomAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "CreateRoomAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
-            CreateRoomAsyncDelegate = _CreateRoomAsync;
             CreateGameAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "CreateGameAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
             CreateGameAsyncDelegate = _CreateGameAsync;
             EntryRoomAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "EntryRoomAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
             EntryRoomAsyncDelegate = _EntryRoomAsync;
-            FindRoomByIdMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "FindRoomById", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
-            FindRoomByIdDelegate = _FindRoomById;
+            FindGameByIdMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "FindGameById", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
+            FindGameByIdDelegate = _FindGameById;
         }
 
         InGameServiceClient()
@@ -193,23 +189,14 @@ namespace Pommel.Api.Services {
             return base.WithOptions(option);
         }
    
-        static ResponseContext _CreateRoomAsync(RequestContext __context)
-        {
-            return CreateResponseContext<string>(__context, CreateRoomAsyncMethod);
-        }
-
-        public global::MagicOnion.UnaryResult<string> CreateRoomAsync()
-        {
-            return InvokeAsync<Nil, string>("IInGameService/CreateRoomAsync", Nil.Default, CreateRoomAsyncDelegate);
-        }
         static ResponseContext _CreateGameAsync(RequestContext __context)
         {
-            return CreateResponseContext<string, string>(__context, CreateGameAsyncMethod);
+            return CreateResponseContext<string>(__context, CreateGameAsyncMethod);
         }
 
-        public global::MagicOnion.UnaryResult<string> CreateGameAsync(string roomId)
+        public global::MagicOnion.UnaryResult<string> CreateGameAsync()
         {
-            return InvokeAsync<string, string>("IInGameService/CreateGameAsync", roomId, CreateGameAsyncDelegate);
+            return InvokeAsync<Nil, string>("IInGameService/CreateGameAsync", Nil.Default, CreateGameAsyncDelegate);
         }
         static ResponseContext _EntryRoomAsync(RequestContext __context)
         {
@@ -220,14 +207,14 @@ namespace Pommel.Api.Services {
         {
             return InvokeAsync<DynamicArgumentTuple<string, string, string>, string>("IInGameService/EntryRoomAsync", new DynamicArgumentTuple<string, string, string>(roomId, playerId, playerName), EntryRoomAsyncDelegate);
         }
-        static ResponseContext _FindRoomById(RequestContext __context)
+        static ResponseContext _FindGameById(RequestContext __context)
         {
-            return CreateResponseContext<string, global::Pommel.Api.Protocol.InGame.Room>(__context, FindRoomByIdMethod);
+            return CreateResponseContext<string, global::Pommel.Api.Protocol.InGame.Game>(__context, FindGameByIdMethod);
         }
 
-        public global::MagicOnion.UnaryResult<global::Pommel.Api.Protocol.InGame.Room> FindRoomById(string roomId)
+        public global::MagicOnion.UnaryResult<global::Pommel.Api.Protocol.InGame.Game> FindGameById(string gameId)
         {
-            return InvokeAsync<string, global::Pommel.Api.Protocol.InGame.Room>("IInGameService/FindRoomById", roomId, FindRoomByIdDelegate);
+            return InvokeAsync<string, global::Pommel.Api.Protocol.InGame.Game>("IInGameService/FindGameById", gameId, FindGameByIdDelegate);
         }
     }
 }

@@ -1,46 +1,35 @@
+using System.Linq;
 using MagicOnion;
 using MagicOnion.Server;
-using Pommel.Api.Protocol.InGame;
 using Pommel.Api.Services;
+using Pommel.Server.Domain.InGame;
 using Pommel.Server.UseCase.InGame;
 
 namespace Pommel.Server.Controller.Service
 {
     public sealed class InGameService : ServiceBase<IInGameService>, IInGameService
     {
-        private readonly ICreateRoomUseCase m_createRoomUseCase;
-
         private readonly ICreateGameUseCase m_createGameUseCase;
 
         private readonly IEnterRoomUseCase m_enterRoomUseCase;
 
-        private readonly IFindRoomUseCase m_findRoomUseCase;
+        private readonly IFindGameUseCase m_findRoomUseCase;
 
         public InGameService(
-            ICreateRoomUseCase createRoomUseCase,
             ICreateGameUseCase createGameUseCase,
             IEnterRoomUseCase enterRoomUseCase,
-            IFindRoomUseCase findRoomUseCase
+            IFindGameUseCase findRoomUseCase
             )
         {
-            m_createRoomUseCase = createRoomUseCase;
             m_createGameUseCase = createGameUseCase;
             m_enterRoomUseCase = enterRoomUseCase;
             m_findRoomUseCase = findRoomUseCase;
         }
 
-        async UnaryResult<string> IInGameService.CreateGameAsync(string roomId) =>
-            await m_createGameUseCase.Execute(roomId)
+        async UnaryResult<string> IInGameService.CreateGameAsync() =>
+            await m_createGameUseCase.Execute()
                 .Match(
                     Right: game => game.Id,
-                    // todo エラーの内容を見て正しくハンドリング
-                    Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
-                );
-
-        async UnaryResult<string> IInGameService.CreateRoomAsync() =>
-            await m_createRoomUseCase.Execute()
-                .Match(
-                    Right: room => room.Id,
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
@@ -48,32 +37,44 @@ namespace Pommel.Server.Controller.Service
         async UnaryResult<string> IInGameService.EntryRoomAsync(string roomId, string playerId, string playerName) =>
             await m_enterRoomUseCase.Execute(roomId, playerId, playerName)
                 .Match(
-                    Right: room => room.Id,
+                    Right: game => game.Id,
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );
 
-        async UnaryResult<Room> IInGameService.FindRoomById(string roomId) =>
-            await m_findRoomUseCase.Execute(roomId)
+        async UnaryResult<Api.Protocol.InGame.Game> IInGameService.FindGameById(string gameId) =>
+            await m_findRoomUseCase.Execute(gameId)
                 .Match(
-                    Right: room => new Room()
-                    {
-                        Id = room.Id,
-                        FirstPlayer = new Player()
-                        {
-                            Id = room.FirstPlayer.Id,
-                            Name = room.FirstPlayer.Name,
-                            IsLight = true, // todo FirstPlayer にプロパティもたせる
-                            IsTurnPlayer = true // todo FirstPlayer にプロパティもたせる
-                        },
-                        SecondPlayer = new Player()
-                        {
-                            Id = room.SecondPlayer.Id,
-                            Name = room.SecondPlayer.Name,
-                            IsLight = false, // todo FirstPlayer にプロパティもたせる
-                            IsTurnPlayer = false // todo FirstPlayer にプロパティもたせる
-                        }
-                    },
+                    Right: game => new Api.Protocol.InGame.Game()
+                            {
+                                Id = game.Id,
+                                Pieces = game.Pieces
+                                .Select(piece => new Api.Protocol.InGame.Piece()
+                                {
+                                    X = piece.Point.X,
+                                    Y = piece.Point.Y,
+                                    Color = piece.Color.ToInt()
+                                })
+                                .ToArray(),
+                                Room = new Api.Protocol.InGame.Room()
+                                {
+                                    FirstPlayer = new Api.Protocol.InGame.Player()
+                                    {
+                                        Id = game.Room.FirstPlayer.Id,
+                                        Name = game.Room.FirstPlayer.Name,
+                                        IsTurnPlayer = game.NextTurnPlayerId == game.Room.FirstPlayer.Id,
+                                        IsLight = true
+                                    },
+                                    SecondPlayer = new Api.Protocol.InGame.Player()
+                                    {
+                                        Id = game.Room.SecondPlayer.Id,
+                                        Name = game.Room.SecondPlayer.Name,
+                                        IsTurnPlayer = game.NextTurnPlayerId == game.Room.SecondPlayer.Id,
+                                        IsLight = false
+                                    }
+                                },
+                                State = game.State.ToInt()
+                            },
                     // todo エラーの内容を見て正しくハンドリング
                     Left: error => throw new ReturnStatusException((Grpc.Core.StatusCode)99, error.Message)
                 );

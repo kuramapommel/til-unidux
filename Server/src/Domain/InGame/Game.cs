@@ -15,7 +15,7 @@ namespace Pommel.Server.Domain.InGame
 
         string NextTurnPlayerId { get; }
 
-        IRoom Room { get; }
+        Room Room { get; }
 
         IEnumerable<string> HistoryIds { get; }
 
@@ -27,12 +27,14 @@ namespace Pommel.Server.Domain.InGame
 
         IGame LayPiece(Point point);
 
-        IGame Start(string firstPlayerId);
+        IGame Start();
+
+        IGame Enter(IPlayer player);
     }
 
     public interface IGameFactory
     {
-        IGame Create(string id, string resultId, IRoom room);
+        IGame Create(string id, string resultId);
     }
 
     public sealed class Game : IGame
@@ -43,7 +45,7 @@ namespace Pommel.Server.Domain.InGame
 
         public string NextTurnPlayerId { get; } = string.Empty;
 
-        public IRoom Room { get; }
+        public Room Room { get; }
 
         public IEnumerable<string> HistoryIds { get; } = Enumerable.Empty<string>();
 
@@ -55,7 +57,7 @@ namespace Pommel.Server.Domain.InGame
             .SelectMany(x => Enumerable.Range(0, 8)
                 .Select(y => new Piece(new Point(x, y))));
 
-        public Game(string id, string resultId, IRoom room)
+        public Game(string id, string resultId, Room room)
         {
             Id = id;
             ResultId = resultId;
@@ -112,20 +114,31 @@ namespace Pommel.Server.Domain.InGame
             return new Game(Id, ResultId, opponentId, Room, HistoryIds.Append(laidLogId), State.GameSet, nextTurn, flippedPieces);
         }
 
-        public IGame Start(string firstPlayerId) => new Game(Id, ResultId, firstPlayerId,
-            Room.Make(),
-            HistoryIds,
-            State.Playing,
-            Turn,
-            Pieces.Select(piece =>
-            {
-                if (Point.InitialDarkPoints.Contains(piece.Point)) return piece.SetColor(Color.Dark);
-                if (Point.InitialLightPoints.Contains(piece.Point)) return piece.SetColor(Color.Light);
-                return piece;
-            })
-            .ToArray());
+        public IGame Start()
+        {
+            var makedRoom = Room.Make();
+            return new Game(Id, ResultId, makedRoom.FirstPlayer.Id,
+                makedRoom,
+                HistoryIds,
+                State.Playing,
+                Turn,
+                Pieces.Select(piece =>
+                {
+                    if (Point.InitialDarkPoints.Contains(piece.Point)) return piece.SetColor(Color.Dark);
+                    if (Point.InitialLightPoints.Contains(piece.Point)) return piece.SetColor(Color.Light);
+                    return piece;
+                })
+                .ToArray());
+        }
 
-        private Game(string id, string resultId, string nextTurnPlayerId, IRoom room, IEnumerable<string> historyIds, State state, Turn turn, IEnumerable<Piece> pieces)
+        public IGame Enter(IPlayer player) => new Game(Id, ResultId, NextTurnPlayerId,
+            Room.Enter(player),
+            HistoryIds,
+            State,
+            Turn,
+            Pieces);
+
+        private Game(string id, string resultId, string nextTurnPlayerId, Room room, IEnumerable<string> historyIds, State state, Turn turn, IEnumerable<Piece> pieces)
         {
             Id = id;
             ResultId = resultId;

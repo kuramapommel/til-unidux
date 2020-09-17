@@ -4,23 +4,23 @@ using Pommel.Server.Domain.InGame;
 
 namespace Pommel.Server.UseCase.InGame
 {
-    public interface IFindRoomUseCase
+    public interface IFindGameUseCase
     {
-        EitherAsync<IError, IRoom> Execute(string roomId);
+        EitherAsync<IError, IGame> Execute(string gameId);
     }
 
-    public sealed class FindRoomUseCase : IFindRoomUseCase
+    public sealed class FindRoomUseCase : IFindGameUseCase
     {
-        private readonly IRoomRepository m_roomRepository;
+        private readonly IGameRepository m_gameRepository;
 
         public FindRoomUseCase(
-            IRoomRepository roomRepository
+            IGameRepository gameRepository
             )
         {
-            m_roomRepository = roomRepository;
+            m_gameRepository = gameRepository;
         }
 
-        public EitherAsync<IError, IRoom> Execute(string roomId) =>
-            m_roomRepository.FindById(roomId).ToAsync();
+        public EitherAsync<IError, IGame> Execute(string gameId) =>
+            m_gameRepository.FindById(gameId).ToAsync();
     }
 }

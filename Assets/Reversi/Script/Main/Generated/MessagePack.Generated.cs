@@ -328,8 +328,7 @@ namespace Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame
             }
 
             IFormatterResolver formatterResolver = options.Resolver;
-            writer.WriteArrayHeader(3);
-            formatterResolver.GetFormatterWithVerify<string>().Serialize(ref writer, value.Id, options);
+            writer.WriteArrayHeader(2);
             formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Player>().Serialize(ref writer, value.FirstPlayer, options);
             formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Player>().Serialize(ref writer, value.SecondPlayer, options);
         }
@@ -344,7 +343,6 @@ namespace Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame
             options.Security.DepthStep(ref reader);
             IFormatterResolver formatterResolver = options.Resolver;
             var length = reader.ReadArrayHeader();
-            var __Id__ = default(string);
             var __FirstPlayer__ = default(global::Pommel.Api.Protocol.InGame.Player);
             var __SecondPlayer__ = default(global::Pommel.Api.Protocol.InGame.Player);
 
@@ -355,12 +353,9 @@ namespace Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame
                 switch (key)
                 {
                     case 0:
-                        __Id__ = formatterResolver.GetFormatterWithVerify<string>().Deserialize(ref reader, options);
-                        break;
-                    case 1:
                         __FirstPlayer__ = formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Player>().Deserialize(ref reader, options);
                         break;
-                    case 2:
+                    case 1:
                         __SecondPlayer__ = formatterResolver.GetFormatterWithVerify<global::Pommel.Api.Protocol.InGame.Player>().Deserialize(ref reader, options);
                         break;
                     default:
@@ -370,7 +365,6 @@ namespace Pommel.Generated.Formatters.Pommel.Api.Protocol.InGame
             }
 
             var ____result = new global::Pommel.Api.Protocol.InGame.Room();
-            ____result.Id = __Id__;
             ____result.FirstPlayer = __FirstPlayer__;
             ____result.SecondPlayer = __SecondPlayer__;
             reader.Depth--;

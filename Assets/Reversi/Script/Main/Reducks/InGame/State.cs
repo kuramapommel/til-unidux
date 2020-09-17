@@ -40,7 +40,6 @@ namespace Pommel.Reversi.Reducks.InGame
         private sealed class Impl : InGameState, IProps
         {
             private ValueObjects.Room m_room = new ValueObjects.Room(
-                string.Empty,
                 new ValueObjects.Room.Player(
                     string.Empty,
                     string.Empty,

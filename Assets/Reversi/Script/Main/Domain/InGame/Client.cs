@@ -14,10 +14,8 @@ namespace Pommel.Reversi.Domain.InGame
 
         Task StartGameAsync(string gameId);
 
-        Task<string> CreateGameAsync(string roomId);
+        Task<string> CreateGameAsync();
 
-        Task<string> CreateRoomAsync();
-
-        Task<ValueObjects.Room> FindRoomById(string roomId);
+        Task<ValueObjects.Game> FindGameById(string gameId);
     }
 }
