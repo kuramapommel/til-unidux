@@ -1,0 +1,21 @@
+using System.Threading.Tasks;
+
+namespace Pommel.Reversi.Domain.InGame
+{
+    public interface IClient
+    {
+        Task ConnectAsync();
+
+        Task DisconnectAsync();
+
+        Task PutStoneAsync(int x, int y);
+
+        Task EnterRoomAsync(string roomId, string playerId, string playerName);
+
+        Task StartGameAsync(string gameId);
+
+        Task<string> CreateGameAsync();
+
+        Task<ValueObjects.Game> FindGameById(string gameId);
+    }
+}

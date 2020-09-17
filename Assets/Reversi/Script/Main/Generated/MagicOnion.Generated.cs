@@ -81,15 +81,10 @@ namespace Pommel.Generated.Resolvers
 
         static MagicOnionResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(7)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(2)
             {
-                {typeof(global::MagicOnion.DynamicArgumentTuple<int, int, int>), 0 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, global::Pommel.Api.Protocol.InGame.Game>), 1 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, int, int>), 2 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, global::Pommel.Api.Protocol.InGame.Game>), 3 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string, string, string>), 4 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string>), 5 },
-                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string>), 6 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<int, int>), 0 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string, string>), 1 },
             };
         }
 
@@ -103,13 +98,8 @@ namespace Pommel.Generated.Resolvers
 
             switch (key)
             {
-                case 0: return new global::MagicOnion.DynamicArgumentTupleFormatter<int, int, int>(default(int), default(int), default(int));
-                case 1: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, global::Pommel.Api.Protocol.InGame.Game>(default(string), default(global::Pommel.Api.Protocol.InGame.Game));
-                case 2: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, int, int>(default(string), default(int), default(int));
-                case 3: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, global::Pommel.Api.Protocol.InGame.Game>(default(string), default(string), default(global::Pommel.Api.Protocol.InGame.Game));
-                case 4: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string, string, string>(default(string), default(string), default(string), default(string), default(string));
-                case 5: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string>(default(string), default(string), default(string));
-                case 6: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string>(default(string), default(string));
+                case 0: return new global::MagicOnion.DynamicArgumentTupleFormatter<int, int>(default(int), default(int));
+                case 1: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string, string>(default(string), default(string), default(string));
                 default: return null;
             }
         }
@@ -137,21 +127,21 @@ namespace Pommel.Api.Services {
     [Ignore]
     public class InGameServiceClient : MagicOnionClientBase<global::Pommel.Api.Services.IInGameService>, global::Pommel.Api.Services.IInGameService
     {
-        static readonly Method<byte[], byte[]> CreateMatchingAsyncMethod;
-        static readonly Func<RequestContext, ResponseContext> CreateMatchingAsyncDelegate;
         static readonly Method<byte[], byte[]> CreateGameAsyncMethod;
         static readonly Func<RequestContext, ResponseContext> CreateGameAsyncDelegate;
-        static readonly Method<byte[], byte[]> SaveGameAsyncMethod;
-        static readonly Func<RequestContext, ResponseContext> SaveGameAsyncDelegate;
+        static readonly Method<byte[], byte[]> EntryRoomAsyncMethod;
+        static readonly Func<RequestContext, ResponseContext> EntryRoomAsyncDelegate;
+        static readonly Method<byte[], byte[]> FindGameByIdMethod;
+        static readonly Func<RequestContext, ResponseContext> FindGameByIdDelegate;
 
         static InGameServiceClient()
         {
-            CreateMatchingAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "CreateMatchingAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
-            CreateMatchingAsyncDelegate = _CreateMatchingAsync;
             CreateGameAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "CreateGameAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
             CreateGameAsyncDelegate = _CreateGameAsync;
-            SaveGameAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "SaveGameAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
-            SaveGameAsyncDelegate = _SaveGameAsync;
+            EntryRoomAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "EntryRoomAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
+            EntryRoomAsyncDelegate = _EntryRoomAsync;
+            FindGameByIdMethod = new Method<byte[], byte[]>(MethodType.Unary, "IInGameService", "FindGameById", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
+            FindGameByIdDelegate = _FindGameById;
         }
 
         InGameServiceClient()
@@ -199,32 +189,32 @@ namespace Pommel.Api.Services {
             return base.WithOptions(option);
         }
    
-        static ResponseContext _CreateMatchingAsync(RequestContext __context)
-        {
-            return CreateResponseContext<DynamicArgumentTuple<string, string>, string>(__context, CreateMatchingAsyncMethod);
-        }
-
-        public global::MagicOnion.UnaryResult<string> CreateMatchingAsync(string playerId, string playerName)
-        {
-            return InvokeAsync<DynamicArgumentTuple<string, string>, string>("IInGameService/CreateMatchingAsync", new DynamicArgumentTuple<string, string>(playerId, playerName), CreateMatchingAsyncDelegate);
-        }
         static ResponseContext _CreateGameAsync(RequestContext __context)
         {
-            return CreateResponseContext<string, string>(__context, CreateGameAsyncMethod);
+            return CreateResponseContext<string>(__context, CreateGameAsyncMethod);
         }
 
-        public global::MagicOnion.UnaryResult<string> CreateGameAsync(string matchingId)
+        public global::MagicOnion.UnaryResult<string> CreateGameAsync()
         {
-            return InvokeAsync<string, string>("IInGameService/CreateGameAsync", matchingId, CreateGameAsyncDelegate);
+            return InvokeAsync<Nil, string>("IInGameService/CreateGameAsync", Nil.Default, CreateGameAsyncDelegate);
         }
-        static ResponseContext _SaveGameAsync(RequestContext __context)
+        static ResponseContext _EntryRoomAsync(RequestContext __context)
         {
-            return CreateResponseContext<global::Pommel.Api.Protocol.InGame.Game, global::Pommel.Api.Protocol.InGame.Game>(__context, SaveGameAsyncMethod);
+            return CreateResponseContext<DynamicArgumentTuple<string, string, string>, string>(__context, EntryRoomAsyncMethod);
         }
 
-        public global::MagicOnion.UnaryResult<global::Pommel.Api.Protocol.InGame.Game> SaveGameAsync(global::Pommel.Api.Protocol.InGame.Game game)
+        public global::MagicOnion.UnaryResult<string> EntryRoomAsync(string roomId, string playerId, string playerName)
         {
-            return InvokeAsync<global::Pommel.Api.Protocol.InGame.Game, global::Pommel.Api.Protocol.InGame.Game>("IInGameService/SaveGameAsync", game, SaveGameAsyncDelegate);
+            return InvokeAsync<DynamicArgumentTuple<string, string, string>, string>("IInGameService/EntryRoomAsync", new DynamicArgumentTuple<string, string, string>(roomId, playerId, playerName), EntryRoomAsyncDelegate);
+        }
+        static ResponseContext _FindGameById(RequestContext __context)
+        {
+            return CreateResponseContext<string, global::Pommel.Api.Protocol.InGame.Game>(__context, FindGameByIdMethod);
+        }
+
+        public global::MagicOnion.UnaryResult<global::Pommel.Api.Protocol.InGame.Game> FindGameById(string gameId)
+        {
+            return InvokeAsync<string, global::Pommel.Api.Protocol.InGame.Game>("IInGameService/FindGameById", gameId, FindGameByIdDelegate);
         }
     }
 }
@@ -273,25 +263,15 @@ namespace Pommel.Api.Hubs {
         {
             switch (methodId)
             {
-                case -1297457280: // OnJoin
+                case 2030761979: // OnRefresh
                 {
-                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string, string, string, string>>(data, serializerOptions);
-                    receiver.OnJoin(result.Item1, result.Item2, result.Item3, result.Item4, result.Item5); break;
+                    var result = MessagePackSerializer.Deserialize<global::Pommel.Api.Protocol.InGame.Game>(data, serializerOptions);
+                    receiver.OnRefresh(result); break;
                 }
-                case 995394406: // OnStartGame
+                case 36572012: // OnStart
                 {
-                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, string, global::Pommel.Api.Protocol.InGame.Game>>(data, serializerOptions);
-                    receiver.OnStartGame(result.Item1, result.Item2, result.Item3); break;
-                }
-                case -237469886: // OnLay
-                {
-                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<string, global::Pommel.Api.Protocol.InGame.Game>>(data, serializerOptions);
-                    receiver.OnLay(result.Item1, result.Item2); break;
-                }
-                case 1937311401: // OnResult
-                {
-                    var result = MessagePackSerializer.Deserialize<DynamicArgumentTuple<int, int, int>>(data, serializerOptions);
-                    receiver.OnResult(result.Item1, result.Item2, result.Item3); break;
+                    var result = MessagePackSerializer.Deserialize<global::Pommel.Api.Protocol.InGame.Game>(data, serializerOptions);
+                    receiver.OnStart(result); break;
                 }
                 default:
                     break;
@@ -302,19 +282,13 @@ namespace Pommel.Api.Hubs {
         {
             switch (methodId)
             {
-                case -533486778: // CreateMatchingAsync
+                case -390097192: // EntryRoomAsync
                 {
                     var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
                     ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
                     break;
                 }
-                case -1623402328: // EntryMatchingAsync
-                {
-                    var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
-                    ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
-                    break;
-                }
-                case 1173640161: // CreateGameAsync
+                case -1612571457: // StartGameAsync
                 {
                     var result = MessagePackSerializer.Deserialize<Nil>(data, serializerOptions);
                     ((TaskCompletionSource<Nil>)taskCompletionSource).TrySetResult(result);
@@ -331,24 +305,19 @@ namespace Pommel.Api.Hubs {
             }
         }
    
-        public global::System.Threading.Tasks.Task CreateMatchingAsync(string playerId, string playerName)
+        public global::System.Threading.Tasks.Task EntryRoomAsync(string roomId, string playerId, string playerName)
         {
-            return WriteMessageWithResponseAsync<DynamicArgumentTuple<string, string>, Nil>(-533486778, new DynamicArgumentTuple<string, string>(playerId, playerName));
+            return WriteMessageWithResponseAsync<DynamicArgumentTuple<string, string, string>, Nil>(-390097192, new DynamicArgumentTuple<string, string, string>(roomId, playerId, playerName));
         }
 
-        public global::System.Threading.Tasks.Task EntryMatchingAsync(string matchingId, string playerId, string playerName)
+        public global::System.Threading.Tasks.Task StartGameAsync(string gameId)
         {
-            return WriteMessageWithResponseAsync<DynamicArgumentTuple<string, string, string>, Nil>(-1623402328, new DynamicArgumentTuple<string, string, string>(matchingId, playerId, playerName));
+            return WriteMessageWithResponseAsync<string, Nil>(-1612571457, gameId);
         }
 
-        public global::System.Threading.Tasks.Task CreateGameAsync(string matchingId)
+        public global::System.Threading.Tasks.Task LayAsync(int x, int y)
         {
-            return WriteMessageWithResponseAsync<string, Nil>(1173640161, matchingId);
-        }
-
-        public global::System.Threading.Tasks.Task LayAsync(string gameId, int x, int y)
-        {
-            return WriteMessageWithResponseAsync<DynamicArgumentTuple<string, int, int>, Nil>(1849616495, new DynamicArgumentTuple<string, int, int>(gameId, x, y));
+            return WriteMessageWithResponseAsync<DynamicArgumentTuple<int, int>, Nil>(1849616495, new DynamicArgumentTuple<int, int>(x, y));
         }
 
 
@@ -376,24 +345,19 @@ namespace Pommel.Api.Hubs {
                 throw new NotSupportedException();
             }
 
-            public global::System.Threading.Tasks.Task CreateMatchingAsync(string playerId, string playerName)
+            public global::System.Threading.Tasks.Task EntryRoomAsync(string roomId, string playerId, string playerName)
             {
-                return __parent.WriteMessageAsync<DynamicArgumentTuple<string, string>>(-533486778, new DynamicArgumentTuple<string, string>(playerId, playerName));
+                return __parent.WriteMessageAsync<DynamicArgumentTuple<string, string, string>>(-390097192, new DynamicArgumentTuple<string, string, string>(roomId, playerId, playerName));
             }
 
-            public global::System.Threading.Tasks.Task EntryMatchingAsync(string matchingId, string playerId, string playerName)
+            public global::System.Threading.Tasks.Task StartGameAsync(string gameId)
             {
-                return __parent.WriteMessageAsync<DynamicArgumentTuple<string, string, string>>(-1623402328, new DynamicArgumentTuple<string, string, string>(matchingId, playerId, playerName));
+                return __parent.WriteMessageAsync<string>(-1612571457, gameId);
             }
 
-            public global::System.Threading.Tasks.Task CreateGameAsync(string matchingId)
+            public global::System.Threading.Tasks.Task LayAsync(int x, int y)
             {
-                return __parent.WriteMessageAsync<string>(1173640161, matchingId);
-            }
-
-            public global::System.Threading.Tasks.Task LayAsync(string gameId, int x, int y)
-            {
-                return __parent.WriteMessageAsync<DynamicArgumentTuple<string, int, int>>(1849616495, new DynamicArgumentTuple<string, int, int>(gameId, x, y));
+                return __parent.WriteMessageAsync<DynamicArgumentTuple<int, int>>(1849616495, new DynamicArgumentTuple<int, int>(x, y));
             }
 
         }

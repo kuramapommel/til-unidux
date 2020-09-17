@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2461706659557448055}
   - component: {fileID: 4795697894077286756}
   m_Layer: 0
-  m_Name: Stone
+  m_Name: Piece
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -62,6 +62,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.07489703, g: 0.9056604, b: 0.055535804, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -127,6 +128,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 4795697894077286757}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0837bd099ca04371a5f11716cfd14f1, type: 3}
+  m_Script: {fileID: 11500000, guid: ea9268dbcccd0465aaa478da02f050e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

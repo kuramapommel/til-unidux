@@ -1,3 +1,5 @@
+using System;
+
 namespace Pommel.Server.Domain.InGame
 {
     public sealed class Piece
@@ -20,5 +22,20 @@ namespace Pommel.Server.Domain.InGame
         None,
         Dark,
         Light
+    }
+
+    public static class ColorExt
+    {
+        public static int ToInt(this Color color)
+        {
+            switch (color)
+            {
+                case Color.None: return 0;
+                case Color.Dark: return 1;
+                case Color.Light: return 2;
+            }
+
+            throw new ArgumentOutOfRangeException();
+        }
     }
 }

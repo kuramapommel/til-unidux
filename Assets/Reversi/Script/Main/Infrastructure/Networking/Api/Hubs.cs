@@ -6,23 +6,17 @@ namespace Pommel.Api.Hubs
 {
     public interface IInGameHub : IStreamingHub<IInGameHub, IInGameReceiver>
     {
-        Task CreateMatchingAsync(string playerId, string playerName);
+        Task EntryRoomAsync(string roomId, string playerId, string playerName);
 
-        Task EntryMatchingAsync(string matchingId, string playerId, string playerName);
+        Task StartGameAsync(string gameId);
 
-        Task CreateGameAsync(string matchingId);
-
-        Task LayAsync(string gameId, int x, int y);
+        Task LayAsync(int x, int y);
     }
 
     public interface IInGameReceiver
     {
-        void OnJoin(string matchingId, string player1Id, string player1Name, string player2Id, string player2Name);
+        void OnRefresh(Game game);
 
-        void OnStartGame(string nextPlayerId, string matchingId, Game game);
-
-        void OnLay(string nextPlayerId, Game game);
-
-        void OnResult(int darkCount, int lightCount, int winner);
+        void OnStart(Game game);
     }
 }

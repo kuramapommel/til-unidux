@@ -8,36 +8,32 @@ namespace Pommel.Server.UseCase.InGame
 {
     public interface ICreateGameUseCase
     {
-        EitherAsync<IError, IGame> Execute(string matchingId);
+        EitherAsync<IError, IGame> Execute();
     }
 
     public sealed class CreateGameUseCase : ICreateGameUseCase
     {
-        private readonly IGameRepository m_gameRepository;
-
-        private readonly IMatchingRepository m_matchingRepository;
-
         private readonly IGameFactory m_gameFactory;
 
+        private readonly IGameRepository m_gameRepository;
+
         public CreateGameUseCase(
-            IGameRepository gameRepository,
-            IMatchingRepository matchingRepository,
-            IGameFactory gameFactory
+            IGameFactory gameFactory,
+            IGameRepository gameRepository
             )
         {
-            m_gameRepository = gameRepository;
-            m_matchingRepository = matchingRepository;
             m_gameFactory = gameFactory;
+            m_gameRepository = gameRepository;
         }
 
-        public EitherAsync<IError, IGame> Execute(string matchingId) =>
-            from matching in m_matchingRepository.FindById(matchingId).ToAsync()
-            from gameId in RightAsync<IError, string>(Guid.NewGuid().ToString("N")) // todo ID Generator 的なものをかませる
-            from resultId in RightAsync<IError, string>(Guid.NewGuid().ToString("N")) // todo ID Generator 的なものをかませる
-            from game in Try(() => m_gameFactory.Create(gameId, resultId, matching.Id).Start(matching.FirstPlayer.Id))
-                .ToEitherAsync()
-                .MapLeft(e => new DomainError(e) as IError)
-            from saved in m_gameRepository.Save(game).ToAsync()
-            select saved;
+        public EitherAsync<IError, IGame> Execute() =>
+                from gameId in RightAsync<IError, string>(Guid.NewGuid().ToString("N")) // todo ID Generator 的なものをかませる
+                from resultId in RightAsync<IError, string>(Guid.NewGuid().ToString("N")) // todo ID Generator 的なものをかませる
+                from game in Try(() => m_gameFactory.Create(gameId, resultId))
+                    .ToEitherAsync()
+                    .MapLeft(e => new DomainError(e) as IError)
+                from savedGame in m_gameRepository.Save(game).ToAsync()
+                select savedGame;
+
     }
 }

@@ -13,9 +13,9 @@ namespace Pommel.Server.Domain.InGame
         // todo 型作る
         string ResultId { get; }
 
-        string MatchingId { get; }
-
         string NextTurnPlayerId { get; }
+
+        Room Room { get; }
 
         IEnumerable<string> HistoryIds { get; }
 
@@ -25,14 +25,16 @@ namespace Pommel.Server.Domain.InGame
 
         IEnumerable<Piece> Pieces { get; }
 
-        IGame LayPiece(Point point, IMatching matching);
+        IGame LayPiece(Point point);
 
-        IGame Start(string firstPlayerId);
+        IGame Start();
+
+        IGame Enter(IPlayer player);
     }
 
     public interface IGameFactory
     {
-        IGame Create(string id, string resultId, string matchingId);
+        IGame Create(string id, string resultId);
     }
 
     public sealed class Game : IGame
@@ -41,9 +43,9 @@ namespace Pommel.Server.Domain.InGame
 
         public string ResultId { get; }
 
-        public string MatchingId { get; }
-
         public string NextTurnPlayerId { get; } = string.Empty;
+
+        public Room Room { get; }
 
         public IEnumerable<string> HistoryIds { get; } = Enumerable.Empty<string>();
 
@@ -55,26 +57,24 @@ namespace Pommel.Server.Domain.InGame
             .SelectMany(x => Enumerable.Range(0, 8)
                 .Select(y => new Piece(new Point(x, y))));
 
-        public Game(string id, string resultId, string matchingId)
+        public Game(string id, string resultId, Room room)
         {
             Id = id;
             ResultId = resultId;
-            MatchingId = matchingId;
+            Room = room;
         }
 
-        public IGame LayPiece(Point point, IMatching matching)
+        public IGame LayPiece(Point point)
         {
             // todo 妥当な例外に置き換える
             if (State != State.Playing) throw new ArgumentException("このゲームはプレイ中ではありません");
-
-            if (MatchingId != matching.Id) throw new ArgumentException("このゲームに紐付かないマッチングが指定されました");
 
             // 配置済みの箇所を指定された場合は例外
             if (Pieces.First(piece => piece.Point.X == point.X && piece.Point.Y == point.Y).Color != Color.None) throw new ArgumentException();
 
             var (playerColor, opponentColor, nextTurn, playerId, opponentId) = Turn == Turn.First
-                ? (Color.Dark, Color.Light, Turn.Second, matching.FirstPlayer.Id, matching.SecondPlayer.Id)
-                : (Color.Light, Color.Dark, Turn.First, matching.SecondPlayer.Id, matching.FirstPlayer.Id);
+                ? (Color.Dark, Color.Light, Turn.Second, Room.FirstPlayer.Id, Room.SecondPlayer.Id)
+                : (Color.Light, Color.Dark, Turn.First, Room.SecondPlayer.Id, Room.FirstPlayer.Id);
 
             var flipTargets = this.CreateFlipTargets(Turn, point, Pieces);
 
@@ -104,31 +104,46 @@ namespace Pommel.Server.Domain.InGame
 
             // 相手側が駒を置くことができるかチェック、できる場合はターンきりかえて return
             if (nonePoints.Any(nonePoint => this.IsValid(nextTurn, nonePoint.Point, flippedPieces)))
-                return new Game(Id, ResultId, MatchingId, opponentId, HistoryIds.Append(laidLogId), State, nextTurn, flippedPieces);
+                return new Game(Id, ResultId, opponentId, Room, HistoryIds.Append(laidLogId), State, nextTurn, flippedPieces);
 
             // 相手側が駒を置けない場合はプレイヤー側が続けて駒を置くことができるかチェック、できる場合はターンを保持したまま return
             if (nonePoints.Any(nonePoint => this.IsValid(Turn, nonePoint.Point, flippedPieces)))
-                return new Game(Id, ResultId, MatchingId, playerId, HistoryIds.Append(laidLogId), State, Turn, flippedPieces);
+                return new Game(Id, ResultId, playerId, Room, HistoryIds.Append(laidLogId), State, Turn, flippedPieces);
 
             // 両者置けない場合はゲームセットとして return
-            return new Game(Id, ResultId, MatchingId, opponentId, HistoryIds.Append(laidLogId), State.GameSet, nextTurn, flippedPieces);
+            return new Game(Id, ResultId, opponentId, Room, HistoryIds.Append(laidLogId), State.GameSet, nextTurn, flippedPieces);
         }
 
-        public IGame Start(string firstPlayerId) => new Game(Id, ResultId, MatchingId, firstPlayerId, HistoryIds, State.Playing, Turn,
-            Pieces.Select(piece =>
-            {
-                if (Point.InitialDarkPoints.Contains(piece.Point)) return piece.SetColor(Color.Dark);
-                if (Point.InitialLightPoints.Contains(piece.Point)) return piece.SetColor(Color.Light);
-                return piece;
-            })
-            .ToArray());
+        public IGame Start()
+        {
+            var makedRoom = Room.Make();
+            return new Game(Id, ResultId, makedRoom.FirstPlayer.Id,
+                makedRoom,
+                HistoryIds,
+                State.Playing,
+                Turn,
+                Pieces.Select(piece =>
+                {
+                    if (Point.InitialDarkPoints.Contains(piece.Point)) return piece.SetColor(Color.Dark);
+                    if (Point.InitialLightPoints.Contains(piece.Point)) return piece.SetColor(Color.Light);
+                    return piece;
+                })
+                .ToArray());
+        }
 
-        private Game(string id, string resultId, string matchingId, string nextTurnPlayerId, IEnumerable<string> historyIds, State state, Turn turn, IEnumerable<Piece> pieces)
+        public IGame Enter(IPlayer player) => new Game(Id, ResultId, NextTurnPlayerId,
+            Room.Enter(player),
+            HistoryIds,
+            State,
+            Turn,
+            Pieces);
+
+        private Game(string id, string resultId, string nextTurnPlayerId, Room room, IEnumerable<string> historyIds, State state, Turn turn, IEnumerable<Piece> pieces)
         {
             Id = id;
             ResultId = resultId;
-            MatchingId = matchingId;
             NextTurnPlayerId = nextTurnPlayerId;
+            Room = room;
             State = state;
             Turn = turn;
             Pieces = pieces;
@@ -186,6 +201,21 @@ namespace Pommel.Server.Domain.InGame
         NotYet,
         Playing,
         GameSet
+    }
+
+    public static class StateExt
+    {
+        public static int ToInt(this State state)
+        {
+            switch (state)
+            {
+                case State.NotYet: return 0;
+                case State.Playing: return 1;
+                case State.GameSet: return 2;
+            }
+
+            throw new ArgumentOutOfRangeException();
+        }
     }
 
     public enum Turn

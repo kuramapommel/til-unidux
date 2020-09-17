@@ -5,10 +5,10 @@ namespace Pommel.Api.Services
 {
     public interface IInGameService : IService<IInGameService>
     {
-        UnaryResult<string> CreateMatchingAsync(string playerId, string playerName);
+        UnaryResult<string> CreateGameAsync();
 
-        UnaryResult<string> CreateGameAsync(string matchingId);
+        UnaryResult<string> EntryRoomAsync(string roomId, string playerId, string playerName);
 
-        UnaryResult<Game> SaveGameAsync(Game game);
+        UnaryResult<Game> FindGameById(string gameId);
     }
 }

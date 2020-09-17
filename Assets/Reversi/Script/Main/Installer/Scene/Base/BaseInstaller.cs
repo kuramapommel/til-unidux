@@ -1,6 +1,6 @@
-using Pommel.Reversi.Presentation.View.Base;
 using UnityEngine;
 using Zenject;
+using Pommel.Reversi.Scenes;
 
 namespace Pommel.Reversi.Installer.Scene.Base
 {
